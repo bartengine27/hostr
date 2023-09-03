@@ -1,0 +1,6 @@
+- name: Azure dynamic inventory
+  hosts: localhost
+  become: yes
+  remote_user: root
+  roles:
+    - azure_inventory

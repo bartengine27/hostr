@@ -1,0 +1,29 @@
+- name: "Redis setup playbook"
+  hosts: redis
+  remote_user: root
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: ansible
+    - name: redis_password
+      prompt: "Enter the password for the legacy authentication."
+      private: false
+      default: "mijnpaswoord"
+  roles:
+    - role: geerlingguy.redis
+      redis_port: 6379
+      redis_bind_interface: 127.0.0.1
+      redis_requirepass: "{{ redis_password }}"
+      redis_disabled_commands:
+        - FLUSHDB
+        - FLUSHALL
+        - KEYS
+        - PEXPIRE
+        - DEL
+        - CONFIG
+        - SHUTDOWN
+  vars:
+    ansible_ssh_user: root

@@ -1,0 +1,106 @@
+# https://lowlydba.github.io/lowlydba.sqlserver/branch/main/collections/index_module.html
+- name: "SQLServer setup playbook - move to module?"
+  hosts: database
+  remote_user: root
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: ansible
+    - name: database_password
+      prompt: "Enter the password."
+      private: false
+      default: "p@55w0rD"
+  tasks:
+    # - name: "Download Powershell deb"
+    #   ansible.builtin.get_url:
+    #     url: https://github.com/PowerShell/PowerShell/releases/download/v7.3.6/powershell_7.3.6-1.deb_amd64.deb
+    #     dest: /tmp/powershell_7.3.6-1.deb_amd64.deb
+    #     force_basic_auth: true
+    # - name: "Install Powershell deb"
+    #   ansible.builtin.command:
+    #     cmd: dpkg -i /tmp/powershell_7.3.6-1.deb_amd64.deb
+    # - name: "Create powershell soft link"
+    #   ansible.builtin.command:
+    #     cmd: ln -sf /usr/bin/pwsh /usr/bin/powershell
+    # - name: "apt update"
+    #   ansible.builtin.command:
+    #     cmd: apt update
+    # - name: "apt install pip"
+    #   ansible.builtin.command:
+    #     cmd: apt -y install pip
+    # - name: "pip install pymssql - use apt -y install python3-xyz for remote management"
+    #   ansible.builtin.command:
+    #     cmd: apt -y install python3-pymssql
+
+    # Do not use another Ubuntu distro required by SQL Server,
+    # see https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver16&tabs=ubuntu2004
+    - name: "Install SQL Server"
+      # https://github.com/ansible/ansible-lint/issues/497
+      # set -o pipefail
+      # in our case: set bash in ~/.ansible.cfg
+      ansible.builtin.shell: |
+        set -o pipefail
+        apt -y install curl
+        apt -y install --reinstall software-properties-common
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+        add-apt-repository -y "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2019.list)"
+        apt-get update
+        apt-get install -y mssql-server
+    # RHEL is properly supported, see https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-deploy-ansible?view=sql-server-ver16
+    # Ubuntu isn't, so, install "manually"
+    - name: "Configure SQL Server"
+      ansible.builtin.shell: |
+        set -o pipefail
+        systemctl stop mssql-server
+        /opt/mssql/bin/mssql-conf setup
+        systemctl start mssql-server
+      environment:
+        ACCEPT_EULA: "Y"
+        MSSQL_PID: "Developer"
+        MSSQL_SA_PASSWORD: "{{ database_password }}"
+        MSSQL_TCP_PORT: 1433
+    - name: "Install the SQL Server CLI tools"
+      ansible.builtin.shell: |
+        set -o pipefail
+        curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc
+        curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+        apt-get update
+        apt-get install -y mssql-tools18
+        apt-get install -y unixodbc-dev
+        echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+        source ~/.bashrc
+      environment:
+        ACCEPT_EULA: "Y"
+    - name: "Download the powershell deb"
+      ansible.builtin.get_url:
+        url: https://github.com/PowerShell/PowerShell/releases/download/v7.3.6/powershell_7.3.6-1.deb_amd64.deb
+        dest: /tmp/powershell_7.3.6-1.deb_amd64.deb
+        force_basic_auth: true
+    - name: "Install Powershell to manage SQL server"
+      ansible.builtin.shell: |
+        set -o pipefail
+        dpkg -i /tmp/powershell_7.3.6-1.deb_amd64.deb
+        ln -sf /usr/bin/pwsh /usr/bin/powershell
+          # - name: "Download Powershell deb"
+    #   ansible.builtin.get_url:
+    #     url: https://github.com/PowerShell/PowerShell/releases/download/v7.3.6/powershell_7.3.6-1.deb_amd64.deb
+    #     dest: /tmp/powershell_7.3.6-1.deb_amd64.deb
+    #     force_basic_auth: true
+    # - name: "Install Powershell deb"
+    #   ansible.builtin.command:
+    #     cmd: dpkg -i /tmp/powershell_7.3.6-1.deb_amd64.deb
+    # - name: "Create powershell soft link"
+    #   ansible.builtin.command:
+    #     cmd: ln -sf /usr/bin/pwsh /usr/bin/powershell
+    # - name: "apt update"
+    #   ansible.builtin.command:
+    #     cmd: apt update
+    # - name: "apt install pip"
+    #   ansible.builtin.command:
+    #     cmd: apt -y install pip
+    # - name: "pip install pymssql - use apt -y install python3-xyz for remote management"
+    #   ansible.builtin.command:
+    #     cmd: apt -y install python3-pymssql

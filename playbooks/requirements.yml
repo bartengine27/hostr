@@ -1,0 +1,5 @@
+---
+roles:
+  - name: geerlingguy.redis
+    type: galaxy
+    source: https://galaxy.ansible.com

@@ -1,0 +1,5 @@
+---
+- name: redis
+  roles:
+    # load the proxmox role defined in folder proxmox.cars.be
+    - geerlingguy.redis
