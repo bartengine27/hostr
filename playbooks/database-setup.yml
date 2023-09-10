@@ -1,6 +1,8 @@
 # https://lowlydba.github.io/lowlydba.sqlserver/branch/main/collections/index_module.html
 - name: "SQLServer setup playbook - move to module?"
   hosts: database
+  become: true
+  become_user: root
   remote_user: root
   vars_files:
     # - azure_ubuntu_vm/vars/main.yml
@@ -10,32 +12,11 @@
       private: false
       default: ansible
     - name: database_password
-      prompt: "Enter the password."
+      prompt: "Enter the password."      
       private: false
       default: "p@55w0rD"
   tasks:
-    # - name: "Download Powershell deb"
-    #   ansible.builtin.get_url:
-    #     url: https://github.com/PowerShell/PowerShell/releases/download/v7.3.6/powershell_7.3.6-1.deb_amd64.deb
-    #     dest: /tmp/powershell_7.3.6-1.deb_amd64.deb
-    #     force_basic_auth: true
-    # - name: "Install Powershell deb"
-    #   ansible.builtin.command:
-    #     cmd: dpkg -i /tmp/powershell_7.3.6-1.deb_amd64.deb
-    # - name: "Create powershell soft link"
-    #   ansible.builtin.command:
-    #     cmd: ln -sf /usr/bin/pwsh /usr/bin/powershell
-    # - name: "apt update"
-    #   ansible.builtin.command:
-    #     cmd: apt update
-    # - name: "apt install pip"
-    #   ansible.builtin.command:
-    #     cmd: apt -y install pip
-    # - name: "pip install pymssql - use apt -y install python3-xyz for remote management"
-    #   ansible.builtin.command:
-    #     cmd: apt -y install python3-pymssql
-
-    # Do not use another Ubuntu distro required by SQL Server,
+    # Use the Ubuntu distribution required by SQL Server,
     # see https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver16&tabs=ubuntu2004
     - name: "Install SQL Server"
       # https://github.com/ansible/ansible-lint/issues/497
@@ -60,6 +41,7 @@
       environment:
         ACCEPT_EULA: "Y"
         MSSQL_PID: "Developer"
+        # Login with 'sqlcmd -S localhost -U sa -P p@55w0rD -C' -C to accept the self-signed certificate
         MSSQL_SA_PASSWORD: "{{ database_password }}"
         MSSQL_TCP_PORT: 1433
     - name: "Install the SQL Server CLI tools"
@@ -73,34 +55,21 @@
         echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
         source ~/.bashrc
       environment:
-        ACCEPT_EULA: "Y"
+        ACCEPT_EULA: "Y"    
     - name: "Download the powershell deb"
+      # https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.3
       ansible.builtin.get_url:
         url: https://github.com/PowerShell/PowerShell/releases/download/v7.3.6/powershell_7.3.6-1.deb_amd64.deb
         dest: /tmp/powershell_7.3.6-1.deb_amd64.deb
         force_basic_auth: true
-    - name: "Install Powershell to manage SQL server"
+    - name: "Install Powershell and the SQL Server PowerShell module to manage SQL server"
       ansible.builtin.shell: |
         set -o pipefail
         dpkg -i /tmp/powershell_7.3.6-1.deb_amd64.deb
         ln -sf /usr/bin/pwsh /usr/bin/powershell
-          # - name: "Download Powershell deb"
-    #   ansible.builtin.get_url:
-    #     url: https://github.com/PowerShell/PowerShell/releases/download/v7.3.6/powershell_7.3.6-1.deb_amd64.deb
-    #     dest: /tmp/powershell_7.3.6-1.deb_amd64.deb
-    #     force_basic_auth: true
-    # - name: "Install Powershell deb"
-    #   ansible.builtin.command:
-    #     cmd: dpkg -i /tmp/powershell_7.3.6-1.deb_amd64.deb
-    # - name: "Create powershell soft link"
-    #   ansible.builtin.command:
-    #     cmd: ln -sf /usr/bin/pwsh /usr/bin/powershell
-    # - name: "apt update"
-    #   ansible.builtin.command:
-    #     cmd: apt update
-    # - name: "apt install pip"
-    #   ansible.builtin.command:
-    #     cmd: apt -y install pip
-    # - name: "pip install pymssql - use apt -y install python3-xyz for remote management"
-    #   ansible.builtin.command:
-    #     cmd: apt -y install python3-pymssql
+        pwsh -Command "Set-PSRepository PSGallery | Install-Module -Name SqlServer -AcceptLicense -SkipPublisherCheck"
+    - name: "Install pymssql to manage SQL Server with Python"        
+      ansible.builtin.apt:
+        pkg:
+          - pip
+          - python3-pymssql

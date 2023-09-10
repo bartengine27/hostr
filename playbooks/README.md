@@ -199,6 +199,7 @@ ansible-playbook database-setup.yml -i hosts -K -vvv
 ## TODO
 
 * ssh-keygen: add fingerprints automatically
+* all passwords to env variables
 * Azure
 * align the [vars](./proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
 * generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)
