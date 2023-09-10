@@ -104,9 +104,9 @@ proxmox_vms:
     - "database"
 ```
 
-On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
+On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
 
-After running the [proxmox.cars.be](./proxmox.cars.be/) play, we can use the initialized *VM*s as defined in [vars file](./proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.
+After running the [proxmox.cars.be](./proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.
 
 The [hosts](./hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./hosts) file is not generated from the [proxmox.cars.be](./proxmox.cars.be/) play, it is probably wise to change that in future versions.  
 
@@ -115,7 +115,7 @@ The [hosts](./hosts) file contains the `inventory` for the other *Ansible* plays
 You can pass a hosts file to the `ansible-playbook` command with:
 
 ```bash
--i ./proxmox.cars.be//hosts
+-i ./hosts
 ```
 
 ### Uploading Proxmox VM(s) templates
