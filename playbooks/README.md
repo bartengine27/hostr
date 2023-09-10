@@ -80,6 +80,36 @@ If you are unsure about your public key, check `~/.ssh/id_rsa_pub`.
 
 ## Proxmox
 
+### Proxmox VM setup
+
+As far as I know, *Ansible* is not the tool of choice to setup *VM*s on cloud/datacenter solutions like *Azure*, *Proxmox*, etc. Nevertheless, as an excercise, I've chosen to setup my *Azure* and *Proxmox* *VM*s with *Ansible*.  
+
+*Ansible* Uses an `inventory` to define the machines (*ip addresses*) and machine roles to install/setup your software infrastructure. As we start with a clean install (no existing *VM*s), it is rather difficult to define an `inventory`.  
+
+Therefore, we start with a play `proxmox.cars.be` which has a [vars file](./proxmox.cars.be/vars/main.yml) defining the *inventory*, for example:
+
+```yml
+proxmox_vms:
+ - ip: 192.168.1.60
+   id: 600
+   group:
+    - "webserver"
+ - ip: 192.168.1.61
+   id: 601
+   group:
+    - "redis"
+ - ip: 192.168.1.62
+   id: 602
+   group:
+    - "database"
+```
+
+On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
+
+After running the [proxmox.cars.be](./proxmox.cars.be/) play, we can use the initialized *VM*s as defined in [vars file](./proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.
+
+The [hosts](./hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./hosts) file is not generated from the [proxmox.cars.be](./proxmox.cars.be/) play, it is probably wise to change that in future versions.  
+
 ### Proxmox hosts file
 
 You can pass a hosts file to the `ansible-playbook` command with:
@@ -170,3 +200,5 @@ ansible-playbook database-setup.yml -i hosts -K -vvv
 
 * ssh-keygen: add fingerprints automatically
 * Azure
+* align the [vars](./proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
+* generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)

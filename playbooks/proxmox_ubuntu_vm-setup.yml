@@ -1,7 +1,5 @@
 - name: "Proxmox Ubuntu VM playbook"    
   hosts: localhost
-  become: true
-  become_user: bart
   remote_user: root
   vars_files:
     # - azure_ubuntu_vm/vars/main.yml
@@ -32,22 +30,6 @@
       private: false
       default: api
   roles:
-    # load the proxmox role defined in folder proxmox.cars.be
-    #- geerlingguy.redis
     - proxmox.cars.be    
-    #- cars.be
-    # - azure_matrix
-    # - { role: docker, ips: output_ip_address.results }
-# - import_playbook:
-  # "/home/bart/justsec/matrix-docker-ansible-deploy/setup.yml"
-  # connecting to the Proxmox VM only works as root, at least for now
-  # try to find out how we can add users to the Proxmox VM before running
-  # the Matrix install
   vars:
     ansible_ssh_user: root
-  # vars:
-    # target: 52.236.166.81
-    # ansible_host: 52.236.166.81
-    # ansible_ssh_user: "root"
-    # ansible_connection: "local"
-    # ansible_python_interpreter: "/usr/bin/python3"
