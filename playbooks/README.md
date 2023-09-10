@@ -194,7 +194,7 @@ ansible-playbook database-setup.yml -i hosts -K -vvv
 
 ## References
 
-* (Playbooks directory)[https://charlesreid1.com/wiki/Ansible/Directory_Layout/Details]
+* [Playbooks directory](https://charlesreid1.com/wiki/Ansible/Directory_Layout/Details)
 
 ## TODO
 
