@@ -12,7 +12,7 @@
       prompt: "Enter the Redis password for the legacy authentication."
       private: false
       default: "{{ lookup('ansible.builtin.env', 'REDIS_PASSWORD') }}"
-    - name: redis_port
+    - name: redis_network_port
       prompt: "Enter the Redis port."
       private: false
       default: "{{ lookup('ansible.builtin.env', 'REDIS_PORT') }}"
@@ -22,7 +22,7 @@
       default: "{{ lookup('ansible.builtin.env', 'REDIS_NETWORK_INTERFACE') }}"      
   roles:
     - role: geerlingguy.redis
-      redis_port: "{{ redis_port }}"
+      redis_port: "{{ redis_network_port }}"
       redis_bind_interface: "{{ redis_network_interface }}"
       redis_requirepass: "{{ redis_password }}"
       redis_disabled_commands:
