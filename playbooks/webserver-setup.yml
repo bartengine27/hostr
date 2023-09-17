@@ -1,0 +1,53 @@
+- name: "Webserver-Blazor setup playbook"
+  hosts: webserver
+  remote_user: root
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+    - name: webserver_public_repo
+      prompt: "Enter the git remote URL."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
+    - name: webserver_install_folder
+      prompt: "Enter the install folder of the webapp."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'WEBSERVER_INSTALL_FOLDER') }}"       
+  roles:
+     - { role: ppst0.dotnet, dotnet_package: dotnet-sdk-7.0 }
+  tasks:    
+    - name: Install dependencies
+      apt:
+        pkg:
+          - gnupg
+        state: latest
+        update_cache: yes
+    - name: Update repository
+      apt_repository:
+        repo: 'ppa:git-core/ppa'
+        state: present
+    - name: Install git
+      apt:
+        name: git
+        state: present
+        update_cache: yes
+    - name: "Clone the source code"
+      ansible.builtin.git:
+        repo: "{{ webserver_public_repo }}"
+        dest: "{{ webserver_install_folder }}"
+        clone: yes
+        update: yes
+        depth: 1
+    # otnet build the.sln -c Release
+    # dotnet test -c Release --no-build
+    # dotnet publish the\app.csproj --no-build -c Release
+    - name: "Publish the Webserver-Blazor project"
+      ansible.builtin.shell: |        
+        mkdir "{{ webserver_install_folder }}"build
+        cd "{{ webserver_install_folder }}"
+        dotnet clean Be.Cars.sln
+        dotnet build -c Release  --self-contained false Be.Cars.sln
+        dotnet publish  src/Be.Cars.Blazor/Be.Cars.Blazor.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build

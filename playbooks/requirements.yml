@@ -2,4 +2,7 @@
 roles:
   - name: geerlingguy.redis
     type: galaxy
-    source: https://galaxy.ansible.com
+    source: https://github.com/geerlingguy/ansible-role-redis
+  - name: ppst0.dotnet
+    type: galaxy
+    source: https://github.com/ppst0/ansible-role-dotnet

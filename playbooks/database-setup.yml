@@ -14,7 +14,8 @@
     - name: database_password
       prompt: "Enter the password."      
       private: false
-      default: "p@55w0rD"
+      default: "{{ lookup('ansible.builtin.env', 'SQL_SERVER_PASSWORD') }}"
+      # default: "p@55w0rD"
   tasks:
     # Use the Ubuntu distribution required by SQL Server,
     # see https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver16&tabs=ubuntu2004

@@ -15,3 +15,11 @@ proxmox_vms:
    id: 602
    group:
     - "database"
+ - ip: 192.168.1.63
+   id: 603
+   group:
+     - "identity_server"
+ - ip: 192.168.1.64
+   id: 604
+   group:
+     - "http_api"

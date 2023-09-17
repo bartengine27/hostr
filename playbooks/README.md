@@ -192,6 +192,16 @@ ansible-playbook redis-setup.yml -i hosts -K -vvv
 ansible-playbook database-setup.yml -i hosts -K -vvv
 ```
 
+## Web server
+
+### Install the Blazor Application
+
+For this project, we will host the application (Blazor application) on [Kestrel](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-7.0). `Kestrel` is automatically included by publishing the application.
+
+```bash
+ansible-playbook webserver-setup.yml -i hosts -K -vvv
+```
+
 ## References
 
 * [Playbooks directory](https://charlesreid1.com/wiki/Ansible/Directory_Layout/Details)
