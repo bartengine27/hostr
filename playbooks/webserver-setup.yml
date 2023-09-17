@@ -51,3 +51,26 @@
         dotnet clean Be.Cars.sln
         dotnet build -c Release  --self-contained false Be.Cars.sln
         dotnet publish  src/Be.Cars.Blazor/Be.Cars.Blazor.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
+# ASPNETCORE_URLS=http://*:5000 ./Be.Cars.Blazor        
+    # file module will create a directory if missing
+    # - name: Create webserver_blazor.service.d directory
+    #   file:
+    #     path: /etc/systemd/system/webserver_blazor.service.d/
+    #     state: directory
+    #     owner: root
+    #     group: root
+    #     mode: 0755
+    # template module will create a file
+    - name: Copy webserver_blazor.service drop-in
+      template:
+        src: webserver_blazor.service.j2
+        dest: /etc/systemd/system/webserver_blazor.service
+        owner: root
+        group: root
+        mode: 0644
+    - name: reload systemctl
+      command: systemctl daemon-reload
+    - name: Make sure a service unit is running
+      ansible.builtin.systemd:
+        state: started
+        name: webserver_blazor
