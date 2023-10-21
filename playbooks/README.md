@@ -1,6 +1,6 @@
 # Introduction
 
-Ansible scripts to setup *Proxmox* and/or *Azure* VMs/containers to install an example web site on prem/in the cloud.
+Ansible scripts to setup *Proxmox* and/or *Azure* VMs/containers to install a web site on prem/in the cloud to ease development.
 
 * [Proxmox](#proxmox)
 * [Azure](#azure)
@@ -9,11 +9,11 @@ Ansible scripts to setup *Proxmox* and/or *Azure* VMs/containers to install an e
 * [References](#references)
 * [TODO](#todo)
 
-## Prerequisites
+## Proxmox Prerequisites
 
-[see](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html)
+If you'd like to deploy on Proxmox, first install Proxmox on a host. Your host is a bare metal machine or a virtual machine with nesting enabled. [Qemu](https://www.qemu.org/) For instance, allows to nest VMs. **TBC**  
 
-Depending on your particular installation and/or test requirements, it may be relevant to configure an *DNS* server during the *Proxmox* installation: this will ensure that your *Proxmox* machine and VMs all are in the same subnet.
+Depending on your particular installation and/or test requirements, it may be relevant to configure an *DNS* server during the *Proxmox* installation: this will ensure that the machine running *Proxmox* (bare metal or VM) and the VMs running on *Proxmox* all are in the same subnet.
 
 In this document/config it is assumed that you will use the following domain(s):
 
@@ -25,9 +25,17 @@ In this document/config it is assumed that you will use the following domain(s):
 Add the entries above in the hosts file on
 
 * the machine running the Ansible installation scripts
-* the clients (which run a browser) you use to visit the web site
+* the clients you use to visit the web site
 
-Install the following *Ansible* roles:
+If all has gone well, you should have (after running the *Ansible* scripts) a setup like:
+
+![setup](./Proxmox%20setup.drawio.png)
+
+## Ansible Prerequisites
+
+As we are using [Ansible](https://www.ansible.com/) to automate our install and deploy, you will have to meet the following minimum requirements on the hosts which will run the *Ansible* scripts: [Ansible minimum requirements](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html).
+
+For this project, we will need some extra dependencies. Install the following *Ansible* role(s):
 
 ```bash
 ansible-galaxy install geerlingguy.redis
@@ -108,7 +116,7 @@ On the other hand, it is probably wise to structure/group *ip addresses* and *vm
 
 After running the [proxmox.cars.be](./proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.
 
-The [hosts](./hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./hosts) file is not generated from the [proxmox.cars.be](./proxmox.cars.be/) play, it is probably wise to change that in future versions.  
+The [hosts](./hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./hosts) file is not generated from the [proxmox.cars.be](./proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
 
 ### Proxmox hosts file
 
