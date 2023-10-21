@@ -1,7 +1,18 @@
 # Introduction
 
-Ansible scripts to setup *Proxmox* and/or *Azure* VMs/containers to install a web site on prem/in the cloud to ease development.
+While developing it may be useful to have a setup which mirrors your final production setup as close as possible. In practice, hardware and/or time are not available to setup a test or acception environment which mirrors production. Therefore, having a setup that you can easily (re-)deploy on a (local) virtual environment may be your way out.  
 
+This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/containers to install a web site on prem or in the cloud to ease/speed-up development. The *Ansible* scripts in this project assume that you need servers to host the following roles:
+
+* web server
+* cache
+* database
+* identity server  
+* HTTP endpoints
+
+## Contents
+
+* [Prerequisites](#prerequisites)
 * [Proxmox](#proxmox)
 * [Azure](#azure)
 * [Redis](#redis)
@@ -9,7 +20,9 @@ Ansible scripts to setup *Proxmox* and/or *Azure* VMs/containers to install a we
 * [References](#references)
 * [TODO](#todo)
 
-## Proxmox Prerequisites
+## Prerequisites
+
+### Proxmox prerequisites
 
 If you'd like to deploy on Proxmox, first install Proxmox on a host. Your host is a bare metal machine or a virtual machine with nesting enabled. [Qemu](https://www.qemu.org/) For instance, allows to nest VMs. **TBC**  
 
@@ -31,7 +44,11 @@ If all has gone well, you should have (after running the *Ansible* scripts) a se
 
 ![setup](./Proxmox%20setup.drawio.png)
 
-## Ansible Prerequisites
+### Azure prerequisites
+
+TODO
+
+### Ansible prerequisites
 
 As we are using [Ansible](https://www.ansible.com/) to automate our install and deploy, you will have to meet the following minimum requirements on the hosts which will run the *Ansible* scripts: [Ansible minimum requirements](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html).
 
@@ -64,7 +81,7 @@ ansible-galaxy role install -r requirements.yml #what we use
 ansible-galaxy collection install -r requirements.yml
 ```
 
-## Secrets
+### Secrets prerequisites
 
 Secrets are stored in env variables in files
 
