@@ -111,7 +111,7 @@ As far as I know, *Ansible* is not the tool of choice to setup *VM*s on cloud/da
 
 *Ansible* Uses an `inventory` to define the machines (*ip addresses*) and machine roles to install/setup your software infrastructure. As we start with a clean install (no existing *VM*s), it is rather difficult to define an `inventory`.  
 
-Therefore, we start with a play `proxmox.cars.be` which has a [vars file](./proxmox.cars.be/vars/main.yml) defining the *inventory*, for example:
+Therefore, we start with a play `proxmox.cars.be` which has a [vars file](./playbooks/proxmox.cars.be/vars/main.yml) defining the *inventory*, for example:
 
 ```yml
 proxmox_vms:
@@ -131,9 +131,9 @@ proxmox_vms:
 
 On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
 
-After running the [proxmox.cars.be](./proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.
+After running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.
 
-The [hosts](./hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./hosts) file is not generated from the [proxmox.cars.be](./proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
+The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
 
 ### Proxmox hosts file
 
@@ -236,5 +236,5 @@ ansible-playbook webserver-setup.yml -i hosts -K -vvv
 * ssh-keygen: add fingerprints automatically
 * all passwords to env variables
 * Azure
-* align the [vars](./proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
+* align the [vars](./playbooks/proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
 * generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)
