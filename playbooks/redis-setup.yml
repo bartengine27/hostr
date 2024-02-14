@@ -25,13 +25,14 @@
       redis_port: "{{ redis_network_port }}"
       redis_bind_interface: "{{ redis_network_interface }}"
       redis_requirepass: "{{ redis_password }}"
-      redis_disabled_commands:
-        - FLUSHDB
-        - FLUSHALL
-        - KEYS
-        - PEXPIRE
-        - DEL
-        - CONFIG
-        - SHUTDOWN
+      # TODO double check: ABP needs some of the commands
+      # redis_disabled_commands:
+      #   - FLUSHDB
+      #   - FLUSHALL
+      #   - KEYS
+      #   - PEXPIRE
+      #   - DEL
+      #   - CONFIG
+      #   - SHUTDOWN
   vars:
     ansible_ssh_user: root

@@ -4,8 +4,8 @@ Requires=network.target
 After=syslog.target network.target
 [Service]
 Environment="ASPNETCORE_ENVIRONMENT={{ asp_net_core_environment }}"
-WorkingDirectory={{webserver_install_folder}}build/
-ExecStart={{webserver_install_folder}}build/Be.Cars.Blazor
+WorkingDirectory={{identityserver_install_folder}}build/
+ExecStart={{identityserver_install_folder}}build/Be.Cars.AuthServer
 # Restart service after 10 seconds if the dotnet service crashes:
 Restart=on-failure
 User=root

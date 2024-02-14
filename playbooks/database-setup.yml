@@ -33,7 +33,7 @@
         apt-get install -y mssql-server
     # RHEL is properly supported, see https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-deploy-ansible?view=sql-server-ver16
     # Ubuntu isn't, so, install "manually"
-    - name: "Configure SQL Server"
+    - name: "Configure SQL Server - hangs?"
       ansible.builtin.shell: |
         set -o pipefail
         systemctl stop mssql-server

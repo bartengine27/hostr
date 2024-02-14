@@ -1,0 +1,25 @@
+{
+  "App": {
+    "SelfUrl": "https://*:44318"
+  },
+  "RemoteServices": {
+    "Default": {
+      "BaseUrl": "https://*:44340/"
+    }
+  },
+  "Redis": {
+    "Configuration": "{{ groups['redis'][0] }},abortConnect=false,password={{ redis_password }}"
+  },
+  "ConnectionStrings": {
+    "Default": "Server={{ groups['database'][0] }};Database=Cars;User Id=sa;Password={{ database_password }};TrustServerCertificate=True"
+  },
+  "AuthServer": {
+    "Authority": "https://*:44328",
+    "RequireHttpsMetadata": "true",
+    "ClientId": "Cars_BlazorServerTiered",
+    "ClientSecret": "1q2w3e*"
+  },
+  "StringEncryption": {
+    "DefaultPassPhrase": "TPX5DfbeSrrK8KBI"
+  }
+}

@@ -94,7 +94,7 @@ Keep your *PROD*, *ACC* and *DEV* secrets in the corresponding files and copy to
 
 :fire: Obviously, none of the `env` files belongs in your repo.
 
-Your `env` file should at least contain:
+Your `env` file should at least contain your public key to connect with ssh to the VMs:
 
 ```bash
 #!/bin/bash
@@ -129,9 +129,11 @@ proxmox_vms:
     - "database"
 ```
 
-On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
+On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group:` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
 
-After running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.
+After running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.  
+
+Running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play is detailed in [Uploading templates](###uploading-proxmox-vm(s)-templates) and [Installing VMs on Proxmox](###installing-proxmox-vm(s)).  
 
 The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
 
@@ -181,6 +183,18 @@ ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
 ```
 
+### Starting Proxmox VM(s)
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_start -vvv
+```
+
+if necessary, you can restart with
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
+```
+
 ### Removing Proxmox VM(s)
 
 Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
@@ -208,6 +222,14 @@ ansible-playbook redis-setup.yml -i hosts -K -vvv
 ```
 
 :fire: Note the `hosts` file, at the moment, only ip address are used in the host file. In an ideal case, hostnames as setup on *Proxmox* should be used grouped by labels redis, webserver, etc.
+
+:fire: If you get an error like
+
+```bash
+ "msg": "Unable to start service redis-server: Job for redis-server.service failed because the control process exited with error code.\nSee \"systemctl status redis-server.service\" and \"journalctl -xe\" for details.\n"
+```
+
+after running the redis playbook, you probably forgot to `source .env`.  
 
 ## Database
 

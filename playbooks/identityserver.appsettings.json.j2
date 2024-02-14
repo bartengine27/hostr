@@ -1,0 +1,17 @@
+{
+  "App": {
+    "SelfUrl": "https://{{ groups['identity_server'][0] }}:44328",
+    "ClientUrl": "http://{{ groups['identity_server'][0] }}:4200",
+    "CorsOrigins": "https://*.Cars.com,http://*:4200,https://*:44369,https://*:44340",
+    "RedirectAllowedUrls": "http://*:4200,https://*:44377,https://*:44369,https://*:44318"
+  },
+  "ConnectionStrings": {
+    "Default": "Server={{ groups['database'][0] }};Database=Cars;User Id=sa;Password={{ database_password }};TrustServerCertificate=True"
+  },
+  "Redis": {
+    "Configuration": "{{ groups['redis'][0] }},abortConnect=false,password={{ redis_password }}"
+  },
+  "StringEncryption": {
+    "DefaultPassPhrase": "TPX5DfbeSrrK8KBI"
+  }
+}

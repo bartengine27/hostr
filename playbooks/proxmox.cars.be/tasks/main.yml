@@ -81,6 +81,30 @@
   loop: "{{ proxmox_vms }}"
   tags: vm_stop  
 
+- name: Start our container
+  community.general.proxmox:
+    vmid: "{{ item['id'] }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_token_id: "{{ proxmox_api_token_id }}"
+    api_token_secret: "{{ proxmox_api_token }}"
+    api_host: "{{ proxmox_ip_address }}"
+    state: started
+  loop: "{{ proxmox_vms }}"
+  tags: vm_start
+
+- name: Restart our container
+  community.general.proxmox:
+    vmid: "{{ item['id'] }}"
+    node: "{{ proxmox_node }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_token_id: "{{ proxmox_api_token_id }}"
+    api_token_secret: "{{ proxmox_api_token }}"
+    api_host: "{{ proxmox_ip_address }}"
+    state: restarted
+  loop: "{{ proxmox_vms }}"
+  tags: vm_restart
+
 - name: Remove our container, you may have to log off/on in Proxmox before checking removal.
   community.general.proxmox:
     vmid: "{{ item['id'] }}"
