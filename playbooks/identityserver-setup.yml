@@ -27,9 +27,13 @@
     - name: redis_password
       prompt: "The password of your Redis."  
       private: false
-      default: "{{ lookup('ansible.builtin.env', 'REDIS_PASSWORD' ) }}"      
+      default: "{{ lookup('ansible.builtin.env', 'REDIS_PASSWORD' ) }}"  
+    - name: dotnet_sdk
+      prompt: "The dotnet SDK version."  
+      private: false
+      default: "dotnet-sdk-8.0"
   roles:
-     - { role: ppst0.dotnet, dotnet_package: dotnet-sdk-7.0 }
+     - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
   tasks:    
     - name: Install dependencies
       apt:
@@ -60,6 +64,7 @@
       ansible.builtin.shell: |        
         mkdir "{{ identityserver_install_folder }}"build
         cd "{{ identityserver_install_folder }}"
+        rm -Rf "{{ identityserver_install_folder }}"build
         dotnet clean Be.Cars.sln
         dotnet build -c Release  --self-contained false Be.Cars.sln
         dotnet publish  src/Be.Cars.AuthServer/Be.Cars.AuthServer.csproj -c Release --no-build -o "{{ identityserver_install_folder }}"build

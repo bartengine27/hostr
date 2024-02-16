@@ -32,8 +32,12 @@
       prompt: "The password of your database."  
       private: false
       default: "{{ lookup('ansible.builtin.env', 'SQL_SERVER_PASSWORD' ) }}"        
+    - name: dotnet_sdk
+      prompt: "The dotnet SDK version."  
+      private: false
+      default: "dotnet-sdk-8.0"      
   roles:
-     - { role: ppst0.dotnet, dotnet_package: dotnet-sdk-7.0 }
+     - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
   tasks:    
     - name: Install dependencies
       apt:
@@ -65,6 +69,7 @@
       ansible.builtin.shell: |        
         mkdir "{{ webserver_install_folder }}"build
         cd "{{ webserver_install_folder }}"
+        rm -Rf "{{ webserver_install_folder }}"build
         dotnet clean Be.Cars.sln
         dotnet build -c Release  --self-contained false Be.Cars.sln
         dotnet publish  src/Be.Cars.Blazor/Be.Cars.Blazor.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
@@ -99,9 +104,10 @@
         #restart and not start: if we were running before the daemon-reload, we have to restart to get the new config
         state: restarted
         name: webserver_blazor
-    - name: "Run the DB migrator"
+    - name: "Run the DB migrator - uses appsettings.json by default"
       ansible.builtin.shell: |   
         cd {{webserver_install_folder}}build/
+        cp appsettings."{{ asp_net_core_environment }}".json appsettings.json
         ./Be.Cars.DbMigrator 
       environment:
         ASPNETCORE_ENVIRONMENT: "{{ asp_net_core_environment }}"
