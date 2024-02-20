@@ -23,3 +23,11 @@ proxmox_vms:
    id: 604
    group:
      - "http_api"
+ - ip: 192.168.1.65
+   id: 605
+   group:
+     - "grafana"
+ - ip: 192.168.1.66
+   id: 606
+   group:
+     - "prometheus"
