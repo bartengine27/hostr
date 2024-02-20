@@ -9,6 +9,6 @@ ExecStart={{identityserver_install_folder}}build/Be.Cars.AuthServer
 # Restart service after 10 seconds if the dotnet service crashes:
 Restart=on-failure
 User=root
-Environment="ASPNETCORE_URLS=http://*:5000"
+Environment="ASPNETCORE_URLS=https://*:5000"
 [Install]
 WantedBy=multi-user.target

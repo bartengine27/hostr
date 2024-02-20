@@ -1,6 +1,7 @@
 {
-  "App": {
-    "SelfUrl": "http://{{ groups['webserver'][0] }}:5000"
+  "App": {  
+    "SelfUrl": "http://{{ groups['webserver'][0] }}:5000",
+    "CorsOrigins": "https://*.Cars.com,http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000",
   },
   "RemoteServices": {
     "Default": {
@@ -14,10 +15,32 @@
     "Default": "Server={{ groups['database'][0] }};Database=Cars;User Id=sa;Password={{ database_password }};TrustServerCertificate=True"
   },
   "AuthServer": {
-    "Authority": "http://{{ groups['identity_server'][0] }}:5000",
+    "Authority": "https://{{ groups['identity_server'][0] }}:5000",
     "RequireHttpsMetadata": "false",
     "ClientId": "Cars_BlazorServerTiered",
     "ClientSecret": "1q2w3e*"
+  },
+    "OpenIddict": {
+    "Applications": {
+      "Cars_Web": {
+        "ClientId": "Cars_Web",
+        "ClientSecret": "1q2w3e*",
+        "RootUrl": "https://localhost:44377"
+      },
+      "Cars_App": {
+        "ClientId": "Cars_App",
+        "RootUrl": "http://localhost:4200"
+      },
+      "Cars_BlazorServerTiered": {
+        "ClientId": "Cars_BlazorServerTiered",
+        "ClientSecret": "1q2w3e*",
+        "RootUrl": "http://{{ groups['webserver'][0] }}:5000"
+      },
+      "Cars_Swagger": {
+        "ClientId": "Cars_Swagger",
+        "RootUrl": "http://{{ groups['http_api'][0] }}:5000"
+      }
+    }
   },
   "StringEncryption": {
     "DefaultPassPhrase": "TPX5DfbeSrrK8KBI"
