@@ -49,11 +49,11 @@
   "Kestrel": {
     "Endpoints": {
       "CarsBeHttpsEndpoint": {
-        "Url": "https://{{ groups['webserver'][0] }}:5000",
+        "Url": "https://{{ groups['http_api'][0]}}:5000",
         "ClientCertificateMode": "AllowCertificate",
         "Certificate": {
-          "Path": "{{webserver_install_folder }}certificate.pem",
-          "KeyPath": "{{webserver_install_folder }}certificate.key",
+          "Path": "{{http_api_install_folder }}certificate.pem",
+          "KeyPath": "{{http_api_install_folder }}certificate.key",
           "Password": "cars.be"
         }
       }

@@ -49,6 +49,9 @@
       apt_repository:
         repo: 'ppa:git-core/ppa'
         state: present
+    - name: Install cryptography python package, necessary to generate certificates with ansible
+      ansible.builtin.pip:
+        name: cryptography
     - name: Install git
       apt:
         name: git
@@ -61,6 +64,23 @@
         clone: yes
         update: yes
         depth: 1
+    #https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_selfsigned.html
+    #https://computingforgeeks.com/generate-openssl-self-signed-certificates-with-ansible/
+    #TODO don't use firefox for now, install our own CA - see stack overflow link below for a summary
+    #https://stackoverflow.com/questions/59738140/why-is-firefox-not-trusting-my-self-signed-certificate
+    #TODO remove hard coded password
+    - name: Create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: "{{webserver_install_folder }}certificate.key"
+        format: "pkcs8"
+        passphrase: cars.be
+        cipher: auto
+    - name: Create a self-signed certificate
+      community.crypto.x509_certificate:
+        path: "{{webserver_install_folder }}certificate.pem"
+        privatekey_path: "{{webserver_install_folder }}certificate.key"
+        privatekey_passphrase: cars.be
+        provider: selfsigned
     # dotnet build the.sln -c Release
     # dotnet test -c Release --no-build
     # dotnet publish the\app.csproj --no-build -c Release
