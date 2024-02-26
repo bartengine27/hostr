@@ -45,9 +45,11 @@
       apt_repository:
         repo: 'ppa:git-core/ppa'
         state: present
-    - name: Install git
+    - name: Install git, pip3, etc.
       apt:
-        name: git
+        pkg: 
+          - git
+          - python3-pip
         state: present
         update_cache: yes
     - name: "Clone the source code"

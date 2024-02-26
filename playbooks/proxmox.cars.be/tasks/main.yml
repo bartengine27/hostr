@@ -64,7 +64,7 @@
   loop: "{{ proxmox_vms }}"
   tags: vm_init
 
-- name: Sleep for x seconds to wait for the new container
+- name: Sleep for x seconds to wait for the new container(s)
   ansible.builtin.wait_for:
     timeout: 30
   tags: vm_init
@@ -117,7 +117,7 @@
   loop: "{{ proxmox_vms }}"
   tags: vm_remove
 
-- name: Sleep for x seconds to wait for removing the container
+- name: Sleep for x seconds after removing the container
   ansible.builtin.wait_for:
     timeout: 30
   tags: vm_remove

@@ -4,11 +4,11 @@ While developing it may be useful to have a setup which mirrors your final produ
 
 This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/containers to install a web site on prem or in the cloud to ease/speed-up development. The *Ansible* scripts in this project assume that you need servers to host the following roles:
 
-* web server
-* cache
-* database
-* identity server  
-* HTTP endpoints
+* Web Server
+* Cache
+* Database
+* Identity Server  
+* REST API endpoints
 
 ## Contents
 
@@ -17,6 +17,9 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
 * [Azure](#azure)
 * [Redis](#redis)
 * [Database](#database)
+* [Identity Server](#identity-server)
+* [REST API endpoints](#rest-api)
+* [Prometheus Server](#prometheus-server)
 * [References](#references)
 * [TODO](#todo)
 
@@ -195,6 +198,13 @@ if necessary, you can restart with
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
 ```
 
+delete the VMs with
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_remove -vvv
+```
+
 ### Removing Proxmox VM(s)
 
 Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
@@ -231,6 +241,24 @@ ansible-playbook redis-setup.yml -i hosts -K -vvv
 
 after running the redis playbook, you probably forgot to `source .env`.  
 
+## Identity Server
+
+### Install Identity Server
+
+`ABP` supports [IdentityServer4](https://github.com/IdentityServer/IdentityServer4) and [OpenIddict](https://github.com/openiddict/openiddict-core). As the `ABP` startup templates support *OpenIddict* since *ABP v6.0.0* we will only support `OpenIddict`.  
+
+```bash
+ansible-playbook identityserver-setup.yml -i hosts -K -vvv
+```
+
+## REST API
+
+### Install REST API
+
+```bash
+ansible-playbook httpapiserver-setup.yml -i hosts -K -vvv
+```
+
 ## Database
 
 ### Install SQL Server
@@ -249,6 +277,16 @@ For this project, we will host the application (Blazor application) on [Kestrel]
 ansible-playbook webserver-setup.yml -i hosts -K -vvv
 ```
 
+:fire: Install the web server after installing the database: while installing the web server, the DB migration project will run and initialize the database.  
+
+## Prometheus server
+
+### Install Prometheus server
+
+```bash
+ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
+```
+
 ## References
 
 * [Playbooks directory](https://charlesreid1.com/wiki/Ansible/Directory_Layout/Details)
@@ -260,3 +298,4 @@ ansible-playbook webserver-setup.yml -i hosts -K -vvv
 * Azure
 * align the [vars](./playbooks/proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
 * generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)
+* install the webserver usually fails first

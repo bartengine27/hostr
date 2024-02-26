@@ -53,7 +53,7 @@
       apt_repository:
         repo: 'ppa:git-core/ppa'
         state: present   
-    - name: Install git
+    - name: Install git, pip3, etc.
       apt:
         pkg: 
           - git
@@ -62,24 +62,7 @@
         update_cache: yes
     - name: Install cryptography python package, necessary to generate certificates with ansible
       ansible.builtin.pip:
-        name: cryptography             
-    #https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_selfsigned.html
-    #https://computingforgeeks.com/generate-openssl-self-signed-certificates-with-ansible/
-    #TODO don't use firefox for now, install our own CA - see stack overflow link below for a summary
-    #https://stackoverflow.com/questions/59738140/why-is-firefox-not-trusting-my-self-signed-certificate
-    #TODO remove hard coded password
-    - name: Create private key (RSA, 4096 bits)
-      community.crypto.openssl_privatekey:
-        path: "{{webserver_install_folder }}certificate.key"
-        format: "pkcs8"
-        passphrase: cars.be
-        cipher: auto
-    - name: Create a self-signed certificate
-      community.crypto.x509_certificate:
-        path: "{{webserver_install_folder }}certificate.pem"
-        privatekey_path: "{{webserver_install_folder }}certificate.key"
-        privatekey_passphrase: cars.be
-        provider: selfsigned        
+        name: cryptography          
     - name: "Clone the source code"
       ansible.builtin.git:
         repo: "{{ http_api_public_repo }}"
@@ -87,6 +70,23 @@
         clone: yes
         update: yes
         depth: 1
+    #https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_selfsigned.html
+    #https://computingforgeeks.com/generate-openssl-self-signed-certificates-with-ansible/
+    #TODO don't use firefox for now, install our own CA - see stack overflow link below for a summary
+    #https://stackoverflow.com/questions/59738140/why-is-firefox-not-trusting-my-self-signed-certificate
+    #TODO remove hard coded password
+    - name: Create private key (RSA, 4096 bits)
+      community.crypto.openssl_privatekey:
+        path: "{{ webserver_install_folder }}certificate.key"
+        format: "pkcs8"
+        passphrase: cars.be
+        cipher: auto
+    - name: Create a self-signed certificate
+      community.crypto.x509_certificate:
+        path: "{{ webserver_install_folder }}certificate.pem"
+        privatekey_path: "{{ webserver_install_folder }}certificate.key"
+        privatekey_passphrase: cars.be
+        provider: selfsigned        
     # dotnet build the.sln -c Release
     # dotnet test -c Release --no-build
     # dotnet publish the\app.csproj --no-build -c Release
@@ -101,7 +101,7 @@
         dotnet publish  src/Be.Cars.HttpApi.Host/Be.Cars.HttpApi.Host.csproj -c Release --no-build -o "{{ http_api_install_folder }}"build        
     - name: Create the directory for the virtual file system (hard coded for now)
       ansible.builtin.file:
-        path: /webapp/Be.Cars.Domain.Shared/
+        path: "{{ webserver_install_folder }}Be.Cars.Domain.Shared/"
         state: directory
         owner: root
         group: root

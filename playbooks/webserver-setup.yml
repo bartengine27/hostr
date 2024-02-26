@@ -49,14 +49,16 @@
       apt_repository:
         repo: 'ppa:git-core/ppa'
         state: present
+    - name: Install git, pip3, etc.
+      apt:
+        pkg: 
+          - git
+          - python3-pip
+        state: present
+        update_cache: yes        
     - name: Install cryptography python package, necessary to generate certificates with ansible
       ansible.builtin.pip:
         name: cryptography
-    - name: Install git
-      apt:
-        name: git
-        state: present
-        update_cache: yes
     - name: "Clone the source code"
       ansible.builtin.git:
         repo: "{{ webserver_public_repo }}"

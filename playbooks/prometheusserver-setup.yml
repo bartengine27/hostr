@@ -19,6 +19,8 @@
   roles:
     - role: prometheus.prometheus.prometheus  
       vars:
+        #https://prometheus-community.github.io/ansible/branch/main/prometheus_role.html#ansible-collections-prometheus-prometheus-prometheus-role
+        #https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
         prometheus_scrape_configs: [
                                         {
                                             "job_name": "prometheus",
@@ -34,6 +36,12 @@
                                        {
                                             "job_name": "cars.be",
                                             "metrics_path": "{{ prometheus_metrics_path }}",
+                                            "scheme": "https",
+                                            "tls_config": 
+                                                {
+                                                    #TODO do not check certs for now
+                                                    "insecure_skip_verify": true
+                                                },                                            
                                             "static_configs": [
                                                 {
                                                     "targets": [
@@ -44,21 +52,23 @@
                                         },
                                     ]
   tasks:    
+    - name: Update repository
+      apt_repository:
+        repo: 'ppa:git-core/ppa'
+        state: present  
     - name: Install dependencies
       apt:
         pkg:
           - gnupg
+          - git
         state: latest
         update_cache: yes
-    - name: Update repository
-      apt_repository:
-        repo: 'ppa:git-core/ppa'
-        state: present
-    - name: Install git
-      apt:
-        name: git
-        state: present
-        update_cache: yes
+
+    # - name: Install git
+    #   apt:
+    #     name: git
+    #     state: present
+    #     update_cache: yes
     # - name: Copy prometheus.yml
     #   template:
     #     src: prometheus.yml.j2
