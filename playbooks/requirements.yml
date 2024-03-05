@@ -12,4 +12,6 @@ roles:
 collections:  
   - prometheus.prometheus  
   - grafana.grafana
+  - name: community.grafana
+    version: 1.8.0
   - community.crypto  

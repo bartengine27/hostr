@@ -52,10 +52,15 @@
                                         },
                                     ]
   tasks:    
-    - name: Update repository
-      apt_repository:
-        repo: 'ppa:git-core/ppa'
-        state: present  
+    # - name: Update repository
+    #   apt_repository:
+    #     repo: 'ppa:git-core/ppa'
+    #     state: present  
+    - name: Update apt repo and cache
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600        
     - name: Install dependencies
       apt:
         pkg:

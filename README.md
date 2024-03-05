@@ -287,6 +287,14 @@ ansible-playbook webserver-setup.yml -i hosts -K -vvv
 ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
 ```
 
+## Grafana server
+
+### Install Grafana server
+
+```bash
+ansible-playbook grafanaserver-setup.yml -i hosts -K -vvv
+```
+
 ## References
 
 * [Playbooks directory](https://charlesreid1.com/wiki/Ansible/Directory_Layout/Details)
