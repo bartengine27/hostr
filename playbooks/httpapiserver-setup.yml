@@ -87,6 +87,9 @@
         privatekey_path: "{{ webserver_install_folder }}certificate.key"
         privatekey_passphrase: cars.be
         provider: selfsigned        
+    - name: Install dotnet tools
+      ansible.builtin.shell: |
+        dotnet tool install --global dotnet-counters
     # dotnet build the.sln -c Release
     # dotnet test -c Release --no-build
     # dotnet publish the\app.csproj --no-build -c Release
