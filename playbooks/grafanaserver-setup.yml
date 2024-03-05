@@ -90,27 +90,37 @@
         # additional_json_data:
         #   httpHeaderName1: "Authorization"
         # additional_secure_json_data:
-        #   httpHeaderValue1: "Bearer ihavenogroot"        
+        #   httpHeaderValue1: "Bearer ihavenogroot" 
+    - name: Copy the Grafana dashboards to the host
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/19924_rev4.json"
+        dest: /tmp/19924_rev4.json
+    # - name: Copy the Grafana dashboards to the host - does not work - Datasource ${DS_PROMETHEUS} was not found
+    #   ansible.builtin.copy:
+    #     src: "{{ playbook_dir }}/19925_rev3.json"
+    #     dest: /tmp/19925_rev3.json
+    - name: Create a dashboard folder on Grafana
+      community.grafana.grafana_folder:        
+        title: "cars"
+        state: present    
     - name: Import Grafana dashboard https://github.com/dotnet/aspire/tree/main/src/Grafana
       community.grafana.grafana_dashboard:        
+        #dashboards are by default stored at /usr/share/grafana/public/dashboards/home.json
         #TODO first create this folder, now dashboard is in general
-        #folder: dotnet
+        folder: cars
         #https://grafana.com/grafana/dashboards/19924-asp-net-core/
         #dashboard_id: 19924
         #dashboard_revision: 1        
-        path: "{{ playbook_dir }}/19924_rev4.json"
+        #path: "{{ playbook_dir }}/19924_rev4.json"
+        path: /tmp/19924_rev4.json
         state: present
         overwrite: true
         #dashboard_url: https://grafana.com/api/dashboards/19924/revisions/4/download
-    - name: Import Grafana dashboard https://github.com/dotnet/aspire/tree/main/src/Grafana
-      community.grafana.grafana_dashboard:        
-        #TODO first create this folder, now dashboard is in general
-        #folder: dotnet
-        #https://grafana.com/grafana/dashboards/19924-asp-net-core/
-        #dashboard_id: 19925
-        #dashboard_revision: 1             
-        #path: /19925_rev3.json
-        dashboard_url: https://grafana.com/api/dashboards/19925/revisions/3/download
+    # - name: Import Grafana dashboard https://github.com/dotnet/aspire/tree/main/src/Grafana
+    #   community.grafana.grafana_dashboard:        
+    #     path: /tmp/19925_rev3.json
+    #     state: present
+    #     overwrite: true
   handlers:
     - name: Start grafana
       systemd:

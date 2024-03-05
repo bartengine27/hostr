@@ -296,6 +296,10 @@ ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
 ansible-playbook grafanaserver-setup.yml -i hosts -K -vvv
 ```
 
+After installing *Grafana*, you can browse to the *Grafana* endpoint (check the *Grafana* endpoint in [hosts](./playbooks/hosts)) and open the `ASP .NET Core` dashboard: 
+
+![ASP .NET Core dashboard](./ASP.NET%20Core%20metrics.png)
+
 ## References
 
 * [Playbooks directory](https://charlesreid1.com/wiki/Ansible/Directory_Layout/Details)
