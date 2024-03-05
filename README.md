@@ -20,6 +20,7 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
 * [Identity Server](#identity-server)
 * [REST API endpoints](#rest-api)
 * [Prometheus Server](#prometheus-server)
+* [Grafana Server](#grafana-server)
 * [References](#references)
 * [TODO](#todo)
 
