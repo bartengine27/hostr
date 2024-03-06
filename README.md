@@ -9,6 +9,8 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
 * Database
 * Identity Server  
 * REST API endpoints
+* Prometheus monitoring
+* Grafana dashboards
 
 ## Contents
 
