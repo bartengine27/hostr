@@ -290,6 +290,15 @@ ansible-playbook webserver-setup.yml -i hosts -K -vvv
 
 ## Prometheus server
 
+In this project we will use [Prometheus](https://prometheus.io/) as it supports [OTLP (Open Telemetry Protocol)](https://opentelemetry.io/) which is used in the example code (web site and REST API). You can also export OTel (Open Telemetry) data to [Jaeger](https://www.jaegertracing.io/) or [Zipkin](https://zipkin.io/). For an overview, please check the following list of  [vendors](https://opentelemetry.io/ecosystem/vendors/).
+
+```mermaid
+flowchart TD;    
+    WebServer[Web Server]-- ":5000/metrics" -->Prometheus;
+    RESTAPI[REST API]-- ":5000/metrics" -->Prometheus;
+    Prometheus-- ":9090" -->Grafana
+```
+
 ### Install Prometheus server
 
 ```bash
