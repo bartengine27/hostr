@@ -290,9 +290,9 @@ ansible-playbook webserver-setup.yml -i hosts -K -vvv
 
 :fire: Install the web server after installing the database: while installing the web server, the DB migration project will run and initialize the database.  
 
-## Prometheus server
+## Application Performance Monitoring
 
-In this project we will use [Prometheus](https://prometheus.io/) as it supports [OTLP (Open Telemetry Protocol)](https://opentelemetry.io/) which is used in the example code (web site and REST API). You can also export OTel (Open Telemetry) data to [Jaeger](https://www.jaegertracing.io/) or [Zipkin](https://zipkin.io/). For an overview, please check the following list of  [vendors](https://opentelemetry.io/ecosystem/vendors/).
+In this project we will use [Prometheus](https://prometheus.io/) as it supports [OTLP (Open Telemetry Protocol)](https://opentelemetry.io/) which is used in the example code (web site and REST API). You can also export OTel (Open Telemetry) data to [Jaeger](https://www.jaegertracing.io/) or [Zipkin](https://zipkin.io/). For an overview, please check the following list of  [APM (Application Performance Monitoring) vendors](https://opentelemetry.io/ecosystem/vendors/).
 
 ```mermaid
 flowchart TD;    
@@ -301,15 +301,23 @@ flowchart TD;
     Prometheus-- ":9090" -->Grafana
 ```
 
-### Install Prometheus server
+:fire: The example code is written in dotnet core, which has its own instrumentation APIs for logging, metrics and tracing. Therefore, OTel collects telemetry from the build in dotnet core APIs. The benefit that OTel brings as an industry standard is a common mechanism for collecting telemetry data and integrating APMs. For more information [see](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/observability-with-otel).
+
+:fire: If you are using a different programming language, please check the [supported programming languages](https://opentelemetry.io/docs/languages/).  
+
+### Prometheus server
+
+As illustrated in the figure above, Prometheus is configured with the metrics endpoints of the Web Server and REST API. Extend this configuration if you'd like to inlude other systems/microservices/etc.
+
+#### Install Prometheus server
 
 ```bash
 ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
 ```
 
-## Grafana server
+### Grafana server
 
-### Install Grafana server
+#### Install Grafana server
 
 ```bash
 ansible-playbook grafanaserver-setup.yml -i hosts -K -vvv
