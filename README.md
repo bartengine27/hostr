@@ -50,6 +50,20 @@ If all has gone well, you should have (after running the *Ansible* scripts) a se
 
 ![setup](./Proxmox%20setup.drawio.png)
 
+#### Hyper-V install
+
+You can install Proxmox on Windows Hyper-V. Create the virtual machine with the standard procedure and execute the following command in Powershell
+
+```Powershell
+Set-VMProcessor -VMName <Name of your Proxmox VM> -ExposeVirtualizationExtensions $true
+``` 
+
+to switch on Hyper-V's nested virtualization. Download and mount the Proxmox ISO, after booting, click in the VM screen and tap on Enter to start the install. If your install hangs at `Trying to detect country`, disable your internet connection and restart the installer.  
+
+#### Bare metal install
+
+Follow the default installation procedure [on](https://www.proxmox.com/en/proxmox-virtual-environment/get-started).
+
 ### Azure prerequisites
 
 TODO
