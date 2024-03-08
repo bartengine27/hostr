@@ -12,11 +12,15 @@
       prompt: "The proxmox IP address"
       private: false
       # proxmox on cube
-      default: 192.168.1.199
+      #default: 192.168.1.199
+      #proxmox on surface
+      default: 172.18.60.44
     - name: proxmox_api_token
       prompt: "The proxmox API token with sufficient rights to install, stop and remove VMs."
       # proxmox on cube
-      default: 3f1e6348-2402-4df2-8cb3-d794554fa911
+      # default: 3f1e6348-2402-4df2-8cb3-d794554fa911
+      # proxmox on surface
+      default: c27a3ea2-17aa-457a-88be-3e49479db3a5
     - name: proxmox_node
       prompt: "The proxmox node to install our VM(s) on."
       private: false
@@ -28,7 +32,8 @@
     - name: proxmox_api_token_id
       prompt: "The proxmox API token id with sufficient rights to install, stop and remove VMs."
       private: false
-      default: api
+      #default: api
+      default: JvneEABqmYa9UWW5Mw3x5ArB
   roles:
     - proxmox.cars.be    
   vars:
