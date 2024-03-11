@@ -396,3 +396,6 @@ After installing *Grafana*, you can browse to the *Grafana* endpoint (check the 
 * align the [vars](./playbooks/proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
 * generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)
 * install the webserver usually fails first
+* integrate [prometheus alerts](https://github.com/prometheus/alertmanager) or [grafana alerts](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alertmanager/) or ...
+* install Collector endpoint
+* custom dashboard displaying the custom metric
