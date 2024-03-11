@@ -50,6 +50,57 @@ If all has gone well, you should have (after running the *Ansible* scripts) a se
 
 ![setup](./Proxmox%20setup.drawio.png)
 
+#### Hyper-V install
+
+You can install Proxmox on Windows Hyper-V. Create the virtual machine with the standard procedure and execute the following command in Powershell
+
+```Powershell
+Set-VMProcessor -VMName <Name of your Proxmox VM> -ExposeVirtualizationExtensions $true
+``` 
+
+to switch on Hyper-V's nested virtualization. Download and mount the Proxmox ISO, after booting, click in the VM screen and tap on Enter to start the install. If your install hangs at `Trying to detect country`, disable your internet connection and restart the installer.  
+
+After installing Proxmox on Hyper-V, you will notice that calling an endpoint on your Hyper-V VM from WSL2 doesn't work. Open the Hyper-V Manager and next the Virtual Switch Manager
+
+![Switches](./wsl_hypervvm_switches.png)
+
+and not the two different virtual switches. As documented [on](https://techcommunity.microsoft.com/t5/itops-talk-blog/windows-subsystem-for-linux-2-addressing-traffic-routing-issues/ba-p/1764074) we need to enable forwarding across both virtual switches:
+
+```Powershell
+Get-NetIPInterface | where {$_.InterfaceAlias -eq 'vEthernet (Default Switch)' -or $_.InterfaceAlias -eq 'vEthernet (WSL (Hyper-V firewall))'} | Set-NetIPInterface -Forwarding Enabled
+```
+
+:fire: Note the **vEthernet(...)** in the IP interface aliases, if you are not sure about the aliases, first run
+
+```Powershell
+Get-NetIPInterface
+```
+
+and check the second column.  
+
+#### Bare metal install
+
+Follow the default installation procedure [on](https://www.proxmox.com/en/proxmox-virtual-environment/get-started).
+
+#### Promox API user
+
+Before using the Ansible scripts, you will need a Proxmox API user:
+* Log into the Proxmox Web UI
+* Select datacenter from the left menu
+* Select users from the left sub-menu
+* We will use the default root@pam user
+* Select API tokens from the left sub-menu
+* Click add
+    * User: root@pam
+    * Token ID: input a random string, for [example](https://www.random.org/passwords/?num=1&len=24&format=plain&rnd=new) and record the token ID
+    * record the token secret
+
+After adding the user and API token, select Datacenter and click on Permissions and Add API Token Permission. Choose
+* Path: /
+* API Token: root@pam<tokenID>
+* Role: Administrator
+* Propagate: select
+
 ### Azure prerequisites
 
 TODO
@@ -85,6 +136,12 @@ and install with:
 ```bash
 ansible-galaxy role install -r requirements.yml #what we use
 ansible-galaxy collection install -r requirements.yml
+```
+
+Add additional Python dependencies with:
+
+```bash
+pip install proxmoxer
 ```
 
 ### Secrets prerequisites
