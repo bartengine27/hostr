@@ -372,6 +372,35 @@ As illustrated in the figure above, Prometheus is configured with the metrics en
 ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
 ```
 
+### Collector
+
+For a more flexible setup, you may be interested in the setup of an *Otel* collector. For example `InfluxDB` with the [OpenTelemetry Input Plugin](https://github.com/influxdata/telegraf/blob/release-1.21/plugins/inputs/opentelemetry/README.md):
+
+```mermaid
+flowchart TD;    
+    WebServer[Web Server]-- "OTLP GRPC" -->Telegraf;
+    RESTAPI[REST API]-- "OTLP GRPC" -->Telegraf;
+    Telegraf---->InfluxDB;
+    Telegraf---->Kapacitor;
+    Kapacitor<---->Chronograf
+    Kapacitor<---->InfluxDB;
+    InfluxDB---->Grafana;
+    InfluxDB---->Zipkin/Prometheus/...;
+    InfluxDB<---->Chronograf;
+```
+
+For completeness, the diagram above mentions [Chronograf](https://www.influxdata.com/time-series-platform/chronograf/) the user interface and administrative comonent of *InfluxDB* which allows to interact with the [TICK-stack](https://www.influxdata.com/time-series-platform/) and [Zipkin](https://zipkin.io/) a distributed tracing system.  
+
+You can also use the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).  
+
+#### Install InfluxDB
+
+```bash
+ansible-playbook collectorserver-setup.yml -i hosts -K -vvv
+```
+
+After installing, open the UI on `http://{{ groups['otlp_controller'][0] }}:8086)`.
+
 ### Grafana server
 
 #### Install Grafana server

@@ -58,5 +58,14 @@
         }
       }
     }
+  },
+  "ServiceName": "TJILP-HttpApiHost",
+  "AllowedHosts": "*",
+  "UseTracingExporter": "console",
+  "UseMetricsExporter": "console",
+  "UseLogExporter": "console",
+  "HistogramAggregation": "explicit",
+  "Otlp": {
+    "Endpoint": "http://{{ groups['otlp_controller'][0] }}:4317"
   }
 }

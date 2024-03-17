@@ -31,3 +31,7 @@ proxmox_vms:
    id: 606
    group:
      - "prometheus"
+ - ip: 192.168.1.67
+   id: 607
+   group:
+     - "otlp_controller"
