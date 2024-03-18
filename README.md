@@ -374,7 +374,7 @@ ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
 
 ### Collector
 
-For a more flexible setup, you may be interested in the setup of an *Otel* collector. For example `InfluxDB` with the [OpenTelemetry Input Plugin](https://github.com/influxdata/telegraf/blob/release-1.21/plugins/inputs/opentelemetry/README.md):
+For a more flexible setup, you may be interested in the setup of an *Otel* collector. For example `InfluxDB` with [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/) and the [OpenTelemetry Input Plugin](https://github.com/influxdata/telegraf/blob/release-1.21/plugins/inputs/opentelemetry/README.md):
 
 ```mermaid
 flowchart TD;    
@@ -428,3 +428,4 @@ After installing *Grafana*, you can browse to the *Grafana* endpoint (check the 
 * integrate [prometheus alerts](https://github.com/prometheus/alertmanager) or [grafana alerts](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alertmanager/) or ...
 * install Collector endpoint
 * custom dashboard displaying the custom metric
+* [ssh fingerprint checks](https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking)
