@@ -240,6 +240,86 @@ sudo ansible-galaxy collection install community.general
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
 ```
 
+### Addding Proxmox VM(s) to known_hosts
+
+If you removed existing VMs/Containers or are building new VMs/Containers, you should remove the old entries in `known_hosts` and add new entries:
+
+```bash
+ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook knowhosts-setup.yml -i hosts -K -vvv
+```
+
+When you observe an additional line being added to your known_hosts file after connecting to a server via SSH, even after manually adding the server's fingerprint with ssh-keyscan or with `ansible-playbook knowhosts-setup.yml`, it typically relates to how SSH handles and verifies the identity of the servers it connects to. Here are a few reasons why this might happen:
+
+1. Different Key Types  
+If you initially add the server's `ED25519` key fingerprint to your known_hosts using ssh-keyscan -H -t ed25519 ip_address, but the server is also configured to use another type of SSH key (e.g., RSA, ECDSA), the SSH client might add the fingerprint of this additional key to the known_hosts file upon the first connection. This occurs because your initial scan and add operation only included the ED25519 key, and upon connection, SSH automatically adds any other keys presented by the server that weren't already in known_hosts.
+
+2. Hostname and IP Address Entries  
+Another common reason is the difference in how you reference the server in your ssh command versus what was initially scanned. For instance, if you scanned the IP address and then used the hostname (or vice versa) to connect, SSH treats these as separate entries. SSH distinguishes between IP addresses and hostnames because they can technically present different keys (consider virtual hosts or shared IP scenarios). As a result, SSH might add a new line for the same server under its different identifier (IP or hostname).
+
+3. SSH Configuration and Aliases  
+Your SSH client's configuration might influence how known_hosts is managed. For example, if you use an SSH config file (~/.ssh/config) with aliases or specific host entries that define hostname patterns or specific key types, your SSH client might treat connections that match different patterns as distinct, even if they ultimately resolve to the same server.
+
+4. Port Forwarding or Jump Hosts  
+If your connection involves port forwarding or using a jump host (also known as a bastion host), the SSH client may add entries for these intermediate steps. This is more likely in complex networking setups where direct connections to the target server are not possible without going through intermediary servers.
+
+Troubleshooting Tips:
+
+* Review the known_hosts file: Compare the entries before and after the connection. Look for differences in the key types, hostnames/IP addresses, or additional details that might explain the new entry.
+* Use verbose mode with SSH: Connecting with `ssh -v root@ip_address` can provide detailed logs that explain what keys are being checked, offered, and added to known_hosts. This might give you a clearer picture of why the additional line is added.
+* Check SSH client configuration: Review your SSH client's configuration file (if you have one) for any settings that might affect how known_hosts entries are managed or how connections are established.
+
+Understanding the exact reason requires examining the specifics of your SSH setup, the server configuration, and the entries in known_hosts.
+
+For our particular setup, we can edit the server config `sshd_config` file on the server we connect to to enforce the usage of `ED25519` keys:
+
+```ini
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+PubkeyAcceptedKeyTypes ssh-ed25519
+```
+
+in addition, make sure that folder `/run/sshd` exists on the server:
+
+```bash
+mkdir /run/sshd
+chmod 0755 /run/sshd
+systemctl restart sshd
+```
+
+Clients, however, should now support `ED25519`, i.e. use:
+
+```bash
+ssh-keygen -t ed25519 -C you@cars.be
+```
+
+If you now connect with:
+
+```bash
+ssh -v root@192.168.1.68
+```
+
+you will notice in the output that ssh will attempt different keys, for example:
+
+```text
+debug1: Will attempt key: /home/you/.ssh/id_rsa RSA SHA256:....
+debug1: Will attempt key: /home/you/.ssh/id_ecdsa
+debug1: Will attempt key: /home/you/.ssh/id_ecdsa_sk
+debug1: Will attempt key: /home/you/.ssh/id_ed25519 ED25519 SHA256:....
+debug1: Will attempt key: /home/you/.ssh/id_ed25519_sk
+debug1: Will attempt key: /home/you/.ssh/id_xmss
+debug1: Will attempt key: /home/you/.ssh/id_dsa
+```
+
+To conclude, the server decides about the security of the keys used by the client, therefore, we will configure all sshd daemons for `ED25519`:  
+
+```bash
+ansible-playbook sshdserver_setup.yml -i hosts --user root -K -vvv
+```
+
+:fire: User root is specified with `--user root`: the hosts we connect to have the `ED25519` key under `/root/.ssh/authorized_keys`, so we have to connect as `root` to use this key.  
+
 ### Stopping Proxmox VM(s)
 
 ```bash
@@ -258,19 +338,12 @@ if necessary, you can restart with
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
 ```
 
-delete the VMs with
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_remove -vvv
-```
-
 ### Removing Proxmox VM(s)
 
 Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
 
 ```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_remove -vvv
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop,vm_remove -vvv
 ```
 
 ### SSH into the Proxmox VM
@@ -333,6 +406,12 @@ dotnet-counters monitor --name Be.Cars.HttpApi.Host --counters Be.Cars.Metrics.C
 
 ```bash
 ansible-playbook database-setup.yml -i hosts -K -vvv
+```
+
+After installing your DB server, you can SSH into the machine and open an SQL shell with (assuming you use password `p@55w0rD`):
+
+```bash
+sqlcmd -S 127.0.0.1 -U sa -P p@55w0rD -C
 ```
 
 ## Web server
@@ -413,6 +492,59 @@ After installing *Grafana*, you can browse to the *Grafana* endpoint (check the 
 
 ![ASP .NET Core dashboard](./ASP.NET%20Core%20metrics.png)
 
+## Proxy
+
+### NGINX 
+
+### Bearer token
+
+An example bearer token (# lines added for clarity):
+
+```base64
+#header
+ eyJhbGciOiJSUzI1NiIsImtpZCI6IjYyNUJEMkU5OUZEODM3NkNEN0Q5QjgxNjdBMkUyRDU5Njg2Nzc0MUEiLCJ4NXQiOiJZbHZTNlpfWU4yelgyYmdXZWk0dFdXaG5kQm8iLCJ0eXAiOiJhdCtqd3QifQ.
+ #payload
+ eyJzdWIiOiIzODU3YjI3Mi0zMTJmLTgyNDMtNzc1OC0zYTExODI4MGFhNDAiLCJ1bmlxdWVfbmFtZSI6ImFkbWluIiwib2lfcHJzdCI6IkNhcnNfU3dhZ2dlciIsIm9pX2F1X2lkIjoiNGMzMDI1MWMtMzMyMi1lYWNkLTExN2MtM2ExMTgyODkwYjc2IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4iLCJnaXZlbl9uYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFicC5pbyIsImVtYWlsX3ZlcmlmaWVkIjoiRmFsc2UiLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiOiJGYWxzZSIsImNsaWVudF9pZCI6IkNhcnNfU3dhZ2dlciIsIm9pX3Rrbl9pZCI6Ijg1ZjA2ZTViLTljNTEtMTVkZS01YjQ5LTNhMTE4MjlmZmYzYyIsImF1ZCI6IkNhcnMiLCJzY29wZSI6IkNhcnMiLCJqdGkiOiI0MzZmYTlhZS1kOThmLTRkMjEtYmZlOC1jYzBiMTZlZGIwNzgiLCJpc3MiOiJodHRwczovLzE5Mi4xNjguMS42Mzo1MDAwLyIsImV4cCI6MTcxMTI4NzE3OCwiaWF0IjoxNzExMjgzNTc4fQ.
+ #signature
+ XTK9ZuKpdMi1kKLb7bR2vNUI05n9TuQd3I4GiTZbuCVJRLsuF-M9NBVc-pTfqXUdyqAx9Pt8NYtc4IJaSBukuaNbUyIqxJu0Eswobg_KxGe7eTxahXwsL7Q4flQY_sL6mU-XfjDCAnqg-gGcnTTTASClatMUfUf4qxJYbgw2p2J6fWqfsF6Djt4LBsrFqPAjqxwueblpHtw4IlnX42aEBcg8y03U0kImKTkVKSnasrbpQjlqKbcwRIm9QVtj2jBzprWWW_O8ngJfNBVs909buptc8HTG8H4_n6XM6z6XWCCv9c48JcNYILi1WcL5UpmcB54Wp2-bxdo0JH0mECQgTw
+```
+
+after decoding [on](https://jwt.io/):
+
+```json
+//header
+{
+  "alg": "RS256",
+  "kid": "625BD2E99FD8376CD7D9B8167A2E2D596867741A",
+  "x5t": "YlvS6Z_YN2zX2bgWei4tWWhndBo",
+  "typ": "at+jwt"
+}
+```
+
+```json
+//payload
+{
+  "sub": "3857b272-312f-8243-7758-3a118280aa40",
+  "unique_name": "admin",
+  "oi_prst": "Cars_Swagger",
+  "oi_au_id": "4c30251c-3322-eacd-117c-3a1182890b76",
+  "preferred_username": "admin",
+  "given_name": "admin",
+  "role": "admin",
+  "email": "admin@abp.io",
+  "email_verified": "False",
+  "phone_number_verified": "False",
+  "client_id": "Cars_Swagger",
+  "oi_tkn_id": "a3914af4-95fe-2856-3f15-3a1182890c3f",
+  "aud": "Cars",
+  "scope": "Cars",
+  "jti": "76980075-5eae-4bbc-bda6-1999d576581e",
+  "iss": "https://192.168.1.63:5000/",
+  "exp": 1711285674,
+  "iat": 1711282074
+}
+```
+
 ## References
 
 * [Playbooks directory](https://charlesreid1.com/wiki/Ansible/Directory_Layout/Details)
@@ -429,3 +561,4 @@ After installing *Grafana*, you can browse to the *Grafana* endpoint (check the 
 * install Collector endpoint
 * custom dashboard displaying the custom metric
 * [ssh fingerprint checks](https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking)
+* setup nginx with ansible and a [self signed certifcate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1)

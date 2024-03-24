@@ -102,6 +102,10 @@
         dotnet clean Be.Cars.sln
         dotnet build -c Release  --self-contained false Be.Cars.sln
         dotnet publish  src/Be.Cars.HttpApi.Host/Be.Cars.HttpApi.Host.csproj -c Release --no-build -o "{{ http_api_install_folder }}"build        
+      register: publish_http_api_result
+      retries: 5
+      delay: 10
+      until: publish_http_api_result.rc == 0        
     - name: Create the directory for the virtual file system (hard coded for now)
       ansible.builtin.file:
         path: "{{ webserver_install_folder }}Be.Cars.Domain.Shared/"

@@ -1,7 +1,7 @@
 {
   "App": {  
     "SelfUrl": "https://{{ groups['webserver'][0] }}:5000",
-    "CorsOrigins": "https://*.Cars.com,http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000",
+    "CorsOrigins": "https://*.Cars.com,http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000,https://192.168.1.20",
   },
   "RemoteServices": {
     "Default": {
@@ -38,7 +38,8 @@
       },
       "Cars_Swagger": {
         "ClientId": "Cars_Swagger",
-        "RootUrl": "https://{{ groups['http_api'][0] }}:5000"
+        //"RootUrl": "https://{{ groups['http_api'][0] }}:5000"
+        "RootUrl": "https://192.168.1.20"
       }
     }
   },
