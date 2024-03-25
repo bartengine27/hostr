@@ -70,6 +70,10 @@
         dotnet clean Be.Cars.sln
         dotnet build -c Release  --self-contained false Be.Cars.sln
         dotnet publish  src/Be.Cars.AuthServer/Be.Cars.AuthServer.csproj -c Release --no-build -o "{{ identityserver_install_folder }}"build
+      register: publish_is_result
+      retries: 5
+      delay: 5
+      until: publish_is_result.rc == 0        
     - name: Create the directory for the virtual file system (hard coded for now)
       ansible.builtin.file:
         path: /webapp/Be.Cars.Domain.Shared/

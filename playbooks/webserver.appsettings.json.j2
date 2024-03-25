@@ -20,7 +20,7 @@
     "ClientId": "Cars_BlazorServerTiered",
     "ClientSecret": "1q2w3e*"
   },
-    "OpenIddict": {
+"OpenIddict": {
     "Applications": {
       "Cars_Web": {
         "ClientId": "Cars_Web",
@@ -38,8 +38,9 @@
       },
       "Cars_Swagger": {
         "ClientId": "Cars_Swagger",
-        //"RootUrl": "https://{{ groups['http_api'][0] }}:5000"
-        "RootUrl": "https://192.168.1.20"
+        "ClientSecret": "1q2w3e*",
+        //"RootUrl": "https://{{ ansible_host }}:5000"
+        "RootUrl": "http://192.168.1.20"
       }
     }
   },
