@@ -374,15 +374,17 @@ ansible-playbook redis-setup.yml -i hosts -K -vvv
 
 after running the redis playbook, you probably forgot to `source .env`.  
 
-## Identity Server
+## Authentication Server
 
-### Install Identity Server
+### Install Authentication Server
 
 `ABP` supports [IdentityServer4](https://github.com/IdentityServer/IdentityServer4) and [OpenIddict](https://github.com/openiddict/openiddict-core). As the `ABP` startup templates support *OpenIddict* since *ABP v6.0.0* we will only support `OpenIddict`.  
 
 ```bash
 ansible-playbook identityserver-setup.yml -i hosts -K -vvv
 ```
+
+After installing the authentication server, you can request a client credentials (server to server), check the documentation and example [in the cars.be repo](https://github.com/bartengine27/cars.be/tree/abp_8).
 
 ## REST API
 
@@ -494,56 +496,133 @@ After installing *Grafana*, you can browse to the *Grafana* endpoint (check the 
 
 ## Proxy
 
-### NGINX 
+### NGINX
 
-### Bearer token
+The provided NGINX configuration demonstrates a setup designed to facilitate secure HTTPS connections to a load-balanced backend comprised of multiple HTTP API servers:
 
-An example bearer token (# lines added for clarity):
+```mermaid
+flowchart TD;        
+    NGINX--load balances/offloads https-->RESTAPI1[REST API Cars node1];
+    NGINX--load balances/offloads https-->RESTAPI2[REST API Cars node2];
+    NGINX--load balances/offloads https-->RESTAPI3[REST API Cars node2];
 
-```base64
-#header
- eyJhbGciOiJSUzI1NiIsImtpZCI6IjYyNUJEMkU5OUZEODM3NkNEN0Q5QjgxNjdBMkUyRDU5Njg2Nzc0MUEiLCJ4NXQiOiJZbHZTNlpfWU4yelgyYmdXZWk0dFdXaG5kQm8iLCJ0eXAiOiJhdCtqd3QifQ.
- #payload
- eyJzdWIiOiIzODU3YjI3Mi0zMTJmLTgyNDMtNzc1OC0zYTExODI4MGFhNDAiLCJ1bmlxdWVfbmFtZSI6ImFkbWluIiwib2lfcHJzdCI6IkNhcnNfU3dhZ2dlciIsIm9pX2F1X2lkIjoiNGMzMDI1MWMtMzMyMi1lYWNkLTExN2MtM2ExMTgyODkwYjc2IiwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4iLCJnaXZlbl9uYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJlbWFpbCI6ImFkbWluQGFicC5pbyIsImVtYWlsX3ZlcmlmaWVkIjoiRmFsc2UiLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiOiJGYWxzZSIsImNsaWVudF9pZCI6IkNhcnNfU3dhZ2dlciIsIm9pX3Rrbl9pZCI6Ijg1ZjA2ZTViLTljNTEtMTVkZS01YjQ5LTNhMTE4MjlmZmYzYyIsImF1ZCI6IkNhcnMiLCJzY29wZSI6IkNhcnMiLCJqdGkiOiI0MzZmYTlhZS1kOThmLTRkMjEtYmZlOC1jYzBiMTZlZGIwNzgiLCJpc3MiOiJodHRwczovLzE5Mi4xNjguMS42Mzo1MDAwLyIsImV4cCI6MTcxMTI4NzE3OCwiaWF0IjoxNzExMjgzNTc4fQ.
- #signature
- XTK9ZuKpdMi1kKLb7bR2vNUI05n9TuQd3I4GiTZbuCVJRLsuF-M9NBVc-pTfqXUdyqAx9Pt8NYtc4IJaSBukuaNbUyIqxJu0Eswobg_KxGe7eTxahXwsL7Q4flQY_sL6mU-XfjDCAnqg-gGcnTTTASClatMUfUf4qxJYbgw2p2J6fWqfsF6Djt4LBsrFqPAjqxwueblpHtw4IlnX42aEBcg8y03U0kImKTkVKSnasrbpQjlqKbcwRIm9QVtj2jBzprWWW_O8ngJfNBVs909buptc8HTG8H4_n6XM6z6XWCCv9c48JcNYILi1WcL5UpmcB54Wp2-bxdo0JH0mECQgTw
+    RESTAPI1[REST API Cars node1]--data protection-->Redis;
+    RESTAPI2[REST API Cars node2]--data protection-->Redis;
+    RESTAPI3[REST API Cars node2]--data protection-->Redis;
+
+    Client--https-->NGINX
 ```
 
-after decoding [on](https://jwt.io/):
+The `NGINX` configuration for this setup illustrates a robust setup for managing secure, load-balanced connections to a backend API cluster, with a focus on detailed logging, security with SSL, and flexibility to support large headers and optional WebSocket connections:  
 
-```json
-//header
-{
-  "alg": "RS256",
-  "kid": "625BD2E99FD8376CD7D9B8167A2E2D596867741A",
-  "x5t": "YlvS6Z_YN2zX2bgWei4tWWhndBo",
-  "typ": "at+jwt"
+```nginx
+http {
+    log_format upstreamlog '[$time_local] $remote_addr - $remote_user - $server_name $host to: $upstream_addr: $request $status upstream_response_time $upstream_response_time msec $msec request_time $request_time';
+
+    upstream https_api {
+        server 192.168.1.64:5000;
+        server 192.168.1.68:5000;
+        server 192.168.1.69:5000;
+    }
+
+    server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+        include snippets/self-signed.conf;
+        include snippets/ssl-params.conf;
+
+        client_header_buffer_size 4k;
+        large_client_header_buffers 4 8k; # Increase if JWT or other headers are large      
+
+        access_log /var/log/nginx/access.log upstreamlog;
+
+        location / {
+            proxy_pass https://https_api;
+        }
+
+        # Header adjustments for proxying
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization $http_authorization;
+            
+        # Other possible headers you might want to set
+        # proxy_set_header Authorization ""; # If you need to reset the Authorization header
+
+        # WebSocket support (if needed)
+        # proxy_http_version 1.1;
+        # proxy_set_header Upgrade $http_upgrade;
+        # proxy_set_header Connection "upgrade";
+    }
 }
 ```
 
-```json
-//payload
-{
-  "sub": "3857b272-312f-8243-7758-3a118280aa40",
-  "unique_name": "admin",
-  "oi_prst": "Cars_Swagger",
-  "oi_au_id": "4c30251c-3322-eacd-117c-3a1182890b76",
-  "preferred_username": "admin",
-  "given_name": "admin",
-  "role": "admin",
-  "email": "admin@abp.io",
-  "email_verified": "False",
-  "phone_number_verified": "False",
-  "client_id": "Cars_Swagger",
-  "oi_tkn_id": "a3914af4-95fe-2856-3f15-3a1182890c3f",
-  "aud": "Cars",
-  "scope": "Cars",
-  "jti": "76980075-5eae-4bbc-bda6-1999d576581e",
-  "iss": "https://192.168.1.63:5000/",
-  "exp": 1711285674,
-  "iat": 1711282074
-}
-```
+#### log format
+
+* Functional Goal: Define a custom logging format to capture detailed information about requests and responses.
+* Technical Description: The log_format directive specifies a custom format named upstreamlog, which includes timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers.
+
+#### load balancing
+
+* Functional Goal: Distribute incoming traffic across multiple backend servers.
+* Technical Description: The upstream block named http_api defines a cluster of servers (with specified IP addresses and port numbers) that requests will be load balanced across. This setup increases the application's scalability and reliability by distributing the load and providing redundancy.
+
+#### https configuration
+
+* Functional Goal: Configure NGINX to serve HTTPS traffic and to use specific SSL parameters and certificates.
+* Technical Description:
+
+  * The listen 443 ssl directives instruct NGINX to listen for incoming connections on port 443 with SSL encryption, including IPv6 connections ([::]:443 ssl).
+  * The include directives incorporate additional SSL configurations and self-signed certificate details from external files (self-signed.conf and ssl-params.conf), modularizing the SSL setup for easier management.
+  * client_header_buffer_size And large_client_header_buffers directives adjust the buffer sizes for client request headers, accommodating potentially large JWT tokens or other large headers.
+
+Note the HTTPS offloading and re-encryption in the configuration above which involves the NGINX server acting as a termination point for incoming HTTPS connections from clients. NGINX decrypts these connections, inspects the traffic, and then re-encrypts the traffic before forwarding it to the backend servers over HTTPS using separate, internal SSL certificates. This process allows for secure communication both externally with clients and internally within the data center.
+
+* Decryption of Incoming HTTPS Requests: NGINX uses public-facing SSL certificates to decrypt data received over SSL/TLS from clients. This is the offloading part.
+* Inspection and Processing: Once decrypted, NGINX can inspect, log, or manipulate the HTTP content as necessary. This step can involve modifying headers, applying access controls, or making routing decisions.
+* Re-Encryption and Forwarding: NGINX then re-encrypts the requests using internal SSL certificates and forwards them to the backend servers over HTTPS. This ensures that traffic remains secure as it traverses the internal network.
+* Secure Internal Communication: The backend servers, configured with the internal certificates, decrypt the re-encrypted requests, process them, and send back the responses. NGINX then encrypts the responses again (if necessary) before sending them back to the clients.
+
+HTTPS offloading and re-encryption has the following benefits:
+
+* Enhanced Security Across the Board: This setup ensures end-to-end encryption of data, maintaining security from the client to the NGINX server and from the NGINX server to the backend servers. Using internal certificates for the data center adds an extra layer of security within the internal network.
+* Centralized Public SSL Management: Public-facing SSL certificate management remains centralized at the NGINX server, simplifying the administration of public encryption keys and certificates.
+* Flexible Trust and Security Policies: The separation of external and internal certificates allows for distinct trust domains and security policies. For example, stronger or different encryption standards can be applied internally compared to what is used for public internet traffic.
+* Inspection and Added Controls: Decrypting the traffic at the NGINX layer allows for detailed inspection and the application of additional security controls before re-encrypting and sending it to backend services. This can be crucial for compliance with security policies, logging, or performing deep packet inspection for threat detection.
+* Performance and Scalability: While the NGINX server handles the computational overhead of encrypting and decrypting traffic twice, it offloads backend servers from doing so. This can be optimized by using hardware that accelerates SSL processing. Furthermore, it allows backend servers to be scaled out without the need to manage public SSL certificates on each of them.
+* Secure Internal Traffic: Using HTTPS internally protects against potential threats lurking within the data center, ensuring that sensitive data is encrypted in transit even within the network's trusted boundaries.
+
+In summary, employing HTTPS offloading and re-encryption with NGINX provides robust security by ensuring encrypted traffic both externally and internally while centralizing certificate management and offering the ability to inspect and manipulate HTTP traffic. This configuration enhances the overall security posture and flexibility of managing traffic flows within distributed application architectures.
+
+#### access logging
+
+* Functional Goal: Log access requests using the custom-defined log format.
+* Technical Description: The access_log directive specifies the path to the access log file and instructs NGINX to use the upstreamlog format for logging, ensuring that detailed information about each request and its handling is logged for future analysis.
+
+#### location block and proxy settings
+
+* Functional Goal: Define request routing and proxying behavior for the root path.
+* Technical Description:
+
+  * The location / block matches all requests and uses the proxy_pass directive to forward them to the http_api upstream cluster, enabling load balancing.
+  * proxy_set_header Directives modify request headers to include the original host, the real client IP address, and the protocol used, ensuring that the proxied requests contain necessary information for backend services to process them correctly.
+  * The configuration optionally supports forwarding the Authorization header, preserving JWT or other authentication tokens needed by the backend services.
+
+#### optional websocket support
+
+* Functional Goal: (Commented out) Provide the necessary headers to support WebSocket connections if needed.
+* Technical Description: The commented-out directives (proxy_http_version, proxy_set_header Upgrade, and proxy_set_header Connection) are set up to enable WebSocket support, ensuring that NGINX can proxy WebSocket connections correctly. These lines can be uncommented and adjusted as needed based on the application's requirements.
+
+#### redis
+
+Cross-Site Request Forgery (CSRF) is a security threat where an attacker tricks a user into executing unwanted actions on a web application in which they're authenticated. If the victim is a regular user, a successful CSRF attack can force them to perform state-changing requests like transferring funds, changing their email address, and so forth. If the victim has an administrative account, CSRF can compromise the entire web application. CSRF exploits the trust that a site has in the user's browser, and unlike Cross-Site Scripting (XSS), which exploits the trust a user has in a particular site, CSRF exploits the trust that a site has in the user's browser.
+
+In a distributed web application architecture, particularly one that scales horizontally as in this setup, requests from the same user can be routed to different servers across multiple requests due to load balancing. This poses a challenge for CSRF protection mechanisms that rely on keeping track of state, such as synchronizer tokens or double submit cookies, because the server handling a subsequent request might not have access to the tokens generated by another server on a previous request.
+
+REDIS, as a fast, in-memory data store offers a  solution for storing CSRF protection keys in such a distributed setup. 
+
+In the drawing above, REDIS was added explicitely to stress not necessarily obvious impact of the distributed nature and horizontal scalability of the setup, i.e. its non-trivial impact on CSRF. More details are available [on the cars.be repo] (https://github.com/bartengine27/cars.be/tree/abp_8).
 
 ## References
 
