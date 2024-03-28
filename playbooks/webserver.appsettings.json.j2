@@ -6,6 +6,9 @@
   "RemoteServices": {
     "Default": {
       "BaseUrl": "https://{{ groups['http_api'][0] }}:5000"
+    },
+    "AbpAccountPublic": {
+      "BaseUrl": "https://{{ groups['identity_server'][0] }}:5000"
     }
   },
   "Redis": {
@@ -16,7 +19,7 @@
   },
   "AuthServer": {
     "Authority": "https://{{ groups['identity_server'][0] }}:5000",
-    "RequireHttpsMetadata": "false",
+    "RequireHttpsMetadata": "true",
     "ClientId": "Cars_BlazorServerTiered",
     "ClientSecret": "1q2w3e*"
   },
@@ -40,7 +43,7 @@
         "ClientId": "Cars_Swagger",
         "ClientSecret": "1q2w3e*",
         //"RootUrl": "https://{{ ansible_host }}:5000"
-        "RootUrl": "http://192.168.1.20"
+        "RootUrl": "https://192.168.1.20"
       }
     }
   },

@@ -561,7 +561,7 @@ http {
 #### log format
 
 * Functional Goal: Define a custom logging format to capture detailed information about requests and responses.
-* Technical Description: The log_format directive specifies a custom format named upstreamlog, which includes timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers.
+* Technical Description: The log_format directive specifies a custom format named upstreamlog, which includes timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers, in particular inspecting load balancing as the log will display the IP address of the upstream REST API node.
 
 #### load balancing
 
