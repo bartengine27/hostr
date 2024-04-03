@@ -23,3 +23,9 @@
 
 [otlp_controller]
 192.168.1.67
+
+[firewall]
+192.168.1.50
+
+[firewall_public_ip]
+"{{ lookup('ansible.builtin.env', 'WIREGUARD_PUBLIC_IP') }}"

@@ -1,6 +1,9 @@
 ---
 # vars file for proxmox.cars.be
-# this vars file has the role of an inventory, i.e. all machines defined in this vars
+
+firewall_id: "500" # container ID of the firewall -> make dynamic based on the below list
+additional_mac_address: "02:00:00:13:75:B8" # the MAC address of the additional IP address (we have two public IP adresses, one for proxmox the other for the web site, both may be equal)
+# proxmox_vms has the role of an inventory, i.e. all machines defined in this vars
 # file will be setup on Proxmox and used by the subsequent roles to setup webservers, caches, databases, etc.
 proxmox_vms:
  - ip: 192.168.1.60
@@ -43,3 +46,17 @@ proxmox_vms:
    id: 607
    group:
     - "otlp_controller"
+proxmox_public_vms:    
+ - ip: 192.168.1.50
+   ip_gateway: 192.168.1.1
+   id: 500
+   # are mac and additional_ip env deps? if they are, substitute with env var values
+   additional_ip_mac: "{{ lookup('ansible.builtin.env', 'PROXMOX_ADDITIONAL_PUBLIC_IP_MAC_ADDRESS') }}"
+   additional_ip: "{{ lookup('ansible.builtin.env', 'PROXMOX_ADDITIONAL_PUBLIC_IP') }}"
+   gateway: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_GATEWAY') }}" 
+   group:
+    - "firewall"
+# https://www.dns0.eu/
+proxmox_preferred_dns: 193.110.81.0
+proxmox_alternate_dns: 185.253.5.0
+firewall_public_ip: "{{ lookup('ansible.builtin.env', 'WIREGUARD_PUBLIC_IP') }}"

@@ -85,17 +85,19 @@ Follow the default installation procedure [on](https://www.proxmox.com/en/proxmo
 #### Promox API user
 
 Before using the Ansible scripts, you will need a Proxmox API user:
+
 * Log into the Proxmox Web UI
 * Select datacenter from the left menu
 * Select users from the left sub-menu
 * We will use the default root@pam user
 * Select API tokens from the left sub-menu
 * Click add
-    * User: root@pam
-    * Token ID: input a random string, for [example](https://www.random.org/passwords/?num=1&len=24&format=plain&rnd=new) and record the token ID
-    * record the token secret
+  * User: root@pam
+  * Token ID: input a random string, for [example](https://www.random.org/passwords/?num=1&len=24&format=plain&rnd=new) and record the token ID
+  * record the token secret
 
 After adding the user and API token, select Datacenter and click on Permissions and Add API Token Permission. Choose
+
 * Path: /
 * API Token: root@pam<tokenID>
 * Role: Administrator
@@ -240,6 +242,30 @@ sudo ansible-galaxy collection install community.general
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
 ```
 
+### Proxmox public IP
+
+Ubuntu 20.04 network config: https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-networking-in-ubuntu-20-04-with-netplan/
+
+config vm proxmox: https://help.ovhcloud.com/csm?id=kb_article_view&sysparm_article=
+
+fwd ssh https://unix.stackexchange.com/questions/421521/proxy-ssh-through-nginx as an alternative for a firewall/vpn
+
+```nginx
+stream {
+
+        upstream ssh {
+                server 10.0.0.17:22;
+        }
+
+        server {
+                listen 8022;
+                server_name gitlab.web.com;
+                proxy_pass ssh;
+        }
+
+}
+```
+
 ### Addding Proxmox VM(s) to known_hosts
 
 If you removed existing VMs/Containers or are building new VMs/Containers, you should remove the old entries in `known_hosts` and add new entries:
@@ -345,6 +371,126 @@ Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stoppin
 ```bash
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop,vm_remove -vvv
 ```
+
+### Proxmox Firewall Preparation
+
+Before you can install a firewall, you have to make sure that at least one of your VMs an access the Internet, all
+other VMs on Proxmox have to be able to communicate with each other in a LAN only. No Internet connectivity is required for
+the "non firewall" VMs.  
+
+In order to arrange this setup, we will need two bridges:
+
+* one bridge which will *bridge* the incoming Internet traffic to the firewall and vice-versa
+* one bridge which will allow the VMs to communicate within a LAN
+* the VMs within the LAN use the LAN IP address of the firewall as gateway to return traffic over the firewall/VPN
+
+A step-by-step guide to achieve this:
+
+* You should have one existing bridge with a IPv4 which equals your public IP address (not the additional IP address)
+* edit the MAC address of the network interface of the VM which has to access the Internet, enter the MAC address of the additional IP address
+* Create a New Bridge for the Internal Network
+  * Log into Proxmox VE Web Interface: Open your browser and access the Proxmox VE web interface by navigating to your Proxmox server's IP address.  
+  * Navigate to 'System' -> 'Network': Here you will see your current network configuration, including any bridges and physical interfaces.
+  * Create a New Bridge:
+    * Click on "Create" and select "Linux Bridge".
+    * Give the bridge a meaningful name, like vmbr1 (assuming vmbr0 is your existing bridge for the internet connection).
+    * Assign it an IP address that fits within your internal network scheme (e.g., 192.168.1.1/16). If the Proxmox host doesn't need to communicate on this network, you may leave the IP address field empty.
+    * Leave the Gateway field empty (the existing bridge has a Gateway)
+    * Ensure the "Autostart" option is checked.
+    * Leave the "Bridge ports" field empty if this bridge is for internal VM communication only.
+    * Click "Create".
+* Attach a Second Network Interface to Your VM
+  * Select Your VM: In the Proxmox web interface, go to the "Server View", find the VM you want to configure, and click on it.
+  * Add Network Device:
+    * With the VM selected, go to the "Hardware" tab.
+    * Click "Add" and choose "Network Device".
+    * For "Model", you can choose "VirtIO (paravirtualized)" for better performance or "e1000" for broader compatibility.
+    * Under "Bridge", select the new bridge you created (vmbr1).
+    * Click "Add".
+* Configure the Operating System Inside the VM: After attaching the second network interface, you need to configure the operating system inside the VM to use this new interface.  
+  * Access Your VM: Log into your VM via the Proxmox console or SSH.
+  * Identify the New Interface: Run ip a or ifconfig to list your network interfaces. You should see a new one (likely named eth1 or similar).
+  * Configure the Network Interface: You'll need to edit the network configuration file or use a network manager to configure the interface. The exact steps vary depending on your Linux distribution, for Ubuntu:
+
+  ```network
+  # /etc/network/interfaces - create the file if it does not exist
+  auto eth1
+  iface eth1 inet static
+      address 192.168.1.x
+      netmask 255.255.0.0
+      gateway 192.168.1.1
+  ```
+
+* Restart the Network Service or the VM to apply changes.  
+
+### Bridges
+
+The terms *bridge* and *switch* are often used interchangeably in the context of networking, but they refer to devices that operate at the data link layer (Layer 2) of the OSI model.  
+
+A bridge in Proxmox (or any other virtualization platform) is conceptually closer to a physical switch than to a traditional physical bridge in terms of its functionality and use case. Here's why:
+
+* Virtual Bridges and Physical Switches: Similarities
+
+  * Multiple Connections: Both virtual bridges in Proxmox and physical switches are designed to connect multiple devices (or virtual machines/containers in the case of Proxmox) within a network. They allow for the creation of network segments that can communicate internally and externally.
+  * Traffic Management: Like a physical switch, a virtual bridge can manage and forward traffic between its connected interfaces based on MAC addresses, efficiently directing packets to their intended destinations within the virtual network or to external networks. 
+  * Advanced Networking Features: While not as feature-rich as some high-end physical switches, virtual bridges in Proxmox can still offer several advanced networking features, such as VLAN tagging, which is a hallmark of switch capabilities.
+
+* Differences from Physical Bridges
+
+  * Functionality: Traditional physical bridges were primarily used to connect two network segments, with a focus on reducing collision domains and managing traffic between these segments. While a Proxmox bridge can perform a similar role in a virtual environment, it more closely mirrors the multiport, multipurpose functionality of switches by allowing numerous virtual machines and containers to connect to various networks.
+  * Port Density: Physical bridges typically have a very limited number of ports (often just two), akin to the simplest form of segmentation. In contrast, a virtual bridge in Proxmox can handle connections from numerous VMs and containers simultaneously, much like a physical switch with many ports.
+
+* Use in Virtualization
+
+  * Network Virtualization: Virtual bridges play a crucial role in network virtualization, providing a platform for VMs and containers to communicate as if they were connected to a physical switch. This is essential for creating complex virtual network topologies that resemble physical network infrastructures.
+  * Flexibility and Scalability: In virtual environments, bridges offer a level of flexibility and scalability that is more characteristic of switches. Administrators can dynamically adjust network configurations, add or remove VMs from networks, and implement security policies or VLANs without needing physical hardware changes.
+
+In summary, while the terminology may suggest a direct analogy to physical bridges, in practice, the role of a bridge in Proxmox and other virtualized environments aligns more closely with the functionalities of a physical switch, especially concerning its ability to connect multiple devices and manage network traffic efficiently within a virtualized networking context.
+
+For our setup, that becomes:
+
+```mermaid
+graph TB
+  subgraph Internet
+  end
+  subgraph Proxmox
+    direction TB
+
+    subgraph vmbr0 [vmbr0<br>Public IPv4: 37.187.28.32<br>Gateway: 37.187.28.254]
+
+    end
+
+    subgraph VM500 [VM 500 - PfSense]
+      direction TB
+      eth0(eth0<br>MAC Additional IP)
+      eth1(eth1<br>IP: 192.168.1.51)
+      eth0 <--firewall--> eth1
+    end
+
+    subgraph vmbr1 [vmbr1<br>LAN Subnet: 192.168.1.1/16<br>Gateway: 192.168.1.51]
+
+    end       
+
+    subgraph LAN [LAN Subnet: 192.168.1.1/16<br>Gateway: 192.168.1.51]
+
+    end
+
+    vmbr0 --> eth0
+    eth1 --> vmbr1
+    vmbr1 --> LAN    
+  end 
+  Internet <---> vmbr0  
+```
+
+~~### Firewall~~
+
+This task will specifically focus on installing and configuring WireGuard, a popular, modern, and secure VPN software, on a Linux VM. WireGuard is chosen for its simplicity and ease of configuration compared to traditional VPN software.
+
+```bash
+ansible-playbook firewallserver-setup.yml -i hosts -K -vvv
+```
+
+Download the wireguard client [from](https://www.wireguard.com/install/). 
 
 ### SSH into the Proxmox VM
 
@@ -641,3 +787,5 @@ In the drawing above, REDIS was added explicitely to stress not necessarily obvi
 * custom dashboard displaying the custom metric
 * [ssh fingerprint checks](https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking)
 * setup nginx with ansible and a [self signed certifcate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1)
+* [enable tcpdump in a container](https://cloud.garr.it/support/kb/general/enableTcpdumpInLXCContainer/)
+https://netsplit.uk/posts/2022/10/19/remote_ovh_lab/

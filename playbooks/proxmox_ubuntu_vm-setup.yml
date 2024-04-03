@@ -7,33 +7,30 @@
     - name: project_name
       prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
       private: false
-      default: ansible
+      default: "{{ lookup('ansible.builtin.env', 'PROXMOX_PROJECT_NAME') }}"      
     - name: proxmox_ip_address
       prompt: "The proxmox IP address"
       private: false
-      # proxmox on cube
-      default: 192.168.1.199
-      #proxmox on surface
-      #default: 172.18.60.44
+      default: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_IP') }}"
     - name: proxmox_api_token
       prompt: "The proxmox API token with sufficient rights to install, stop and remove VMs."
-      # proxmox on cube
-      default: 3f1e6348-2402-4df2-8cb3-d794554fa911
-      # proxmox on surface
-      #default: c27a3ea2-17aa-457a-88be-3e49479db3a5
+      default: "{{ lookup('ansible.builtin.env', 'PROXMOX_API_SECRET') }}"
     - name: proxmox_node
       prompt: "The proxmox node to install our VM(s) on."
       private: false
-      default: pve
+      default: "{{ lookup('ansible.builtin.env', 'PROXMOX_NODE') }}"
     - name: proxmox_api_user
       prompt: "The proxmox API user with sufficient rights to install, stop and remove VMs."
       private: false
-      default: root@pam
+      default: "{{ lookup('ansible.builtin.env', 'PROXMOX_API_USER') }}"
     - name: proxmox_api_token_id
       prompt: "The proxmox API token id with sufficient rights to install, stop and remove VMs."
       private: false
-      default: api
-      #default: JvneEABqmYa9UWW5Mw3x5ArB
+      default: "{{ lookup('ansible.builtin.env', 'PROXMOX_API_TOKEN') }}"
+    - name: proxmox_local_storage
+      prompt: "The name of the local storage used for the storage of your VMs"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROXMOX_LOCAL_STORAGE') }}"
   roles:
     - proxmox.cars.be    
   vars:
