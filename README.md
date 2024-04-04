@@ -421,6 +421,7 @@ A step-by-step guide to achieve this:
       gateway 192.168.1.1
   ```
 
+  For pfSense, you don't need to edit /etc/network/interfaces or /etc/netplan/..., it is sufficient to add the second network interface and assign its IP address in the pfSense UI.
 * Restart the Network Service or the VM to apply changes.  
 
 ### Bridges
@@ -502,9 +503,9 @@ ssh root@192.168.1.60 -i /home/user/.ssh/authorized_keys
 
 TODO
 
-## Redis
+## REDIS
 
-### Install Redis
+### Install REDIS
 
 ```bash
 ansible-playbook redis-setup.yml -i hosts -K -vvv
@@ -644,7 +645,7 @@ After installing *Grafana*, you can browse to the *Grafana* endpoint (check the 
 
 ### NGINX
 
-The provided NGINX configuration demonstrates a setup designed to facilitate secure HTTPS connections to a load-balanced backend comprised of multiple HTTP API servers:
+The provided NGINX configuration demonstrates a setup designed to facilitate secure HTTPS connections to a load-balanced backend comprised of multiple HTTPS API servers:
 
 ```mermaid
 flowchart TD;        
@@ -704,71 +705,67 @@ http {
 }
 ```
 
-#### log format
+#### Log format
 
-* Functional Goal: Define a custom logging format to capture detailed information about requests and responses.
-* Technical Description: The log_format directive specifies a custom format named upstreamlog, which includes timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers, in particular inspecting load balancing as the log will display the IP address of the upstream REST API node.
+To capture detailed information about requests and responses, we define a custom logging format: the `log_format` directive specifies a custom format named `upstreamlog`, which includes *timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times*. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers, in particular inspecting load balancing as the log will display the IP address of the upstream REST API node.
 
-#### load balancing
+#### Load balancing
 
-* Functional Goal: Distribute incoming traffic across multiple backend servers.
-* Technical Description: The upstream block named http_api defines a cluster of servers (with specified IP addresses and port numbers) that requests will be load balanced across. This setup increases the application's scalability and reliability by distributing the load and providing redundancy.
+Distribute incoming traffic across multiple backend servers: the upstream block named `http_api` defines a cluster of servers (with specified IP addresses and port numbers) that requests will be load balanced across. This setup increases the application's scalability and reliability by distributing the load and providing redundancy.
 
-#### https configuration
+#### HTTPS configuration
 
-* Functional Goal: Configure NGINX to serve HTTPS traffic and to use specific SSL parameters and certificates.
-* Technical Description:
+We configure NGINX to serve HTTPS traffic and to use specific SSL parameters and certificates.
 
-  * The listen 443 ssl directives instruct NGINX to listen for incoming connections on port 443 with SSL encryption, including IPv6 connections ([::]:443 ssl).
-  * The include directives incorporate additional SSL configurations and self-signed certificate details from external files (self-signed.conf and ssl-params.conf), modularizing the SSL setup for easier management.
-  * client_header_buffer_size And large_client_header_buffers directives adjust the buffer sizes for client request headers, accommodating potentially large JWT tokens or other large headers.
+* The **listen 443 ssl directives** instruct NGINX to listen for incoming connections on port 443 with SSL encryption, including IPv6 connections ([::]:443 ssl).
+* The **include directives** incorporate additional SSL configurations and self-signed certificate details from external files (self-signed.conf and ssl-params.conf), modularizing the SSL setup for easier management.
+* client_header_buffer_size And large_client_header_buffers directives adjust the buffer sizes for client request headers, accommodating potentially large JWT tokens or other large headers.
 
-Note the HTTPS offloading and re-encryption in the configuration above which involves the NGINX server acting as a termination point for incoming HTTPS connections from clients. NGINX decrypts these connections, inspects the traffic, and then re-encrypts the traffic before forwarding it to the backend servers over HTTPS using separate, internal SSL certificates. This process allows for secure communication both externally with clients and internally within the data center.
+Note the HTTPS offloading and re-encryption in the configuration above which involves the NGINX server acting as a termination point for incoming HTTPS connections from clients. NGINX decrypts these connections, inspects the traffic, and then re-encrypts the traffic before forwarding it to the backend servers over HTTPS using separate, internal SSL certificates. This process allows for secure communication both externally with clients and internally within the data center:
 
-* Decryption of Incoming HTTPS Requests: NGINX uses public-facing SSL certificates to decrypt data received over SSL/TLS from clients. This is the offloading part.
-* Inspection and Processing: Once decrypted, NGINX can inspect, log, or manipulate the HTTP content as necessary. This step can involve modifying headers, applying access controls, or making routing decisions.
-* Re-Encryption and Forwarding: NGINX then re-encrypts the requests using internal SSL certificates and forwards them to the backend servers over HTTPS. This ensures that traffic remains secure as it traverses the internal network.
-* Secure Internal Communication: The backend servers, configured with the internal certificates, decrypt the re-encrypted requests, process them, and send back the responses. NGINX then encrypts the responses again (if necessary) before sending them back to the clients.
+* **Decryption of Incoming HTTPS Requests**: NGINX uses public-facing SSL certificates to decrypt data received over SSL/TLS from clients. This is the offloading part.
+* **Inspection and Processing**: Once decrypted, NGINX can inspect, log, or manipulate the HTTP content as necessary. This step can involve modifying headers, applying access controls, or making routing decisions.
+* **Re-Encryption and Forwarding**: NGINX then re-encrypts the requests using internal SSL certificates and forwards them to the backend servers over HTTPS. This ensures that traffic remains secure as it traverses the internal network.
+* **Secure Internal Communication**: The backend servers, configured with the internal certificates, decrypt the re-encrypted requests, process them, and send back the responses. NGINX then encrypts the responses again (if necessary) before sending them back to the clients.
 
 HTTPS offloading and re-encryption has the following benefits:
 
-* Enhanced Security Across the Board: This setup ensures end-to-end encryption of data, maintaining security from the client to the NGINX server and from the NGINX server to the backend servers. Using internal certificates for the data center adds an extra layer of security within the internal network.
-* Centralized Public SSL Management: Public-facing SSL certificate management remains centralized at the NGINX server, simplifying the administration of public encryption keys and certificates.
-* Flexible Trust and Security Policies: The separation of external and internal certificates allows for distinct trust domains and security policies. For example, stronger or different encryption standards can be applied internally compared to what is used for public internet traffic.
-* Inspection and Added Controls: Decrypting the traffic at the NGINX layer allows for detailed inspection and the application of additional security controls before re-encrypting and sending it to backend services. This can be crucial for compliance with security policies, logging, or performing deep packet inspection for threat detection.
-* Performance and Scalability: While the NGINX server handles the computational overhead of encrypting and decrypting traffic twice, it offloads backend servers from doing so. This can be optimized by using hardware that accelerates SSL processing. Furthermore, it allows backend servers to be scaled out without the need to manage public SSL certificates on each of them.
-* Secure Internal Traffic: Using HTTPS internally protects against potential threats lurking within the data center, ensuring that sensitive data is encrypted in transit even within the network's trusted boundaries.
+* **Enhanced Security Across the Board**: This setup ensures end-to-end encryption of data, maintaining security from the client to the NGINX server and from the NGINX server to the backend servers. Using internal certificates for the data center adds an extra layer of security within the internal network.
+* **Centralized Public SSL Management**: Public-facing SSL certificate management remains centralized at the NGINX server, simplifying the administration of public encryption keys and certificates.
+* **Flexible Trust and Security Policies**: The separation of external and internal certificates allows for distinct trust domains and security policies. For example, stronger or different encryption standards can be applied internally compared to what is used for public internet traffic.
+* **Inspection and Added Controls**: Decrypting the traffic at the NGINX layer allows for detailed inspection and the application of additional security controls before re-encrypting and sending it to backend services. This can be crucial for compliance with security policies, logging, or performing deep packet inspection for threat detection.
+* **Performance and Scalability**: While the NGINX server handles the computational overhead of encrypting and decrypting traffic twice, it offloads backend servers from doing so. This can be optimized by using hardware that accelerates SSL processing. Furthermore, it allows backend servers to be scaled out without the need to manage public SSL certificates on each of them.
+* **Secure Internal Traffic**: Using HTTPS internally protects against potential threats lurking within the data center, ensuring that sensitive data is encrypted in transit even within the network's trusted boundaries.
 
 In summary, employing HTTPS offloading and re-encryption with NGINX provides robust security by ensuring encrypted traffic both externally and internally while centralizing certificate management and offering the ability to inspect and manipulate HTTP traffic. This configuration enhances the overall security posture and flexibility of managing traffic flows within distributed application architectures.
 
-#### access logging
+#### Access logging
 
-* Functional Goal: Log access requests using the custom-defined log format.
-* Technical Description: The access_log directive specifies the path to the access log file and instructs NGINX to use the upstreamlog format for logging, ensuring that detailed information about each request and its handling is logged for future analysis.
+In orde to use a custom-defined log file path and format, the `access_log` directive specifies the path to the access log file and instructs NGINX to use the *upstreamlog* format (`log_format upstreamlog '[$ti...`) for logging, ensuring that detailed information about each request and its handling is logged for future analysis.
 
-#### location block and proxy settings
+#### Location block and proxy settings
 
-* Functional Goal: Define request routing and proxying behavior for the root path.
-* Technical Description:
+Request routing and proxying behavior for the root path is defined with:
 
-  * The location / block matches all requests and uses the proxy_pass directive to forward them to the http_api upstream cluster, enabling load balancing.
-  * proxy_set_header Directives modify request headers to include the original host, the real client IP address, and the protocol used, ensuring that the proxied requests contain necessary information for backend services to process them correctly.
-  * The configuration optionally supports forwarding the Authorization header, preserving JWT or other authentication tokens needed by the backend services.
+  * The **location / block** matches all requests and uses the proxy_pass directive to forward them to the http_api upstream cluster, enabling load balancing.
+  * The **proxy_set_header directives** modify request headers to include the original host, the real client IP address, and the protocol used, ensuring that the proxied requests contain necessary information for backend services to process them correctly.
+  * The configuration optionally supports **forwarding the Authorization header**, preserving JWT or other authentication tokens needed by the backend services.
 
-#### optional websocket support
+#### Optional websocket support
 
-* Functional Goal: (Commented out) Provide the necessary headers to support WebSocket connections if needed.
-* Technical Description: The commented-out directives (proxy_http_version, proxy_set_header Upgrade, and proxy_set_header Connection) are set up to enable WebSocket support, ensuring that NGINX can proxy WebSocket connections correctly. These lines can be uncommented and adjusted as needed based on the application's requirements.
+This part of the configuration provides the necessary headers to support WebSocket connections if needed:
 
-#### redis
+* The commented-out directives (`proxy_http_version`, `proxy_set_header Upgrade`, and `proxy_set_header Connection`) are set up to enable WebSocket support, ensuring that NGINX can proxy WebSocket connections correctly. These lines can be uncommented and adjusted as needed based on the application's requirements.
+
+## REDIS
 
 Cross-Site Request Forgery (CSRF) is a security threat where an attacker tricks a user into executing unwanted actions on a web application in which they're authenticated. If the victim is a regular user, a successful CSRF attack can force them to perform state-changing requests like transferring funds, changing their email address, and so forth. If the victim has an administrative account, CSRF can compromise the entire web application. CSRF exploits the trust that a site has in the user's browser, and unlike Cross-Site Scripting (XSS), which exploits the trust a user has in a particular site, CSRF exploits the trust that a site has in the user's browser.
 
 In a distributed web application architecture, particularly one that scales horizontally as in this setup, requests from the same user can be routed to different servers across multiple requests due to load balancing. This poses a challenge for CSRF protection mechanisms that rely on keeping track of state, such as synchronizer tokens or double submit cookies, because the server handling a subsequent request might not have access to the tokens generated by another server on a previous request.
 
-REDIS, as a fast, in-memory data store offers a  solution for storing CSRF protection keys in such a distributed setup. 
+REDIS, as a fast, in-memory data store offers a solution for storing CSRF protection keys in such a distributed setup. 
 
-In the drawing above, REDIS was added explicitely to stress not necessarily obvious impact of the distributed nature and horizontal scalability of the setup, i.e. its non-trivial impact on CSRF. More details are available [on the cars.be repo] (https://github.com/bartengine27/cars.be/tree/abp_8).
+In the drawing above, REDIS was added explicitely to stress not necessarily obvious impact of the distributed nature and horizontal scalability of the setup, i.e. its non-trivial impact on CSRF. More details are available [on the cars.be repo](https://github.com/bartengine27/cars.be/tree/abp_8).
 
 ## References
 
