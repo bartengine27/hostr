@@ -109,6 +109,45 @@
   loop: "{{ proxmox_vms }}"
   tags: vm_init
 
+# this should become a VM with pfSense
+# https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html
+- name: Create the Firewall vm_init
+  community.general.proxmox_kvm:
+    api_user: "{{ proxmox_api_user }}"
+    api_token_id: "{{ proxmox_api_token_id }}"
+    api_token_secret: "{{ proxmox_api_token }}"
+    api_host: "{{ proxmox_ip_address }}"
+    name: firewall
+    node: "{{ proxmox_node }}"
+    net: 
+      net0:"name=eth0,gw={{ item["gateway"] }},ip={{ item["additional_ip"] }}/24,hwaddr={{ item["additional_ip_mac"] }},bridge=vmbr0"
+      net1:"name=eth1,ip={{ item["ip"] }}/24,bridge=vmbr1"
+    sata:
+      sata0: 'VMs_LVM:40,format=raw'
+    bios: ovmf
+    memory: 4096
+    efidisk0:
+      storage: VMs_LVM
+      format: raw
+      efitype: 4m
+      pre_enrolled_keys: false
+  loop: "{{ proxmox_public_vms }}"
+  tags: vm_init
+
+- name: Attach unattend ISO
+  community.general.proxmox_disk:
+    api_user: "{{ proxmox_api_user }}"
+    api_token_id: "{{ proxmox_api_token_id }}"
+    api_token_secret: "{{ proxmox_api_token }}"
+    api_host: "{{ proxmox_ip_address }}"
+    vmid: "{{ item['id'] }}"
+    disk: ide2
+    media: cdrom
+    iso_image: "iso:iso/{{ vm_name }}_unattend.iso"
+    state: present
+  loop: "{{ proxmox_public_vms }}"
+  tags: vm_init
+
 - name: Create a new public container to run dockers on - the container/vm is based on an uploaded Proxmox template
   community.general.proxmox:
     # vars_files:
