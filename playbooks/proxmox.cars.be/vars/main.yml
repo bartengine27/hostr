@@ -60,3 +60,4 @@ proxmox_vms:
 proxmox_preferred_dns: 193.110.81.0
 proxmox_alternate_dns: 185.253.5.0
 firewall_public_ip: "{{ lookup('ansible.builtin.env', 'WIREGUARD_PUBLIC_IP') }}"
+firewall_ip: 192.168.1.51

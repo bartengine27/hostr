@@ -176,7 +176,7 @@ collections:
 and install with:
 
 ```bash
-ansible-galaxy role install -r requirements.yml #what we use
+ansible-galaxy role install -r requirements.yml
 ansible-galaxy collection install -r requirements.yml
 ```
 
@@ -184,6 +184,20 @@ Add additional Python dependencies with:
 
 ```bash
 pip install proxmoxer
+```
+
+The deployed example web site is hosted on a public github repo. If you'd like to use a private repo, it is probably a good aide to use SSH agent forwarding. Otherwise, you will have to keep a private key on the host you are deploying on.
+
+Start by adding your keys to the SSH agent with:
+
+```bash
+/usr/bin/ssh-add #note the full path, if you are using WSL and the windows agent (1password, etc.) you have to be explicit about "which ssh config" you are changing (Ansible does not use the 1password Windows agent)
+/usr/bin/ssh -v -T git@github.com
+#Hi your_account! You've successfully authenticated, but GitHub does not provide shell access.
+/usr/bin/ssh root@192.168.1.61 #SSH into your host, you can test this once your hosts are "online and reachable"
+echo $SSH_AUTH_SOCK #response should not be empty
+#/tmp/ssh-n9uZGGjGAC/agent.2806
+/usr/bin/ssh -v -T git@github.com
 ```
 
 ### Secrets prerequisites
@@ -795,9 +809,9 @@ In orde to use a custom-defined log file path and format, the `access_log` direc
 
 Request routing and proxying behavior for the root path is defined with:
 
-  * The **location / block** matches all requests and uses the proxy_pass directive to forward them to the http_api upstream cluster, enabling load balancing.
-  * The **proxy_set_header directives** modify request headers to include the original host, the real client IP address, and the protocol used, ensuring that the proxied requests contain necessary information for backend services to process them correctly.
-  * The configuration optionally supports **forwarding the Authorization header**, preserving JWT or other authentication tokens needed by the backend services.
+* The **location / block** matches all requests and uses the proxy_pass directive to forward them to the http_api upstream cluster, enabling load balancing.
+* The **proxy_set_header directives** modify request headers to include the original host, the real client IP address, and the protocol used, ensuring that the proxied requests contain necessary information for backend services to process them correctly.
+* The configuration optionally supports **forwarding the Authorization header**, preserving JWT or other authentication tokens needed by the backend services.
 
 #### Optional websocket support
 
@@ -825,3 +839,4 @@ This part of the configuration provides the necessary headers to support WebSock
 * setup nginx with ansible and a [self signed certifcate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1)
 * [enable tcpdump in a container](https://cloud.garr.it/support/kb/general/enableTcpdumpInLXCContainer/)
 https://netsplit.uk/posts/2022/10/19/remote_ovh_lab/
+* pfSense `pfctl -d` and `pfctl -e` to disable/enable the packet filter -> allow the admin interface over the vpn

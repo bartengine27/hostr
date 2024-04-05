@@ -18,7 +18,7 @@
 
     - name: Create sshd_config snippet for ED25519
       ansible.builtin.copy:
-        dest: /etc/ssh/ssh_config.d/ed25519.conf
+        dest: /etc/ssh/sshd_config.d/ed25519.conf
         content: |
           HostKey /etc/ssh/ssh_host_ed25519_key
           KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
@@ -27,6 +27,6 @@
 
     - name: Restart SSHD to apply changes
       ansible.builtin.systemd:
-        name: ssh
+        name: sshd
         state: restarted
         daemon_reload: yes

@@ -35,7 +35,11 @@
     - name: dotnet_sdk
       prompt: "The dotnet SDK version."  
       private: false
-      default: "dotnet-sdk-8.0"      
+      default: "dotnet-sdk-8.0"
+    - name: abp_project_name
+      prompt: The name of the ABP project, this is the name of the project you used in 'abp new Acme.BookStore -csf'
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"            
   roles:
      - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
   tasks:    
@@ -92,17 +96,17 @@
         mkdir "{{ webserver_install_folder }}"build
         cd "{{ webserver_install_folder }}"
         rm -Rf "{{ webserver_install_folder }}"build
-        dotnet clean Be.Cars.sln
-        dotnet build -c Release  --self-contained false Be.Cars.sln
-        dotnet publish  src/Be.Cars.Blazor/Be.Cars.Blazor.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
-        dotnet publish  src/Be.Cars.DbMigrator/Be.Cars.DbMigrator.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
+        dotnet clean "{{ abp_project_name }}".sln
+        dotnet build -c Release  --self-contained false "{{ abp_project_name }}".sln
+        dotnet publish  src/"{{ abp_project_name }}".Blazor/"{{ abp_project_name }}".Blazor.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
+        dotnet publish  src/"{{ abp_project_name }}".DbMigrator/"{{ abp_project_name }}".DbMigrator.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
       register: publish_webserver_result
       retries: 5
       delay: 10
       until: publish_webserver_result.rc == 0             
     - name: Create the directory for the virtual file system (hard coded for now)
       ansible.builtin.file:
-        path: /webapp/Be.Cars.Domain.Shared/
+        path: /webapp/"{{ abp_project_name }}".Domain.Shared/
         state: directory
         owner: root
         group: root
@@ -134,7 +138,7 @@
       ansible.builtin.shell: |   
         cd {{webserver_install_folder}}build/
         cp appsettings."{{ asp_net_core_environment }}".json appsettings.json
-        ./Be.Cars.DbMigrator 
+        ./"{{ abp_project_name }}".DbMigrator 
       environment:
         ASPNETCORE_ENVIRONMENT: "{{ asp_net_core_environment }}"
       register: db_migrator_result

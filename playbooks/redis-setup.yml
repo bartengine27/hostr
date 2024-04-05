@@ -7,7 +7,7 @@
     - name: project_name
       prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
       private: false
-      default: ansible
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
     - name: redis_password
       prompt: "Enter the Redis password for the legacy authentication."
       private: false
