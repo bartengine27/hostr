@@ -81,7 +81,7 @@
 
 ## end PROXMOX bridge config
 
-- name: Create a new container to run dockers on - the container/vm is based on an uploaded Proxmox template
+- name: Create a new container to run sw, dockers etc. on - the container/vm is based on an uploaded Proxmox template
   community.general.proxmox:
     # vars_files:
     # vmid: "{{ proxmox_vm_id }}"
@@ -99,7 +99,7 @@
     memory: 4096
     ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
     # should query gw from proxmox? ask proxmox for a free ip address?
-    netif: '{"net0":"name=eth0,gw=192.168.1.1,ip={{ item["ip"] }}/24,bridge=vmbr1"}'    
+    netif: '{"net0":"name=eth0,gw={{ firewall_ip }},ip={{ item["ip"] }}/24,bridge=vmbr1"}'    
     pubkey: "{{ lookup('ansible.builtin.env', 'SSH_PUB_KEY') }}"
     state: present
     features:

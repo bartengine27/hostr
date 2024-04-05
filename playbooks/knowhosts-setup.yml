@@ -15,7 +15,7 @@
       register: ssh_known_host_results
       ignore_errors: True
 
-    - name: Add/update the public key of all servers in the '{{ ssh_known_hosts_file }}'
+    - name: Add/update the public key of all servers in the '{{ ssh_known_hosts }}'
     #ssh-keyscan writes to stderr, so we redirect it to /dev/null
       ansible.builtin.shell: |  
         ssh-keyscan -H -t ed25519 -T 15 {{ item }} 2> /dev/null >> ~/.ssh/known_hosts
