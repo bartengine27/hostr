@@ -20,10 +20,6 @@
       prompt: "Enter the asp net core environment (Development, Acceptance or Production)"  
       private: false
       default: "{{ lookup('ansible.builtin.env', 'ASP_NET_CORE_ENVIRONMENT' ) }}"
-    - name: redis_host
-      prompt: "The hostname or ip address of your Redis."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'REDIS_HOST' ) }}"
     - name: redis_password
       prompt: "The password of your Redis."  
       private: false
@@ -39,7 +35,11 @@
     - name: abp_project_name
       prompt: The name of the ABP project, this is the name of the project you used in 'abp new Acme.BookStore -csf'
       private: false
-      default: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"            
+      default: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"
+    - name: openiddict_application_identifier
+      prompt: Part of the key used to identify OpenIddict applications in the appsettings, used during db identityserver.appsettings.json.j2
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'OPENIDDICT_APPLICATION_IDENTIFIER' ) }}"
   roles:
      - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
   tasks:    
@@ -106,7 +106,7 @@
       until: publish_webserver_result.rc == 0             
     - name: Create the directory for the virtual file system (hard coded for now)
       ansible.builtin.file:
-        path: /webapp/"{{ abp_project_name }}".Domain.Shared/
+        path: "/webapp/{{ abp_project_name }}.Domain.Shared/"
         state: directory
         owner: root
         group: root

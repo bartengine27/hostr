@@ -1,7 +1,7 @@
 {
   "App": {  
     "SelfUrl": "https://{{ groups['webserver'][0] }}:5000",
-    "CorsOrigins": "https://*.Cars.com,http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000,https://192.168.1.20",
+    "CorsOrigins": "https://*.{{ openiddict_application_identifier }}.be,http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000,https://192.168.1.20",
   },
   "RemoteServices": {
     "Default": {
@@ -20,27 +20,27 @@
   "AuthServer": {
     "Authority": "https://{{ groups['identity_server'][0] }}:5000",
     "RequireHttpsMetadata": "true",
-    "ClientId": "Cars_BlazorServerTiered",
+    "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
     "ClientSecret": "1q2w3e*"
   },
 "OpenIddict": {
     "Applications": {
-      "Cars_Web": {
-        "ClientId": "Cars_Web",
+      "{{ openiddict_application_identifier }}_Web": {
+        "ClientId": "{{ openiddict_application_identifier }}_Web",
         "ClientSecret": "1q2w3e*",
         "RootUrl": "https://localhost:44377"
       },
-      "Cars_App": {
-        "ClientId": "Cars_App",
+      "{{ openiddict_application_identifier }}_App": {
+        "ClientId": "{{ openiddict_application_identifier }}_App",
         "RootUrl": "http://localhost:4200"
       },
-      "Cars_BlazorServerTiered": {
-        "ClientId": "Cars_BlazorServerTiered",
+      "{{ openiddict_application_identifier }}_BlazorServerTiered": {
+        "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
         "ClientSecret": "1q2w3e*",
         "RootUrl": "https://{{ groups['webserver'][0] }}:5000"
       },
-      "Cars_Swagger": {
-        "ClientId": "Cars_Swagger",
+      "{{ openiddict_application_identifier }}_Swagger": {
+        "ClientId": "{{ openiddict_application_identifier }}_Swagger",
         "ClientSecret": "1q2w3e*",
         //"RootUrl": "https://{{ ansible_host }}:5000"
         "RootUrl": "https://192.168.1.20"
