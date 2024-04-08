@@ -46,7 +46,13 @@ proxmox_vms:
    id: 607
    group:
     - "otlp_controller"
-# proxmox_public_vms:    
+ - ip: 192.168.1.20
+   id: 200
+   group: 
+    - "proxy"
+
+# empty list, so we can keep the "firewall code" for now (should become a VM with pfSense)
+proxmox_public_vms: []
 #  - ip: 192.168.1.50
 #    ip_gateway: 192.168.1.1
 #    id: 500

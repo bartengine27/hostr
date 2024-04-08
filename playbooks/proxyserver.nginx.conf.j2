@@ -1,0 +1,43 @@
+events {
+}
+
+http {
+    log_format upstreamlog '[$time_local] $remote_addr - $remote_user - $server_name $host to: $upstream_addr: $request $status upstream_response_time $upstream_response_time msec $msec request_time $request_time';
+
+    upstream https_api {
+          {% for host in groups['http_api'] %}
+        server {{ host }}:{{ hostvars[host]['service_port'] }};
+        {% endfor %}
+    }
+
+    server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+        include snippets/self-signed.conf;
+        include snippets/ssl-params.conf;
+
+        client_header_buffer_size 4k;
+        large_client_header_buffers 4 8k; # Increase if JWT or other headers are large      
+
+        access_log /var/log/nginx/access.log upstreamlog;
+
+        location / {
+            proxy_pass https://https_api;
+        }
+
+        # Header adjustments for proxying
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization $http_authorization;
+            
+        # Other possible headers you might want to set
+        # proxy_set_header Authorization ""; # If you need to reset the Authorization header
+
+        # WebSocket support (if needed)
+        # proxy_http_version 1.1;
+        # proxy_set_header Upgrade $http_upgrade;
+        # proxy_set_header Connection "upgrade";
+    }
+}

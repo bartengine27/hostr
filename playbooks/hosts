@@ -11,9 +11,9 @@
 192.168.1.63
 
 [http_api]
-192.168.1.64
-192.168.1.68
-192.168.1.69
+192.168.1.64  service_port=5000
+192.168.1.68  service_port=5000
+192.168.1.69  service_port=5000
 
 [prometheus]
 192.168.1.66
@@ -26,6 +26,9 @@
 
 [firewall]
 192.168.1.50
+
+[proxy]
+192.168.1.20
 
 [firewall_public_ip]
 "{{ lookup('ansible.builtin.env', 'WIREGUARD_PUBLIC_IP') }}"

@@ -4,6 +4,10 @@ roles:
   - name: geerlingguy.redis
     type: galaxy
     source: https://github.com/geerlingguy/ansible-role-redis
+  # to use Let's Encrypt
+  - name: geerlingguy.certbot
+    type: galaxy
+    source: https://github.com/geerlingguy/ansible-role-certbot
   # to install dotnet    
   - name: ppst0.dotnet
     type: galaxy

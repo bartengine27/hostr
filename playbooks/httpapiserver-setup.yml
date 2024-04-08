@@ -44,6 +44,10 @@
       prompt: The name of the ABP project, this is the name of the project you used in 'abp new Acme.BookStore -csf'
       private: false
       default: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"      
+    - name: openiddict_application_identifier
+      prompt: Part of the key used to identify OpenIddict applications in the appsettings, used during db identityserver.appsettings.json.j2
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'OPENIDDICT_APPLICATION_IDENTIFIER' ) }}"      
   roles:
      - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
   tasks:    
@@ -66,7 +70,10 @@
         update_cache: yes
     - name: Install cryptography python package, necessary to generate certificates with ansible
       ansible.builtin.pip:
-        name: cryptography          
+        name: cryptography         
+    - name: Install the ABP CLI tool
+      ansible.builtin.shell: |
+        dotnet tool install -g Volo.Abp.Cli            
     - name: "Clone the source code"
       ansible.builtin.git:
         repo: "{{ http_api_public_repo }}"
@@ -104,6 +111,7 @@
         cd "{{ http_api_install_folder }}"
         rm -Rf "{{ http_api_install_folder }}"build
         dotnet clean "{{ abp_project_name }}".sln
+        /root/.dotnet/tools/abp install-libs
         dotnet build -c Release  --self-contained false "{{ abp_project_name }}".sln
         dotnet publish  src/"{{ abp_project_name }}".HttpApi.Host/"{{ abp_project_name }}".HttpApi.Host.csproj -c Release --no-build -o "{{ http_api_install_folder }}"build
       register: publish_http_api_result

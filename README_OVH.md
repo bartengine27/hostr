@@ -55,6 +55,57 @@ To allow a Proxmox VM to access the Internet using an additional IP address you'
 
     After completing these steps, ensure the VM can access the Internet by performing a simple test, such as pinging an external site (ping google.com) from within the VM. If there are connectivity issues, double-check the MAC address and network configuration settings.
 
+## Proxmox network partitioning
+
+Partitioning your network for VMs and containers in Proxmox that offer different services involves considerations for scalability, security, manageability, and performance. The optimal network partition strategy depends on several factors, including the size of your environment, the nature of the applications, security requirements, and how the services interact with each other. Here are a few approaches and their implications:
+
+1. One Subnet per Application
+
+    Pros:
+
+      * **Isolation**: Ensures complete isolation between different applications, improving security by limiting the blast radius in case of a compromise.
+      * **Simplification**: Simplifies network policies and firewall rules specific to each application, making it easier to manage permissions and access control on a per-application basis.
+
+    Cons:
+
+      * **Potential Overhead**: Could lead to an increase in the number of subnets to manage, especially if you have a large number of small applications.
+      * **Inter-Application Communication**: If applications need to communicate with each other, this approach might complicate networking rules and routing configurations.
+
+2. One Subnet per Service Type
+
+    Pros:
+
+      * **Standardization**: Groups similar services together, which can simplify the management of network policies for those service types (e.g., all web servers in one subnet).
+      * **Efficiency in Scaling**: Makes scaling a particular service type easier, as new instances can be added to the existing subnet dedicated to that service.
+
+    Cons:
+
+      * **Risk of Cross-Service Compromise**: If one service is compromised, it could potentially jeopardize other services within the same subnet.
+      * **Complexity in Inter-Service Communication**: Requires careful planning of network routes and firewalls when services in different subnets need to communicate.
+
+3. Hybrid Approach
+
+    A hybrid approach combines elements of both strategies. Critical services or those requiring high security might be isolated in their own subnets, while less critical or similar functional services share subnets. This approach allows for a balance between manageability and security.
+
+    Pros:
+
+    * **Flexibility**: Offers a compromise between isolation and manageability, allowing for security policies to be finely tuned based on the risk and interaction between services.
+    * **Efficient Resource Utilization**: Can reduce the number of subnets needed while still maintaining a level of isolation for sensitive components.
+
+    Cons:
+
+      * **Complexity**: May require more sophisticated network planning and firewall configurations to ensure secure communication across services and applications.
+
+4. Considerations for VLANs and Firewalls
+
+     Regardless of the approach, using VLANs can further segment the network physically or logically, adding an additional layer of isolation. Implementing firewalls between subnets (or VLANs) to manage and monitor the traffic flow between services is also critical for securing your network.
+
+5. Cloud-Native Network Policies
+
+    If you're using containers, especially in a Kubernetes environment, consider leveraging cloud-native network policies for granular control over inter-container communication. These policies can define how groups of pods (a pod is a group of one or more containers) communicate with each other and other network endpoints.
+
+The best approach depends on your specific needs and constraints. A smaller setup might opt for simplicity with fewer subnets, while a larger, security-sensitive environment might require a more complex, hybrid approach for finer-grained control and isolation. In all cases, consider future growth, the potential need for inter-service communication, and the security implications of your network partitioning strategy.
+
 ```mermaid
 graph TD
     ProxmoxHost(Proxmox Host)
@@ -77,58 +128,5 @@ graph TD
     C610 --> C608(Rest Endpoint 2)
     C610 --> C609(Rest Endpoint 3)
 
-    classDef proxmox fill:#f9f,stroke:#333,stroke-width:4px;
-    classDef vm fill:#bbf,stroke:#333,stroke-width:4px;
-    classDef container fill:#bfb,stroke:#333,stroke-width:4px;
-    classDef bridge fill:#ddf,stroke:#333,stroke-width:4px;
 
-    class ProxmoxHost proxmox;
-    class VM500 vm;
-    class C600,C601,C602,C603,C604,C605,C606,C607,C608,C609,C610 container;
-    class vmbr0,vmbr1 bridge;
-```
-
-```mermaid
-graph TD;
-
-    subgraph raw_iot
-        a
-    end
-
-    subgraph warehouse
-        A --> B
-        B --> C
-    end
-
-```
-
-```mermaid
-graph TD
-subgraph Internet
-end
-subgraph Proxmox
-    ProxmoxHost(Proxmox Host) --> vmbr0(vmbr0<br>Public IPv4: 37.187.28.32<br>Gateway: 37.187.28.254)
-    ProxmoxHost --> vmbr1(vmbr1<br>LAN Subnet: 192.168.1.1/16<br>Gateway: 192.168.1.51)
-
-    subgraph VM500 [VM 500 - PfSense]
-        direction TB
-        eth0(eth0<br>MAC for Additional IP) --> vmbr0
-        eth1(eth1<br>IP: 192.168.1.51) --> vmbr1
-    end    
-
-    subgraph LANContainers ["Containers in LAN"]
-        direction LR
-        C600(Web Server id:600)
-        C601(Redis Server id:601)
-        C602(Database Server id:602)
-        C603(Authentication Server id:603)
-        C604(Rest Endpoint 1 id:604)
-        C605(Grafana Server id:605)
-        C606(Prometheus Server id:606)
-        C607(OTLP Server id:607)
-        C610(Nginx Server id:610) --> C608(Rest Endpoint 2 id:608)
-        C610 --> C609(Rest Endpoint 3 id:609)
-    end    
-end 
-Internet <---> Proxmox   
 ```

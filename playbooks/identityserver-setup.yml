@@ -54,8 +54,13 @@
         pkg: 
           - git
           - python3-pip
+          - nodejs
+          - npm
         state: present
         update_cache: yes
+    - name: Install the ABP CLI tool
+      ansible.builtin.shell: |
+        dotnet tool install -g Volo.Abp.Cli           
     - name: "Clone the source code"
       ansible.builtin.git:
         repo: "{{ identityserver_public_repo }}"
@@ -63,6 +68,8 @@
         clone: yes
         update: yes
         depth: 1
+    # full path for abp, after install you need to logout or restart a session if you just installed the .NET SDK -> use the full path
+    # /root/.dotnet/tools/abp install-libs
     # dotnet build the.sln -c Release
     # dotnet test -c Release --no-build
     # dotnet publish the\app.csproj --no-build -c Release
@@ -72,6 +79,7 @@
         cd "{{ identityserver_install_folder }}"
         rm -Rf "{{ identityserver_install_folder }}"build
         dotnet clean "{{ abp_project_name }}".sln
+        /root/.dotnet/tools/abp install-libs
         dotnet build -c Release  --self-contained false "{{ abp_project_name }}".sln
         dotnet publish  src/"{{ abp_project_name }}".AuthServer/"{{ abp_project_name }}".AuthServer.csproj -c Release --no-build -o "{{ identityserver_install_folder }}"build
       register: publish_is_result

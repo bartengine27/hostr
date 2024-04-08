@@ -44,6 +44,8 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
     * [Install Authentication Server](#install-authentication-server)
   * [REST API](#rest-api)
     * [Install REST API](#install-rest-api)
+  * [Proxy](#proxy)
+    * [Install NGINX Proxy](#install-nginx-proxy)
   * [Database](#database)
     * [Install SQL Server](#install-sql-server)
   * [Web server](#web-server)
@@ -55,7 +57,7 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
       * [Install InfluxDB](#install-influxdb)
     * [Grafana server](#grafana-server)
       * [Install Grafana server](#install-grafana-server)
-  * [Proxy](#proxy)
+  * [Proxy](#proxy-1)
     * [NGINX](#nginx)
       * [Log format](#log-format)
       * [Load balancing](#load-balancing)
@@ -611,6 +613,14 @@ The *REST API* contains a custom metric and controller, open the *REST API* inte
 dotnet-counters monitor --name Be.Cars.HttpApi.Host --counters Be.Cars.Metrics.CustomMetrics
 ```
 
+## Proxy
+
+### Install NGINX Proxy
+
+```bash
+ansible-playbook proxyserver-setup.yml -i hosts -K -vvv
+```
+
 ## Database
 
 ### Install SQL Server
@@ -840,3 +850,4 @@ This part of the configuration provides the necessary headers to support WebSock
 * [enable tcpdump in a container](https://cloud.garr.it/support/kb/general/enableTcpdumpInLXCContainer/)
 https://netsplit.uk/posts/2022/10/19/remote_ovh_lab/
 * pfSense `pfctl -d` and `pfctl -e` to disable/enable the packet filter -> allow the admin interface over the vpn
+* reboot the host, vms and containers after a re-install
