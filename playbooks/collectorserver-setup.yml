@@ -1,0 +1,98 @@
+- name: "Otel collector setup playbook"
+  hosts: otlp_controller
+  remote_user: root
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+    - name: influxdb_username
+      prompt: "The InfluxDB database user name."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_USERNAME') }}"   
+    - name: influxdb_password
+      prompt: "The InfluxDB database password."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_PASSWORD') }}"               
+    - name: influxdb_database_name
+      prompt: "The InfluxDB database name to setup."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_NAME') }}"      
+  tasks:    
+    - name: Install dependencies
+      apt:
+        pkg:
+          - gnupg
+        state: latest
+        update_cache: yes
+    - name: Update repository
+      apt_repository:
+        repo: 'ppa:git-core/ppa'
+        state: present   
+    - name: Install git, pip3, etc.
+      apt:
+        pkg: 
+          - git
+          - python3-pip
+        state: present
+        update_cache: yes
+    - name: Install python dependencies
+      ansible.builtin.pip: 
+        name: 
+          - requests  
+          - influxdb                
+    #on https://www.influxdata.com/blog/deploying-influxdb-with-ansible/
+    - name: Import InfluxDB GPG signing key
+      #keys were rotated https://www.influxdata.com/blog/linux-package-signing-key-rotation/
+      ansible.builtin.apt_key: url=https://repos.influxdata.com/influxdata-archive_compat.key state=present
+    - name: Add InfluxDB repository
+      ansible.builtin.apt_repository: repo='deb https://repos.influxdata.com/debian stable main' state=present      
+    - name: Install Telegraf
+      ansible.builtin.apt: name=telegraf state=present
+    # - name: Start the Telegraf service 
+    #   ansible.builtin.service: name=telegraf state=restarted              
+    - name: Install InfluxDB packages      
+      ansible.builtin.apt: name=influxdb2 state=present                    
+    - name: Start the InfluxDB service - open otlp_controller:8086 to access the influxdb UI
+      ansible.builtin.service: name=influxdb state=restarted        
+    - name: Initialize the InfluxDB instance - initial admin user and organization
+      ansible.builtin.command: influx setup --username cars --password Erty-123 --token carsbe --org cars.be --bucket carsbebucket --force
+      ignore_errors: true #TODO if influxdb is already initialized, this command will fail with "Error: instance has already been set up"
+    #TODO not idempotent - https://devconnected.com/how-to-setup-telegraf-influxdb-and-grafana-on-linux/ 
+    - name: Create an All Access token - InfluxDB terminology for a token which has only access to an organization and its buckets
+      #note the "--token carsbe" is the token of the initial admin user, not the token that will be created, the token that will be created is the output of this command
+      ansible.builtin.command: influx auth create --all-access --host http://localhost:8086 --org cars.be --token carsbe --json
+      register: all_access_token_util
+    - name: Set and output the all access token
+      ansible.builtin.set_fact:
+        #TODO https://stackoverflow.com/questions/55640231/need-to-get-the-values-from-ansible-json-stdout-and-put-them-in-to-a-list
+        all_access_token: "{{ all_access_token_util.stdout | from_json | json_query('token') }}"
+    - name: Write the all access token to a file - necessary? for now, only used by telegraf
+      ansible.builtin.copy:         
+        content: "InfluxDB all access token: {{ all_access_token }}"
+        dest: "{{playbook_dir}}/all_access_token_influxdb"
+      delegate_to: localhost
+    - name: Copy telegrafserver.conf.j2
+      ansible.builtin.template:
+        src: telegrafserver.conf.j2
+        dest: /etc/telegraf/telegraf.conf
+        owner: root
+        group: root
+        mode: 0644       
+    - name: Start the Telegraf service 
+      ansible.builtin.service: name=telegraf state=restarted                      
+         #dest: "/tmp/all_access_token_influxdb"
+    # - name: Create a user on localhost using default login credentials
+    #   community.general.influxdb_user:
+    #     user_name: "{{influxdb_username}}"
+    #     user_password: "{{influxdb_password}}"
+    # - name: Create database using custom credentials
+    #   community.general.influxdb_database:
+    #     hostname: "{{ groups['otlp_controller'][0] }}"
+    #     username: "{{influxdb_username}}"
+    #     password: "{{influxdb_password}}"
+    #     database_name: "{{influxdb_database_name}}"
+    #     ssl: false
+    #     validate_certs: false

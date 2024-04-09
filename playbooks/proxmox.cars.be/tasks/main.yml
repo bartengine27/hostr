@@ -77,6 +77,8 @@
     api_token_id: "{{ proxmox_api_token_id }}"
     api_token_secret: "{{ proxmox_api_token }}"
     api_host: "{{ proxmox_ip_address }}"
+    # for some reason, the http endpoint containers stop a bit slower
+    timeout: 60
     state: stopped
   loop: "{{ proxmox_vms }}"
   tags: vm_stop  
@@ -102,6 +104,10 @@
     api_token_secret: "{{ proxmox_api_token }}"
     api_host: "{{ proxmox_ip_address }}"
     state: restarted
+  register: vm_restart_result
+  retries: 5
+  delay: 5
+  until: vm_restart_result.invocation.module_args.state == 'restarted'
   loop: "{{ proxmox_vms }}"
   tags: vm_restart
 

@@ -240,6 +240,86 @@ sudo ansible-galaxy collection install community.general
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
 ```
 
+### Addding Proxmox VM(s) to known_hosts
+
+If you removed existing VMs/Containers or are building new VMs/Containers, you should remove the old entries in `known_hosts` and add new entries:
+
+```bash
+ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook knowhosts-setup.yml -i hosts -K -vvv
+```
+
+When you observe an additional line being added to your known_hosts file after connecting to a server via SSH, even after manually adding the server's fingerprint with ssh-keyscan or with `ansible-playbook knowhosts-setup.yml`, it typically relates to how SSH handles and verifies the identity of the servers it connects to. Here are a few reasons why this might happen:
+
+1. Different Key Types  
+If you initially add the server's `ED25519` key fingerprint to your known_hosts using ssh-keyscan -H -t ed25519 ip_address, but the server is also configured to use another type of SSH key (e.g., RSA, ECDSA), the SSH client might add the fingerprint of this additional key to the known_hosts file upon the first connection. This occurs because your initial scan and add operation only included the ED25519 key, and upon connection, SSH automatically adds any other keys presented by the server that weren't already in known_hosts.
+
+2. Hostname and IP Address Entries  
+Another common reason is the difference in how you reference the server in your ssh command versus what was initially scanned. For instance, if you scanned the IP address and then used the hostname (or vice versa) to connect, SSH treats these as separate entries. SSH distinguishes between IP addresses and hostnames because they can technically present different keys (consider virtual hosts or shared IP scenarios). As a result, SSH might add a new line for the same server under its different identifier (IP or hostname).
+
+3. SSH Configuration and Aliases  
+Your SSH client's configuration might influence how known_hosts is managed. For example, if you use an SSH config file (~/.ssh/config) with aliases or specific host entries that define hostname patterns or specific key types, your SSH client might treat connections that match different patterns as distinct, even if they ultimately resolve to the same server.
+
+4. Port Forwarding or Jump Hosts  
+If your connection involves port forwarding or using a jump host (also known as a bastion host), the SSH client may add entries for these intermediate steps. This is more likely in complex networking setups where direct connections to the target server are not possible without going through intermediary servers.
+
+Troubleshooting Tips:
+
+* Review the known_hosts file: Compare the entries before and after the connection. Look for differences in the key types, hostnames/IP addresses, or additional details that might explain the new entry.
+* Use verbose mode with SSH: Connecting with `ssh -v root@ip_address` can provide detailed logs that explain what keys are being checked, offered, and added to known_hosts. This might give you a clearer picture of why the additional line is added.
+* Check SSH client configuration: Review your SSH client's configuration file (if you have one) for any settings that might affect how known_hosts entries are managed or how connections are established.
+
+Understanding the exact reason requires examining the specifics of your SSH setup, the server configuration, and the entries in known_hosts.
+
+For our particular setup, we can edit the server config `sshd_config` file on the server we connect to to enforce the usage of `ED25519` keys:
+
+```ini
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+PubkeyAcceptedKeyTypes ssh-ed25519
+```
+
+in addition, make sure that folder `/run/sshd` exists on the server:
+
+```bash
+mkdir /run/sshd
+chmod 0755 /run/sshd
+systemctl restart sshd
+```
+
+Clients, however, should now support `ED25519`, i.e. use:
+
+```bash
+ssh-keygen -t ed25519 -C you@cars.be
+```
+
+If you now connect with:
+
+```bash
+ssh -v root@192.168.1.68
+```
+
+you will notice in the output that ssh will attempt different keys, for example:
+
+```text
+debug1: Will attempt key: /home/you/.ssh/id_rsa RSA SHA256:....
+debug1: Will attempt key: /home/you/.ssh/id_ecdsa
+debug1: Will attempt key: /home/you/.ssh/id_ecdsa_sk
+debug1: Will attempt key: /home/you/.ssh/id_ed25519 ED25519 SHA256:....
+debug1: Will attempt key: /home/you/.ssh/id_ed25519_sk
+debug1: Will attempt key: /home/you/.ssh/id_xmss
+debug1: Will attempt key: /home/you/.ssh/id_dsa
+```
+
+To conclude, the server decides about the security of the keys used by the client, therefore, we will configure all sshd daemons for `ED25519`:  
+
+```bash
+ansible-playbook sshdserver_setup.yml -i hosts --user root -K -vvv
+```
+
+:fire: User root is specified with `--user root`: the hosts we connect to have the `ED25519` key under `/root/.ssh/authorized_keys`, so we have to connect as `root` to use this key.  
+
 ### Stopping Proxmox VM(s)
 
 ```bash
@@ -258,19 +338,12 @@ if necessary, you can restart with
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
 ```
 
-delete the VMs with
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_remove -vvv
-```
-
 ### Removing Proxmox VM(s)
 
 Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
 
 ```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_remove -vvv
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop,vm_remove -vvv
 ```
 
 ### SSH into the Proxmox VM
@@ -301,15 +374,17 @@ ansible-playbook redis-setup.yml -i hosts -K -vvv
 
 after running the redis playbook, you probably forgot to `source .env`.  
 
-## Identity Server
+## Authentication Server
 
-### Install Identity Server
+### Install Authentication Server
 
 `ABP` supports [IdentityServer4](https://github.com/IdentityServer/IdentityServer4) and [OpenIddict](https://github.com/openiddict/openiddict-core). As the `ABP` startup templates support *OpenIddict* since *ABP v6.0.0* we will only support `OpenIddict`.  
 
 ```bash
 ansible-playbook identityserver-setup.yml -i hosts -K -vvv
 ```
+
+After installing the authentication server, you can request a client credentials (server to server), check the documentation and example [in the cars.be repo](https://github.com/bartengine27/cars.be/tree/abp_8).
 
 ## REST API
 
@@ -333,6 +408,12 @@ dotnet-counters monitor --name Be.Cars.HttpApi.Host --counters Be.Cars.Metrics.C
 
 ```bash
 ansible-playbook database-setup.yml -i hosts -K -vvv
+```
+
+After installing your DB server, you can SSH into the machine and open an SQL shell with (assuming you use password `p@55w0rD`):
+
+```bash
+sqlcmd -S 127.0.0.1 -U sa -P p@55w0rD -C
 ```
 
 ## Web server
@@ -372,6 +453,35 @@ As illustrated in the figure above, Prometheus is configured with the metrics en
 ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
 ```
 
+### Collector
+
+For a more flexible setup, you may be interested in the setup of an *Otel* collector. For example `InfluxDB` with [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/) and the [OpenTelemetry Input Plugin](https://github.com/influxdata/telegraf/blob/release-1.21/plugins/inputs/opentelemetry/README.md):
+
+```mermaid
+flowchart TD;    
+    WebServer[Web Server]-- "OTLP GRPC" -->Telegraf;
+    RESTAPI[REST API]-- "OTLP GRPC" -->Telegraf;
+    Telegraf---->InfluxDB;
+    Telegraf---->Kapacitor;
+    Kapacitor<---->Chronograf
+    Kapacitor<---->InfluxDB;
+    InfluxDB---->Grafana;
+    InfluxDB---->Zipkin/Prometheus/...;
+    InfluxDB<---->Chronograf;
+```
+
+For completeness, the diagram above mentions [Chronograf](https://www.influxdata.com/time-series-platform/chronograf/) the user interface and administrative comonent of *InfluxDB* which allows to interact with the [TICK-stack](https://www.influxdata.com/time-series-platform/) and [Zipkin](https://zipkin.io/) a distributed tracing system.  
+
+You can also use the [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/).  
+
+#### Install InfluxDB
+
+```bash
+ansible-playbook collectorserver-setup.yml -i hosts -K -vvv
+```
+
+After installing, open the UI on `http://{{ groups['otlp_controller'][0] }}:8086)`.
+
 ### Grafana server
 
 #### Install Grafana server
@@ -383,6 +493,136 @@ ansible-playbook grafanaserver-setup.yml -i hosts -K -vvv
 After installing *Grafana*, you can browse to the *Grafana* endpoint (check the *Grafana* endpoint in [hosts](./playbooks/hosts)) and open the `ASP .NET Core` dashboard: 
 
 ![ASP .NET Core dashboard](./ASP.NET%20Core%20metrics.png)
+
+## Proxy
+
+### NGINX
+
+The provided NGINX configuration demonstrates a setup designed to facilitate secure HTTPS connections to a load-balanced backend comprised of multiple HTTP API servers:
+
+```mermaid
+flowchart TD;        
+    NGINX--load balances/offloads https-->RESTAPI1[REST API Cars node1];
+    NGINX--load balances/offloads https-->RESTAPI2[REST API Cars node2];
+    NGINX--load balances/offloads https-->RESTAPI3[REST API Cars node2];
+
+    RESTAPI1[REST API Cars node1]--data protection-->Redis;
+    RESTAPI2[REST API Cars node2]--data protection-->Redis;
+    RESTAPI3[REST API Cars node2]--data protection-->Redis;
+
+    Client--https-->NGINX
+```
+
+The `NGINX` configuration for this setup illustrates a robust setup for managing secure, load-balanced connections to a backend API cluster, with a focus on detailed logging, security with SSL, and flexibility to support large headers and optional WebSocket connections:  
+
+```nginx
+http {
+    log_format upstreamlog '[$time_local] $remote_addr - $remote_user - $server_name $host to: $upstream_addr: $request $status upstream_response_time $upstream_response_time msec $msec request_time $request_time';
+
+    upstream https_api {
+        server 192.168.1.64:5000;
+        server 192.168.1.68:5000;
+        server 192.168.1.69:5000;
+    }
+
+    server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+        include snippets/self-signed.conf;
+        include snippets/ssl-params.conf;
+
+        client_header_buffer_size 4k;
+        large_client_header_buffers 4 8k; # Increase if JWT or other headers are large      
+
+        access_log /var/log/nginx/access.log upstreamlog;
+
+        location / {
+            proxy_pass https://https_api;
+        }
+
+        # Header adjustments for proxying
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Authorization $http_authorization;
+            
+        # Other possible headers you might want to set
+        # proxy_set_header Authorization ""; # If you need to reset the Authorization header
+
+        # WebSocket support (if needed)
+        # proxy_http_version 1.1;
+        # proxy_set_header Upgrade $http_upgrade;
+        # proxy_set_header Connection "upgrade";
+    }
+}
+```
+
+#### log format
+
+* Functional Goal: Define a custom logging format to capture detailed information about requests and responses.
+* Technical Description: The log_format directive specifies a custom format named upstreamlog, which includes timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers, in particular inspecting load balancing as the log will display the IP address of the upstream REST API node.
+
+#### load balancing
+
+* Functional Goal: Distribute incoming traffic across multiple backend servers.
+* Technical Description: The upstream block named http_api defines a cluster of servers (with specified IP addresses and port numbers) that requests will be load balanced across. This setup increases the application's scalability and reliability by distributing the load and providing redundancy.
+
+#### https configuration
+
+* Functional Goal: Configure NGINX to serve HTTPS traffic and to use specific SSL parameters and certificates.
+* Technical Description:
+
+  * The listen 443 ssl directives instruct NGINX to listen for incoming connections on port 443 with SSL encryption, including IPv6 connections ([::]:443 ssl).
+  * The include directives incorporate additional SSL configurations and self-signed certificate details from external files (self-signed.conf and ssl-params.conf), modularizing the SSL setup for easier management.
+  * client_header_buffer_size And large_client_header_buffers directives adjust the buffer sizes for client request headers, accommodating potentially large JWT tokens or other large headers.
+
+Note the HTTPS offloading and re-encryption in the configuration above which involves the NGINX server acting as a termination point for incoming HTTPS connections from clients. NGINX decrypts these connections, inspects the traffic, and then re-encrypts the traffic before forwarding it to the backend servers over HTTPS using separate, internal SSL certificates. This process allows for secure communication both externally with clients and internally within the data center.
+
+* Decryption of Incoming HTTPS Requests: NGINX uses public-facing SSL certificates to decrypt data received over SSL/TLS from clients. This is the offloading part.
+* Inspection and Processing: Once decrypted, NGINX can inspect, log, or manipulate the HTTP content as necessary. This step can involve modifying headers, applying access controls, or making routing decisions.
+* Re-Encryption and Forwarding: NGINX then re-encrypts the requests using internal SSL certificates and forwards them to the backend servers over HTTPS. This ensures that traffic remains secure as it traverses the internal network.
+* Secure Internal Communication: The backend servers, configured with the internal certificates, decrypt the re-encrypted requests, process them, and send back the responses. NGINX then encrypts the responses again (if necessary) before sending them back to the clients.
+
+HTTPS offloading and re-encryption has the following benefits:
+
+* Enhanced Security Across the Board: This setup ensures end-to-end encryption of data, maintaining security from the client to the NGINX server and from the NGINX server to the backend servers. Using internal certificates for the data center adds an extra layer of security within the internal network.
+* Centralized Public SSL Management: Public-facing SSL certificate management remains centralized at the NGINX server, simplifying the administration of public encryption keys and certificates.
+* Flexible Trust and Security Policies: The separation of external and internal certificates allows for distinct trust domains and security policies. For example, stronger or different encryption standards can be applied internally compared to what is used for public internet traffic.
+* Inspection and Added Controls: Decrypting the traffic at the NGINX layer allows for detailed inspection and the application of additional security controls before re-encrypting and sending it to backend services. This can be crucial for compliance with security policies, logging, or performing deep packet inspection for threat detection.
+* Performance and Scalability: While the NGINX server handles the computational overhead of encrypting and decrypting traffic twice, it offloads backend servers from doing so. This can be optimized by using hardware that accelerates SSL processing. Furthermore, it allows backend servers to be scaled out without the need to manage public SSL certificates on each of them.
+* Secure Internal Traffic: Using HTTPS internally protects against potential threats lurking within the data center, ensuring that sensitive data is encrypted in transit even within the network's trusted boundaries.
+
+In summary, employing HTTPS offloading and re-encryption with NGINX provides robust security by ensuring encrypted traffic both externally and internally while centralizing certificate management and offering the ability to inspect and manipulate HTTP traffic. This configuration enhances the overall security posture and flexibility of managing traffic flows within distributed application architectures.
+
+#### access logging
+
+* Functional Goal: Log access requests using the custom-defined log format.
+* Technical Description: The access_log directive specifies the path to the access log file and instructs NGINX to use the upstreamlog format for logging, ensuring that detailed information about each request and its handling is logged for future analysis.
+
+#### location block and proxy settings
+
+* Functional Goal: Define request routing and proxying behavior for the root path.
+* Technical Description:
+
+  * The location / block matches all requests and uses the proxy_pass directive to forward them to the http_api upstream cluster, enabling load balancing.
+  * proxy_set_header Directives modify request headers to include the original host, the real client IP address, and the protocol used, ensuring that the proxied requests contain necessary information for backend services to process them correctly.
+  * The configuration optionally supports forwarding the Authorization header, preserving JWT or other authentication tokens needed by the backend services.
+
+#### optional websocket support
+
+* Functional Goal: (Commented out) Provide the necessary headers to support WebSocket connections if needed.
+* Technical Description: The commented-out directives (proxy_http_version, proxy_set_header Upgrade, and proxy_set_header Connection) are set up to enable WebSocket support, ensuring that NGINX can proxy WebSocket connections correctly. These lines can be uncommented and adjusted as needed based on the application's requirements.
+
+#### redis
+
+Cross-Site Request Forgery (CSRF) is a security threat where an attacker tricks a user into executing unwanted actions on a web application in which they're authenticated. If the victim is a regular user, a successful CSRF attack can force them to perform state-changing requests like transferring funds, changing their email address, and so forth. If the victim has an administrative account, CSRF can compromise the entire web application. CSRF exploits the trust that a site has in the user's browser, and unlike Cross-Site Scripting (XSS), which exploits the trust a user has in a particular site, CSRF exploits the trust that a site has in the user's browser.
+
+In a distributed web application architecture, particularly one that scales horizontally as in this setup, requests from the same user can be routed to different servers across multiple requests due to load balancing. This poses a challenge for CSRF protection mechanisms that rely on keeping track of state, such as synchronizer tokens or double submit cookies, because the server handling a subsequent request might not have access to the tokens generated by another server on a previous request.
+
+REDIS, as a fast, in-memory data store offers a  solution for storing CSRF protection keys in such a distributed setup. 
+
+In the drawing above, REDIS was added explicitely to stress not necessarily obvious impact of the distributed nature and horizontal scalability of the setup, i.e. its non-trivial impact on CSRF. More details are available [on the cars.be repo] (https://github.com/bartengine27/cars.be/tree/abp_8).
 
 ## References
 
@@ -396,3 +636,8 @@ After installing *Grafana*, you can browse to the *Grafana* endpoint (check the 
 * align the [vars](./playbooks/proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
 * generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)
 * install the webserver usually fails first
+* integrate [prometheus alerts](https://github.com/prometheus/alertmanager) or [grafana alerts](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alertmanager/) or ...
+* install Collector endpoint
+* custom dashboard displaying the custom metric
+* [ssh fingerprint checks](https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking)
+* setup nginx with ansible and a [self signed certifcate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1)

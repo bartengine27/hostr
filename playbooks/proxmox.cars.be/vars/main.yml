@@ -18,16 +18,27 @@ proxmox_vms:
  - ip: 192.168.1.63
    id: 603
    group:
-     - "identity_server"
+    - "identity_server"
  - ip: 192.168.1.64
    id: 604
    group:
-     - "http_api"
+    - "http_api"
+ - ip: 192.168.1.68
+   id: 608
+   group:
+    - "http_api"     
+ - ip: 192.168.1.69
+   id: 609
+   group:
+    - "http_api"     
  - ip: 192.168.1.65
    id: 605
    group:
-     - "grafana"
+    - "grafana"
  - ip: 192.168.1.66
    id: 606
+    - "prometheus"
+ - ip: 192.168.1.67
+   id: 607
    group:
-     - "prometheus"
+    - "otlp_controller"

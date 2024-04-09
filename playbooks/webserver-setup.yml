@@ -96,6 +96,10 @@
         dotnet build -c Release  --self-contained false Be.Cars.sln
         dotnet publish  src/Be.Cars.Blazor/Be.Cars.Blazor.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
         dotnet publish  src/Be.Cars.DbMigrator/Be.Cars.DbMigrator.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
+      register: publish_webserver_result
+      retries: 5
+      delay: 10
+      until: publish_webserver_result.rc == 0             
     - name: Create the directory for the virtual file system (hard coded for now)
       ansible.builtin.file:
         path: /webapp/Be.Cars.Domain.Shared/
@@ -133,8 +137,7 @@
         ./Be.Cars.DbMigrator 
       environment:
         ASPNETCORE_ENVIRONMENT: "{{ asp_net_core_environment }}"
-    # - name: "Run the DB migrator"
-    #   ansible.builtin.shell: |   
-    #     dotnet run --no-launch-profile --project "{{ webserver_install_folder }}"src/Be.Cars.DbMigrator/Be.Cars.DbMigrator.csproj
-    #   environment: 
-    #     ConnectionStrings_Default: "{{ groups['redis'][0] }},abortConnect=false,password={{ redis_password }};TrustServerCertificate=True"
+      register: db_migrator_result
+      retries: 5
+      delay: 10
+      until: db_migrator_result.rc == 0
