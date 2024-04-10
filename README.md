@@ -1082,7 +1082,7 @@ http {
       # proxy_set_header Connection "upgrade";
     }
 }
-``` `
+```
 
 #### Log format
 
