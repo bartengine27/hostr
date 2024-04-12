@@ -26,6 +26,7 @@
 - name: Add network bridge configuration to Proxmox (it might be better to copy files into /etc/network/interfaces.d/)
   blockinfile:
     path: /etc/network/interfaces
+    #reverse vmbr0 and vrmbr1 - iface is eth0 for Hyper-V VMs - adds to config, does not replace -> use bridge command?
     block: |
       auto lo
       iface lo inet loopback
@@ -59,10 +60,10 @@
     proxmox_gateway: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_GATEWAY') }}"      
   delegate_to: "{{ proxmox_host }}"
   become: True
-  tags: vm_init
+  tags: vm_init_disabled
 
 - name: Apply network configuration
-  command: ifup vmbr1
+  command: ifup vmbr0
   ignore_errors: True
   vars:    
     proxmox_host: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_IP') }}"
@@ -99,7 +100,7 @@
     memory: 4096
     ostemplate: 'local:vztmpl/ubuntu-20.04-standard_20.04-1_amd64.tar.gz'
     # should query gw from proxmox? ask proxmox for a free ip address?
-    netif: '{"net0":"name=eth0,gw={{ firewall_ip }},ip={{ item["ip"] }}/24,bridge=vmbr1"}'    
+    netif: '{"net0":"name=eth0,gw={{ firewall_ip }},ip={{ item["ip"] }}/24,bridge=vmbr0"}'    
     pubkey: "{{ lookup('ansible.builtin.env', 'SSH_PUB_KEY') }}"
     state: present
     features:
@@ -120,8 +121,8 @@
     name: firewall
     node: "{{ proxmox_node }}"
     net: 
-      net0:"name=eth0,gw={{ item["gateway"] }},ip={{ item["additional_ip"] }}/24,hwaddr={{ item["additional_ip_mac"] }},bridge=vmbr0"
-      net1:"name=eth1,ip={{ item["ip"] }}/24,bridge=vmbr1"
+      net1:"name=eth0,gw={{ item["gateway"] }},ip={{ item["additional_ip"] }}/24,hwaddr={{ item["additional_ip_mac"] }},bridge=vmbr1"
+      net0:"name=eth1,ip={{ item["ip"] }}/24,bridge=vmbr0"
     sata:
       sata0: 'VMs_LVM:40,format=raw'
     bios: ovmf
@@ -168,7 +169,7 @@
     # should query gw from proxmox? ask proxmox for a free ip address?
     # keys that you can use: check conf files in /etc/pve/nodes/proxmox/lxc on the proxmox host
     # note: no gateway for eth1 (LAN traffic via bridge vmbr1)
-    netif: '{"net0":"name=eth0,gw={{ item["gateway"] }},ip={{ item["additional_ip"] }}/24,hwaddr={{ item["additional_ip_mac"] }},bridge=vmbr0","net1":"name=eth1,ip={{ item["ip"] }}/24,bridge=vmbr1"}'
+    netif: '{"net0":"name=eth0,gw={{ item["gateway"] }},ip={{ item["additional_ip"] }}/24,hwaddr={{ item["additional_ip_mac"] }},bridge=vmbr1","net1":"name=eth1,ip={{ item["ip"] }}/24,bridge=vmbr0"}'
     pubkey: "{{ lookup('ansible.builtin.env', 'SSH_PUB_KEY') }}"
     state: present
     features:
@@ -226,7 +227,7 @@
         version: 2
         renderer: networkd
         ethernets:
-          eth0:
+          eth1:
             dhcp4: no
             dhcp6: no
             addresses:
@@ -263,8 +264,8 @@
   ansible.builtin.copy:
     dest: "/tmp/interfaces"
     content: |
-      auto eth1
-      iface eth1 inet static
+      auto eth0
+      iface eth0 inet static
           address {{ item['ip'] }}
           netmask 255.255.0.0
           gateway {{ item['ip_gateway'] }}
