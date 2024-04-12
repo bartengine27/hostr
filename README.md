@@ -106,10 +106,16 @@ After installing Proxmox on Hyper-V, you will notice that calling an endpoint on
 
 ![Switches](./wsl_hypervvm_switches.png)
 
-and not the two different virtual switches. As documented [on](https://techcommunity.microsoft.com/t5/itops-talk-blog/windows-subsystem-for-linux-2-addressing-traffic-routing-issues/ba-p/1764074) we need to enable forwarding across both virtual switches:
+and note the two different virtual switches. As documented [on](https://techcommunity.microsoft.com/t5/itops-talk-blog/windows-subsystem-for-linux-2-addressing-traffic-routing-issues/ba-p/1764074) we need to enable forwarding across both virtual switches:
 
 ```Powershell
 Get-NetIPInterface | where {$_.InterfaceAlias -eq 'vEthernet (Default Switch)' -or $_.InterfaceAlias -eq 'vEthernet (WSL (Hyper-V firewall))'} | Set-NetIPInterface -Forwarding Enabled
+```
+
+Check setting forwarding with:
+
+```Powershell
+Get-NetIPInterface | select ifIndex,InterfaceAlias,AddressFamily,ConnectionState,Forwarding | Sort-Object -Property IfIndex | Format-Table
 ```
 
 :fire: Note the **vEthernet(...)** in the IP interface aliases, if you are not sure about the aliases, first run
@@ -117,6 +123,8 @@ Get-NetIPInterface | where {$_.InterfaceAlias -eq 'vEthernet (Default Switch)' -
 ```Powershell
 Get-NetIPInterface
 ```
+
+:fire: This setting is disabled after rebooting!
 
 and check the second column.  
 
