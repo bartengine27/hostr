@@ -2,10 +2,30 @@ events {
 }
 
 http {
+
+    client_header_buffer_size 4k;
+    #large_client_header_buffers 4 8k; # Increase if JWT or other headers are large      
+    proxy_buffer_size   128k;
+    proxy_buffers   4 256k;
+    proxy_busy_buffers_size   256k;
+    large_client_header_buffers 4 16k;
+
     log_format upstreamlog '[$time_local] $remote_addr - $remote_user - $server_name $host to: $upstream_addr: $request $status upstream_response_time $upstream_response_time msec $msec request_time $request_time';
 
     upstream https_api {
-          {% for host in groups['http_api'] %}
+        {% for host in groups['http_api'] %}
+        server {{ host }}:{{ hostvars[host]['service_port'] }};
+        {% endfor %}
+    }
+
+    upstream web_api {        
+        {% for host in groups['webserver'] %}
+        server {{ host }}:{{ hostvars[host]['service_port'] }};
+        {% endfor %}
+    }
+
+    upstream identity_api {        
+        {% for host in groups['identity_server'] %}
         server {{ host }}:{{ hostvars[host]['service_port'] }};
         {% endfor %}
     }
@@ -13,31 +33,60 @@ http {
     server {
         listen 443 ssl;
         listen [::]:443 ssl;
+        # The server_name directive specifies cars.be as the domain this server block will respond to, also for /api/!
+        server_name identity.{{ project_domain }};
+
         include snippets/self-signed.conf;
         include snippets/ssl-params.conf;
 
-        client_header_buffer_size 4k;
-        large_client_header_buffers 4 8k; # Increase if JWT or other headers are large      
+        access_log /var/log/nginx/access.log upstreamlog;
+
+        # Serve the website for identity.cars.be
+        location / {
+            proxy_pass https://identity_api/;
+
+            # Header adjustments are defined inside the /api/ location block to ensure they're applied only to the proxied requests.          
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Authorization $http_authorization;
+
+            # Additional necessary proxy settings
+        }    
+    }
+
+    server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+        # The server_name directive specifies cars.be as the domain this server block will respond to, also for /api/!
+        server_name {{ project_domain }};
+
+        include snippets/self-signed.conf;
+        include snippets/ssl-params.conf;
 
         access_log /var/log/nginx/access.log upstreamlog;
 
+        # Serve the website for cars.be except for paths under /api/
         location / {
-            proxy_pass https://https_api;
-        }
+            proxy_pass https://web_api/;
 
-        # Header adjustments for proxying
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header Authorization $http_authorization;
-            
-        # Other possible headers you might want to set
-        # proxy_set_header Authorization ""; # If you need to reset the Authorization header
+            # Header adjustments are defined inside the /api/ location block to ensure they're applied only to the proxied requests.          
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Authorization $http_authorization;
 
-        # WebSocket support (if needed)
-        # proxy_http_version 1.1;
-        # proxy_set_header Upgrade $http_upgrade;
-        # proxy_set_header Connection "upgrade";
+            # Additional necessary proxy settings
+        }        
+        
+      # Other possible headers you might want to set
+      # proxy_set_header Authorization ""; # If you need to reset the Authorization header
+
+      # WebSocket support (if needed)
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
     }
 }

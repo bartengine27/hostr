@@ -11,6 +11,10 @@
       prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
       private: false
       default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"    
+    - name: project_domain
+      prompt: "The project domain name, for example cars.be"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_DOMAIN') }}"  
   roles:
     - role: geerlingguy.certbot      
   tasks:    
@@ -92,20 +96,6 @@
         update_cache: yes
         cache_valid_time: 3600  # Cache is considered valid for 1 hour
 
-    - name: Obtain Let's Encrypt certificate
-      include_role:
-        name: geerlingguy.certbot
-      vars:
-        certbot_auto_renew: true
-        certbot_auto_renew_hour: "3"
-        certbot_auto_renew_minute: "30"
-        certbot_create_if_missing: true
-        certbot_create_method: standalone
-        certbot_admin_email: bart.deboeck@xenopz.com
-        certbot_certs:
-          - domains:
-              - pointedwords.be
-
     - name: Install NGINX
       ansible.builtin.apt:
         name: nginx
@@ -122,3 +112,17 @@
         name: nginx
         state: started
         enabled: yes
+
+    - name: Obtain Let's Encrypt certificate
+      include_role:
+        name: geerlingguy.certbot
+      vars:
+        certbot_auto_renew: true
+        certbot_auto_renew_hour: "3"
+        certbot_auto_renew_minute: "30"
+        certbot_create_if_missing: true
+        certbot_create_method: standalone
+        certbot_admin_email: bart.deboeck@xenopz.com
+        certbot_certs:
+          - domains:
+              - pointedwords.be

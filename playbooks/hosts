@@ -5,10 +5,10 @@
  192.168.1.62
 
 [webserver]
-192.168.1.60 dotnet_method_install=snap
+192.168.1.60 service_port=5000 dotnet_method_install=snap
 
 [identity_server]
-192.168.1.63
+192.168.1.63 service_port=5000
 
 [http_api]
 192.168.1.64  service_port=5000

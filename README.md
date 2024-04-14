@@ -24,6 +24,7 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
     * [Azure prerequisites](#azure-prerequisites)
     * [Ansible prerequisites](#ansible-prerequisites)
     * [Secrets prerequisites](#secrets-prerequisites)
+    * [Git/SSH prerequisites](#gitssh-prerequisites)
   * [Proxmox](#proxmox)
     * [Proxmox VM setup](#proxmox-vm-setup)
     * [Proxmox hosts file](#proxmox-hosts-file)
@@ -188,20 +189,6 @@ Add additional Python dependencies with:
 pip install proxmoxer
 ```
 
-The deployed example web site is hosted on a public github repo. If you'd like to use a private repo, it is probably a good aide to use SSH agent forwarding. Otherwise, you will have to keep a private key on the host you are deploying on.
-
-Start by adding your keys to the SSH agent with:
-
-```bash
-/usr/bin/ssh-add #note the full path, if you are using WSL and the windows agent (1password, etc.) you have to be explicit about "which ssh config" you are changing (Ansible does not use the 1password Windows agent)
-/usr/bin/ssh -v -T git@github.com
-#Hi your_account! You've successfully authenticated, but GitHub does not provide shell access.
-/usr/bin/ssh root@192.168.1.61 #SSH into your host, you can test this once your hosts are "online and reachable"
-echo $SSH_AUTH_SOCK #response should not be empty
-#/tmp/ssh-n9uZGGjGAC/agent.2806
-/usr/bin/ssh -v -T git@github.com
-```
-
 ### Secrets prerequisites
 
 Secrets are stored in env variables in files
@@ -223,6 +210,68 @@ export SSH_PUB_KEY="ssh-rsa AAAAB.... your_name@your_machine"
 ```
 
 If you are unsure about your public key, check `~/.ssh/id_rsa_pub`.
+
+### Git/SSH prerequisites
+
+When managing source code across virtual machines (VMs) on platforms like Proxmox or Azure, accessing source code from version control systems may have a security impact. A common practice involves cloning repositories using Git over SSH, authenticated via private SSH keys. However, storing private keys directly on VMs, especially those hosted on third-party servers, raises potential significant security risks. Instead, SSH agent forwarding emerges as a safer alternative.  
+
+SSH agent forwarding allows users to access a remote machine through SSH without placing private SSH keys on the server itself. Instead, the SSH authentication request is forwarded back to the user's local machine where the SSH agent resides. This means the private key is never exposed to the network or stored on the remote server, obviously enhancing security.
+
+You can setup SSH agent forwarding on your local machine with:
+
+* **Enable SSH Agent on Local Machine**: Before initiating a connection, ensure the SSH agent is running on your local machine and your private key is added. This can be done using:
+
+  ```shell
+  eval $(ssh-agent -s)  
+  # note the full path, if you are using WSL and the windows agent (1password, etc.) you have to be explicit about "which ssh config" you are changing (Ansible does not use the 1password Windows agent)
+  /usr/bin/ssh-add # add all keys under ~/.ssh/
+  /usr/bin/ssh-add -l # list all keys
+  ```  
+
+* **Configure SSH to Use Agent Forwarding**: Modify the SSH configuration file (~/.ssh/config) on your local machine to enable agent forwarding. You can specify this globally or for specific hosts:
+
+  ```shell
+  Host 192.168.1.*    
+    ForwardAgent yes
+  ```
+
+* **Connect to the VM**: Once configured, you can connect to the VM using SSH. The agent forwarding will carry your authentication from the local machine to the VM:
+
+  ```shell  
+  /usr/bin/ssh-add # note the full path, if you are using WSL and the windows agent (1password, etc.) you have to be explicit about "which ssh config" you are changing (Ansible does not use the 1password Windows agent)
+  /usr/bin/ssh -v -T git@github.com
+  #Hi your_account! You've successfully authenticated, but GitHub does not provide shell access.
+  /usr/bin/ssh root@192.168.1.60 # SSH into your host, you can test this once your hosts are "online and reachable"
+  echo $SSH_AUTH_SOCK #response should not be empty
+  #/tmp/ssh-n9uZGGjGAC/agent.2806
+  ssh -v -T git@github.com # on your host, you probably are not using WSL and the windows agent  
+  #Hi username You've successfully authenticated, but GitHub does not provide shell access.
+  ```
+
+* **Clone Repository Using SSH on the VM**: On the VM, use Git to clone the repository as usual. The SSH agent will authenticate using your local machine’s private key, as an example (will be executed in Ansible scripts):  
+
+  ```shell
+  git clone git@github.com:user/repository.git
+  ```
+
+Some advantages of SSH agent forwarding:
+
+* **Enhanced Security**: The primary advantage is security. Your private SSH keys remain secure on your local machine, reducing the risk of exposure through VM compromise.
+* **Ease of Use**: Once set up, the process is transparent to the user. You can seamlessly authenticate to Git repositories without managing multiple keys on different VMs.
+
+Some drawbacks and potential considerations:
+
+* **Security Risks with Misconfiguration**: If not configured properly, SSH agent forwarding can expose your local SSH agent to remote machines, which could be a vector for an attack if the remote machine is compromised.
+* **Dependency on Local Machine**: Your local machine must be online and accessible whenever operations requiring SSH authentication are performed, potentially limiting flexibility.
+* **Complex Setup**: The initial setup requires understanding of SSH configurations and might be more complex compared to simply copying keys to servers.
+
+Some best practices:
+
+* **Limit Forwarding**: Only enable agent forwarding to trusted hosts to mitigate the risk of exposing your SSH agent to a compromised server.
+* **Monitor Sessions**: Keep an eye on active SSH sessions that utilize agent forwarding to ensure they are legitimate and necessary.
+* **Security Hardening**: Regularly update and patch both local and remote systems to protect against vulnerabilities.
+
+:fire: If your source code is hosted on a public repository, you can off course skip the steps above.  
 
 ## Proxmox
 
@@ -1045,7 +1094,7 @@ http {
 
         # Serve the website for cars.be except for paths under /api/
         location / {
-            proxy_pass https://web_api/
+            proxy_pass https://web_api/;
         }
 
         # The location ^~ /api/ block captures all requests starting with /api/ and forwards them to the https_api upstream. The ^~ modifier gives this location precedence over regular expression locations that might also match.
@@ -1062,16 +1111,6 @@ http {
 
             # Additional necessary proxy settings
         }
-
-        # The location / block is modified to return a 404 error for any requests that don't match the /api/ path. This effectively drops traffic not intended for the API.        
-        location / {
-            return 404;
-        }
-
-      # Optional: Redirect the root path specifically if necessary
-      # location = / {
-      #     return 404;
-      # }
         
       # Other possible headers you might want to set
       # proxy_set_header Authorization ""; # If you need to reset the Authorization header

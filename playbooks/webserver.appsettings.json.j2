@@ -1,7 +1,7 @@
 {
   "App": {  
     "SelfUrl": "https://{{ groups['webserver'][0] }}:5000",
-    "CorsOrigins": "https://*.{{ openiddict_application_identifier }}.be,http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000,https://{{ groups['proxy'][0] }}",
+    "CorsOrigins": "https://{{ project_domain }},http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000,https://{{ groups['proxy'][0] }}",
   },
   "RemoteServices": {
     "Default": {
@@ -18,7 +18,8 @@
     "Default": "Server={{ groups['database'][0] }};Database=Cars;User Id=sa;Password={{ database_password }};TrustServerCertificate=True"
   },
   "AuthServer": {
-    "Authority": "https://{{ groups['identity_server'][0] }}:5000",
+    //"Authority": "https://{{ groups['identity_server'][0] }}:5000",
+    "Authority": "https://identity.{{ project_domain }}/",
     "RequireHttpsMetadata": "true",
     "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
     "ClientSecret": "1q2w3e*"
@@ -37,13 +38,14 @@
       "{{ openiddict_application_identifier }}_BlazorServerTiered": {
         "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
         "ClientSecret": "1q2w3e*",
-        "RootUrl": "https://{{ groups['webserver'][0] }}:5000"
+        "RootUrl": "https://{{ project_domain }}"
       },
       "{{ openiddict_application_identifier }}_Swagger": {
         "ClientId": "{{ openiddict_application_identifier }}_Swagger",
         "ClientSecret": "1q2w3e*",
         //"RootUrl": "https://{{ ansible_host }}:5000"
-        "RootUrl": "https://{{ groups['proxy'][0] }}"
+        //"RootUrl": "https://{{ groups['proxy'][0] }}"
+        "RootUrl": "https://{{ project_domain }}"
       }
     }
   },
