@@ -36,6 +36,10 @@
       prompt: The name of the ABP project, this is the name of the project you used in 'abp new Acme.BookStore -csf'
       private: false
       default: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"
+    - name: project_domain
+      prompt: "The project domain name, for example cars.be"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_DOMAIN') }}"         
   roles:
      - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
   tasks:    

@@ -1,14 +1,14 @@
 {
-  "App": {  
-    "SelfUrl": "https://{{ groups['webserver'][0] }}:5000",
-    "CorsOrigins": "https://{{ project_domain }},http://*:5000,https://*:5000,http://*:5000,http://192.168.1.64:5000,https://{{ groups['proxy'][0] }}",
+  "App": {      
+    "SelfUrl": "https://{{ project_domain }}/",
+    "CorsOrigins": "https://{{ project_domain }}"
   },
   "RemoteServices": {
     "Default": {
-      "BaseUrl": "https://{{ groups['http_api'][0] }}:5000"
+      "BaseUrl": "https://abpapi.{{ project_domain }}"      
     },
-    "AbpAccountPublic": {
-      "BaseUrl": "https://{{ groups['identity_server'][0] }}:5000"
+    "AbpAccountPublic": {      
+      "BaseUrl": "https://identity.{{ project_domain }}/"
     }
   },
   "Redis": {
@@ -17,8 +17,7 @@
   "ConnectionStrings": {
     "Default": "Server={{ groups['database'][0] }};Database=Cars;User Id=sa;Password={{ database_password }};TrustServerCertificate=True"
   },
-  "AuthServer": {
-    //"Authority": "https://{{ groups['identity_server'][0] }}:5000",
+  "AuthServer": {    
     "Authority": "https://identity.{{ project_domain }}/",
     "RequireHttpsMetadata": "true",
     "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
@@ -29,23 +28,21 @@
       "{{ openiddict_application_identifier }}_Web": {
         "ClientId": "{{ openiddict_application_identifier }}_Web",
         "ClientSecret": "1q2w3e*",
-        "RootUrl": "https://localhost:44377"
+        "RootUrl": "https://localhost:44377/"
       },
       "{{ openiddict_application_identifier }}_App": {
         "ClientId": "{{ openiddict_application_identifier }}_App",
-        "RootUrl": "http://localhost:4200"
+        "RootUrl": "http://localhost:4200/"
       },
       "{{ openiddict_application_identifier }}_BlazorServerTiered": {
         "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
         "ClientSecret": "1q2w3e*",
-        "RootUrl": "https://{{ project_domain }}"
+        "RootUrl": "https://{{ project_domain }}/"
       },
       "{{ openiddict_application_identifier }}_Swagger": {
         "ClientId": "{{ openiddict_application_identifier }}_Swagger",
         "ClientSecret": "1q2w3e*",
-        //"RootUrl": "https://{{ ansible_host }}:5000"
-        //"RootUrl": "https://{{ groups['proxy'][0] }}"
-        "RootUrl": "https://{{ project_domain }}"
+        "RootUrl": "https://abpapi.{{ project_domain }}/"
       }
     }
   },
@@ -56,7 +53,7 @@
   "Kestrel": {
     "Endpoints": {
       "CarsBeHttpsEndpoint": {
-        "Url": "https://{{ groups['webserver'][0] }}:5000",
+        "Url": "https://{{ ansible_host }}:5000",
         "ClientCertificateMode": "AllowCertificate",
         "Certificate": {
           "Path": "{{webserver_install_folder }}certificate.pem",
