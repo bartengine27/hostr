@@ -138,6 +138,12 @@ route -p add 172.18.60.44 MASK 255.255.255.255 172.17.240.1
 
 the `-p` option ensures that the route will persist after a reboot. The `MASK` ensures that only the traffic for the VM is routed over the virtual switch. If you run several VMs, you may have to change the `MASK`.  
 
+Later on, you can remove this route with:
+
+```shell
+route -p delete 172.18.60.44
+```
+
 You can get the IP address of your VM by executing the following command on your VM (open a VM connection in the Hyper-V Manager):
 
 ```shell
@@ -183,7 +189,7 @@ auto vmbr0
 iface vmbr0 inet static
         address 172.18.60.44/16
         #gateway 172.18.60.1
-        gateway 172.17.240.1
+        gateway 172.17.240.1 # the ip address of your virtual switch
         bridge-ports eth0
         bridge-stp off
         bridge-fd 0
