@@ -30,7 +30,6 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
     * [Proxmox hosts file](#proxmox-hosts-file)
     * [Uploading Proxmox VM(s) templates](#uploading-proxmox-vms-templates)
     * [Installing Proxmox VM(s)](#installing-proxmox-vms)
-    * [Proxmox public IP](#proxmox-public-ip)
     * [Addding Proxmox VM(s) to known\_hosts](#addding-proxmox-vms-to-known_hosts)
     * [Stopping Proxmox VM(s)](#stopping-proxmox-vms)
     * [Starting Proxmox VM(s)](#starting-proxmox-vms)
@@ -345,30 +344,6 @@ sudo ansible-galaxy collection install community.general
 
 ```bash
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
-```
-
-### Proxmox public IP
-
-Ubuntu 20.04 network config: https://www.serverlab.ca/tutorials/linux/administration-linux/how-to-configure-networking-in-ubuntu-20-04-with-netplan/
-
-config vm proxmox: https://help.ovhcloud.com/csm?id=kb_article_view&sysparm_article=
-
-fwd ssh https://unix.stackexchange.com/questions/421521/proxy-ssh-through-nginx as an alternative for a firewall/vpn
-
-```nginx
-stream {
-
-        upstream ssh {
-                server 10.0.0.17:22;
-        }
-
-        server {
-                listen 8022;
-                server_name gitlab.web.com;
-                proxy_pass ssh;
-        }
-
-}
 ```
 
 ### Addding Proxmox VM(s) to known_hosts

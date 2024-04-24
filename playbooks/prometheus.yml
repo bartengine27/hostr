@@ -1,0 +1,74 @@
+- name: Deploy the Prometheus Servers
+  hosts: prometheus  
+  remote_user: root
+  vars:
+    # example variables to enable/disable roles
+    prometheus_a_feature_enabled: true
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+    - name: webserver_public_repo
+      prompt: "Enter the git remote URL."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
+    - name: prometheus_install_folder
+      prompt: "Enter the installation folder of Prometheus."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROMETHEUS_INSTALL_FOLDER') }}"   
+  vars:
+        #https://prometheus-community.github.io/ansible/branch/main/prometheus_role.html#ansible-collections-prometheus-prometheus-prometheus-role
+        #https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
+        prometheus_scrape_configs: [
+                                        {
+                                            "job_name": "prometheus",
+                                            "metrics_path": "{{ prometheus_metrics_path }}",
+                                            "static_configs": [
+                                                {
+                                                    "targets": [
+                                                        "{{ ansible_fqdn | default(ansible_host) | default('localhost') }}:9090"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                       {
+                                            "job_name": "cars.be",
+                                            "metrics_path": "{{ prometheus_metrics_path }}",
+                                            "scheme": "https",
+                                            "tls_config": 
+                                                {
+                                                    #TODO do not check certs for now
+                                                    "insecure_skip_verify": true
+                                                },                                            
+                                            "static_configs": [
+                                                {
+                                                    "targets": [
+                                                        "{{ groups['webserver'][0] }}:5000"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "job_name": "cars.be rest api",
+                                            "metrics_path": "{{ prometheus_metrics_path }}",
+                                            "scheme": "https",
+                                            "tls_config": 
+                                                {
+                                                    #TODO do not check certs for now
+                                                    "insecure_skip_verify": true
+                                                },                                            
+                                            "static_configs": [
+                                                {
+                                                    "targets": [
+                                                        "{{ groups['http_api'][0] }}:5000"
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                    ]      
+  roles:
+    - prometheus.prometheus.prometheus
+    - hostr.prometheus

@@ -1,0 +1,100 @@
+---
+  # based on https://citizix.com/how-to-install-and-set-up-grafana-in-ubuntu-20-04-using-ansible/
+- name: add grafana gpg key - repo is not trusted, add trusted=yes and ignore certificate checks
+  ansible.builtin.shell: |
+    apt-get install -y apt-transport-https software-properties-common wget
+    mkdir -p /etc/apt/keyrings/
+    wget --no-check-certificate -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/keyrings/grafana.gpg > /dev/null
+    echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg trusted=yes] https://apt.grafana.com stable main" | tee -a /etc/apt/sources.list.d/grafana.list    
+- name: Update apt repo and cache
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+    cache_valid_time: 3600
+- name: Install dependencies
+  apt:
+    pkg:
+      - gnupg          
+      - curl
+      - wget
+      - software-properties-common      
+    state: latest
+    update_cache: yes
+    force: yes
+- name: Install the grafana package
+  apt:
+    name: grafana
+    state: present
+    update_cache: yes
+  notify:
+    - Enable grafana
+    - Start grafana    
+- name: Create or update a Grafana user, in this case the default admin
+  community.grafana.grafana_user:
+    name: "Default admin"
+    email: "admin@cars.be"
+    #grafana user
+    login: "admin"
+    #cannot be edited - https://docs.ansible.com/ansible/latest/collections/community/grafana/grafana_user_module.html#ansible-collections-community-grafana-grafana-user-module
+    #todo move to settings
+    password: "admin"
+    is_admin: true   
+    state: present    
+  when: grafana_enable_admin 
+- name: Create or update a Grafana user, in this case the default user
+  community.grafana.grafana_user:
+    name: "Default user"
+    email: "bart@cars.be"
+    #grafana user
+    #todo allow to add users in bulk
+    login: "bart"
+    #cannot be edited - https://docs.ansible.com/ansible/latest/collections/community/grafana/grafana_user_module.html#ansible-collections-community-grafana-grafana-user-module
+    #todo move to settings
+    password: "bart"
+    is_admin: true   
+    state: present
+  when: grafana_enable_user
+- name: create prometheus datasource
+  community.grafana.grafana_datasource:
+    name: prometheus
+    ds_type: prometheus
+    #todo curl 'http://192.168.1.66:9090/api/v1/query?query=up&time=2015-07-01T20:10:51.781Z'
+    #do not include the /metrics
+    ds_url: http://192.168.1.66:9090/
+    #access: proxy
+    tls_skip_verify: true
+    uid: prometheus
+    # additional_json_data:
+    #   httpHeaderName1: "Authorization"
+    # additional_secure_json_data:
+    #   httpHeaderValue1: "Bearer ihavenogroot" 
+- name: Copy the Grafana dashboards to the host
+  ansible.builtin.copy:
+    src: "19924_rev4.json"
+    dest: /tmp/19924_rev4.json
+# - name: Copy the Grafana dashboards to the host - does not work - Datasource ${DS_PROMETHEUS} was not found
+#   ansible.builtin.copy:
+#     src: "{{ playbook_dir }}/19925_rev3.json"
+#     dest: /tmp/19925_rev3.json
+- name: Create a dashboard folder on Grafana
+  community.grafana.grafana_folder:        
+    title: "cars"
+    state: present    
+- name: Import Grafana dashboard https://github.com/dotnet/aspire/tree/main/src/Grafana
+  community.grafana.grafana_dashboard:        
+    #dashboards are by default stored at /usr/share/grafana/public/dashboards/home.json
+    #TODO first create this folder, now dashboard is in general
+    folder: cars
+    #https://grafana.com/grafana/dashboards/19924-asp-net-core/
+    #dashboard_id: 19924
+    #dashboard_revision: 1        
+    #path: "{{ playbook_dir }}/19924_rev4.json"
+    path: /tmp/19924_rev4.json
+    state: present
+    overwrite: true
+    #dashboard_url: https://grafana.com/api/dashboards/19924/revisions/4/download
+# - name: Import Grafana dashboard https://github.com/dotnet/aspire/tree/main/src/Grafana
+#   community.grafana.grafana_dashboard:        
+#     path: /tmp/19925_rev3.json
+#     state: present
+#     overwrite: true

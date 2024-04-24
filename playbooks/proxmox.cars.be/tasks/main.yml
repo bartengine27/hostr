@@ -53,7 +53,7 @@
               bridge-ports none
               bridge-stp off
               bridge-fd 0
-      marker: "# {mark} ANSIBLE MANAGED BLOCK vmbr1"
+      "# {mark} ANSIBLE MANAGED BLOCK vmbr1"
   vars:    
     proxmox_host: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_IP') }}"
     proxmox_gateway: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_GATEWAY') }}"      

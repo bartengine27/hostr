@@ -1,0 +1,13 @@
+# inspired by https://stackoverflow.com/questions/30226113/ansible-ssh-prompt-known-hosts-issue
+- name: "Configure the known_hosts file after init of the VMs/Containers on Azure, Proxmox, etc."
+  hosts: localhost
+  connection: local
+  vars:
+    ssh_known_hosts_command: "ssh-keyscan -T 10"
+    ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
+    ssh_known_hosts: "{{ groups['all'] }}"
+  roles:
+    - hostr.knownvmhosts
+  hosts: webserver:identity_server:http_api
+  roles:
+    - hostr.knownexternalhosts

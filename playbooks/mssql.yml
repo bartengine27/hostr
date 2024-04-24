@@ -1,0 +1,19 @@
+---
+- name: SQLServer setup playbook
+  hosts: database
+  remote_user: root
+  vars:
+    mssql_example_var: false
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: ansible
+    - name: database_password
+      prompt: "Enter the password."      
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'SQL_SERVER_PASSWORD') }}"      
+  roles:
+     - hostr.mssql

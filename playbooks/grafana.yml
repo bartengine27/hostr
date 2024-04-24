@@ -1,0 +1,32 @@
+---
+- name: Deploy the Grafana Servers
+  hosts: grafana
+  #become: yes
+  remote_user: root
+  vars:
+    # example variables to enable/disable roles
+    grafana_a_feature_enabled: true
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+    - name: webserver_public_repo
+      prompt: "Enter the git remote URL."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
+    - name: grafana_install_folder
+      prompt: "Enter the installation folder of Prometheus."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'GRAFANA_INSTALL_FOLDER') }}"    
+  module_defaults:
+    group/community.grafana.grafana:
+      grafana_url: "http://{{ groups['grafana'][0] }}:3000"
+      #api user
+      grafana_user: "admin"
+      #todo move to settings
+      grafana_password: "admin"   
+  roles:
+     - hostr.grafana
