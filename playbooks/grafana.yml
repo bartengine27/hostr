@@ -1,7 +1,6 @@
 ---
 - name: Deploy the Grafana Servers
   hosts: grafana
-  #become: yes
   remote_user: root
   vars:
     # example variables to enable/disable roles

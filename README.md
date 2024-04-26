@@ -130,7 +130,7 @@ Before using the Ansible scripts, you will need a Proxmox API user:
 
 * Log into the Proxmox Web UI
 * Select datacenter from the left menu
-* Select users from the left sub-menu
+* Select users fromf the left sub-menu
 * We will use the default root@pam user
 * Select API tokens from the left sub-menu
 * Click add
@@ -356,23 +356,23 @@ ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook knowhosts-setup.yml -i hosts -K
 
 When you observe an additional line being added to your known_hosts file after connecting to a server via SSH, even after manually adding the server's fingerprint with ssh-keyscan or with `ansible-playbook knowhosts-setup.yml`, it typically relates to how SSH handles and verifies the identity of the servers it connects to. Here are a few reasons why this might happen:
 
-1. Different Key Types  
+1. **Different Key Types**
 If you initially add the server's `ED25519` key fingerprint to your known_hosts using ssh-keyscan -H -t ed25519 ip_address, but the server is also configured to use another type of SSH key (e.g., RSA, ECDSA), the SSH client might add the fingerprint of this additional key to the known_hosts file upon the first connection. This occurs because your initial scan and add operation only included the ED25519 key, and upon connection, SSH automatically adds any other keys presented by the server that weren't already in known_hosts.
 
-2. Hostname and IP Address Entries  
+2. **Hostname and IP Address Entries**  
 Another common reason is the difference in how you reference the server in your ssh command versus what was initially scanned. For instance, if you scanned the IP address and then used the hostname (or vice versa) to connect, SSH treats these as separate entries. SSH distinguishes between IP addresses and hostnames because they can technically present different keys (consider virtual hosts or shared IP scenarios). As a result, SSH might add a new line for the same server under its different identifier (IP or hostname).
 
-3. SSH Configuration and Aliases  
+3. **SSH Configuration and Aliases**  
 Your SSH client's configuration might influence how known_hosts is managed. For example, if you use an SSH config file (~/.ssh/config) with aliases or specific host entries that define hostname patterns or specific key types, your SSH client might treat connections that match different patterns as distinct, even if they ultimately resolve to the same server.
 
-4. Port Forwarding or Jump Hosts  
+4. **Port Forwarding or Jump Hosts**  
 If your connection involves port forwarding or using a jump host (also known as a bastion host), the SSH client may add entries for these intermediate steps. This is more likely in complex networking setups where direct connections to the target server are not possible without going through intermediary servers.
 
 Troubleshooting Tips:
 
-* Review the known_hosts file: Compare the entries before and after the connection. Look for differences in the key types, hostnames/IP addresses, or additional details that might explain the new entry.
-* Use verbose mode with SSH: Connecting with `ssh -v root@ip_address` can provide detailed logs that explain what keys are being checked, offered, and added to known_hosts. This might give you a clearer picture of why the additional line is added.
-* Check SSH client configuration: Review your SSH client's configuration file (if you have one) for any settings that might affect how known_hosts entries are managed or how connections are established.
+* **Review the known_hosts file**: Compare the entries before and after the connection. Look for differences in the key types, hostnames/IP addresses, or additional details that might explain the new entry.
+* **Use verbose mode with SSH**: Connecting with `ssh -v root@ip_address` can provide detailed logs that explain what keys are being checked, offered, and added to known_hosts. This might give you a clearer picture of why the additional line is added.
+* **Check SSH client configuration**: Review your SSH client's configuration file (if you have one) for any settings that might affect how known_hosts entries are managed or how connections are established.
 
 Understanding the exact reason requires examining the specifics of your SSH setup, the server configuration, and the entries in known_hosts.
 
@@ -512,19 +512,19 @@ A bridge in Proxmox (or any other virtualization platform) is conceptually close
 
 * Virtual Bridges and Physical Switches: Similarities
 
-  * Multiple Connections: Both virtual bridges in Proxmox and physical switches are designed to connect multiple devices (or virtual machines/containers in the case of Proxmox) within a network. They allow for the creation of network segments that can communicate internally and externally.
-  * Traffic Management: Like a physical switch, a virtual bridge can manage and forward traffic between its connected interfaces based on MAC addresses, efficiently directing packets to their intended destinations within the virtual network or to external networks. 
-  * Advanced Networking Features: While not as feature-rich as some high-end physical switches, virtual bridges in Proxmox can still offer several advanced networking features, such as VLAN tagging, which is a hallmark of switch capabilities.
+  * **Multiple Connections**: Both virtual bridges in Proxmox and physical switches are designed to connect multiple devices (or virtual machines/containers in the case of Proxmox) within a network. They allow for the creation of network segments that can communicate internally and externally.
+  * **Traffic Management**: Like a physical switch, a virtual bridge can manage and forward traffic between its connected interfaces based on MAC addresses, efficiently directing packets to their intended destinations within the virtual network or to external networks. 
+  * **Advanced Networking Features**: While not as feature-rich as some high-end physical switches, virtual bridges in Proxmox can still offer several advanced networking features, such as VLAN tagging, which is a hallmark of switch capabilities.
 
 * Differences from Physical Bridges
 
-  * Functionality: Traditional physical bridges were primarily used to connect two network segments, with a focus on reducing collision domains and managing traffic between these segments. While a Proxmox bridge can perform a similar role in a virtual environment, it more closely mirrors the multiport, multipurpose functionality of switches by allowing numerous virtual machines and containers to connect to various networks.
-  * Port Density: Physical bridges typically have a very limited number of ports (often just two), akin to the simplest form of segmentation. In contrast, a virtual bridge in Proxmox can handle connections from numerous VMs and containers simultaneously, much like a physical switch with many ports.
+  * **Functionality**: Traditional physical bridges were primarily used to connect two network segments, with a focus on reducing collision domains and managing traffic between these segments. While a Proxmox bridge can perform a similar role in a virtual environment, it more closely mirrors the multiport, multipurpose functionality of switches by allowing numerous virtual machines and containers to connect to various networks.
+  * **Port Density**: Physical bridges typically have a very limited number of ports (often just two), akin to the simplest form of segmentation. In contrast, a virtual bridge in Proxmox can handle connections from numerous VMs and containers simultaneously, much like a physical switch with many ports.
 
 * Use in Virtualization
 
-  * Network Virtualization: Virtual bridges play a crucial role in network virtualization, providing a platform for VMs and containers to communicate as if they were connected to a physical switch. This is essential for creating complex virtual network topologies that resemble physical network infrastructures.
-  * Flexibility and Scalability: In virtual environments, bridges offer a level of flexibility and scalability that is more characteristic of switches. Administrators can dynamically adjust network configurations, add or remove VMs from networks, and implement security policies or VLANs without needing physical hardware changes.
+  * **Network Virtualization**: Virtual bridges play a crucial role in network virtualization, providing a platform for VMs and containers to communicate as if they were connected to a physical switch. This is essential for creating complex virtual network topologies that resemble physical network infrastructures.
+  * **Flexibility and Scalability**: In virtual environments, bridges offer a level of flexibility and scalability that is more characteristic of switches. Administrators can dynamically adjust network configurations, add or remove VMs from networks, and implement security policies or VLANs without needing physical hardware changes.
 
 In summary, while the terminology may suggest a direct analogy to physical bridges, in practice, the role of a bridge in Proxmox and other virtualized environments aligns more closely with the functionalities of a physical switch, especially concerning its ability to connect multiple devices and manage network traffic efficiently within a virtualized networking context.
 
@@ -736,6 +736,47 @@ ansible-playbook grafanaserver-setup.yml -i hosts -K -vvv
 After installing *Grafana*, you can browse to the *Grafana* endpoint (check the *Grafana* endpoint in [hosts](./playbooks/hosts)) and open the `ASP .NET Core` dashboard: 
 
 ![ASP .NET Core dashboard](./ASP.NET%20Core%20metrics.png)
+
+## Certificate Authority
+
+Setting up a CA chain with Ansible and automating the process of generating CSRs (Certificate Signing Requests) for each virtual machine/container is a robust and secure way to manage certificates in our infrastructure. For developers, it is probably sufficient to generate certificates used to encrypt internal traffic and for your *public* endpoint in your LAN. If you'd like to publish your *public* endpoint on the Internet, you should use a CA like **Let's Encrypt**. 
+
+1. **Ansible Roles**:
+    - **CA Role**: This role sets up a Certificate Authority (CA) and manage the CA-related tasks.
+    - **Client Role**: This role will generate CSRs for each virtual machine and handle the signing of certificates by the CA.
+
+2. **CA Role**:
+    - Configure the CA server: Install and configure software like OpenSSL to act as the CA.
+    - Generate the CA certificate and private key.
+    - Create necessary directories to store certificates and keys.
+    - Set up appropriate permissions to ensure security.
+    - Provide scripts or tasks to manage certificate signing requests.
+
+3. **Client Role**:
+    - Install necessary tools like OpenSSL for generating CSRs.
+    - Generate CSRs for each virtual machine.
+    - Securely transmit the CSRs to the CA server.
+    - Implement tasks to submit CSRs to the CA for signing.
+    - Retrieve signed certificates from the CA.
+
+4. **Ansible Playbooks**:
+    - Create playbooks to orchestrate the roles.
+    - Define variables for configuring each machine's CSR generation (e.g., common name, organization, etc.).
+    - Ensure that the CA's certificate and key are securely distributed to client machines.
+    - Include tasks to handle the exchange of CSRs and signed certificates between the CA and clients.
+
+5. **Security Considerations**:
+    - Use secure communication channels (e.g., SSH) to transmit sensitive information like private keys and certificates.
+    - Implement appropriate access controls and encryption to protect the CA's private key.
+    - Regularly rotate and update certificates and keys to maintain security.
+    - Consider implementing additional security measures such as certificate revocation lists (CRLs) and certificate pinning.
+
+6. **Testing and Automation**:
+    - Test the roles and playbooks in a controlled environment to ensure correctness and security.
+    - Automate the execution of playbooks using Ansible Tower, Jenkins, or other CI/CD tools.
+    - Monitor the CA infrastructure for any issues or anomalies.
+
+By following these steps, you can effectively set up your own CA chain with Ansible and automate the process of generating CSRs and signing certificates for your virtual machines, ensuring a secure and manageable certificate infrastructure.
 
 ## Proxy
 

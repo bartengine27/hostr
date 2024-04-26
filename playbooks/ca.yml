@@ -1,0 +1,44 @@
+---
+- name: Deploy the CA Servers
+  hosts: ca
+  remote_user: root
+  vars:
+    # example variables to enable/disable roles
+    ca_a_feature_enabled: true
+  vars_files:
+    # - azure_ubuntu_vm/vars/main.yml
+  vars_prompt:
+    - name: project_name
+      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+    - name: ca_name
+      prompt: "Your CA name"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_NAME') }}"
+    - name: ca_country_code
+      prompt: "Your CA country code"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_COUNTRY_CODE') }}"
+    - name: ca_state
+      prompt: "Your CA state"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_STATE') }}"
+    - name: ca_city
+      prompt: "Your CA city"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_CITY') }}"
+    - name: ca_organization_name
+      prompt: "Your CA organization name"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_ORGANIZATION_NAME') }}"
+    - name: ca_email_address
+      prompt: "Your CA email address"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_EMAIL_ADDRESS') }}"
+    - name: ca_pass
+      prompt: "Your CA passphrase"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_PASSPHRASE')}}"
+  roles:
+     - hostr.ca

@@ -58,6 +58,10 @@ proxmox_vms:
    id: 801
    group:
      - "libre_translate"
+ - ip: 192.168.1.90
+   id: 900
+   group:
+     - "ca"
 
 # empty list, so we can keep the "firewall code" for now (should become a VM with pfSense)
 proxmox_public_vms: []
