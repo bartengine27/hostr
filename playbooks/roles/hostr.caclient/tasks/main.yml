@@ -21,16 +21,25 @@
     state: directory
     mode: "0700"
 
-- name: Generate private key for client
-  openssl_privatekey:
+# - name: Generate private key for client
+#   openssl_privatekey:
+#     path: "/etc/ssl/client/{{ inventory_hostname }}.key"
+#     size: 2048
+#   register: client_private_key
+
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
     path: "/etc/ssl/client/{{ inventory_hostname }}.key"
-    size: 2048
+    #ImportFromEncryptedPem() only supports PKCS8
+    format: "pkcs8"
+    passphrase: "{{ client_private_key_passpharse }}"
+    cipher: auto
   register: client_private_key
 
 - name: Generate CSR for client
-  openssl_csr:
-    path: "/etc/ssl/client/{{ inventory_hostname }}.csr"
+  community.crypto.openssl_csr_pipe:    
     privatekey_path: "{{ client_private_key.filename }}"
+    privatekey_passphrase: "{{ client_private_key_passpharse }}"
     common_name: "{{ inventory_hostname }}"
     country_name: "{{ ca_country_code }}"
     state_or_province_name: "{{ ca_state }}"
@@ -38,3 +47,49 @@
     organization_name: "{{ ca_organization_name }}"
     email_address: "{{ ca_email_address }}"
   register: client_csr
+
+- name: Print CSR
+  ansible.builtin.debug:
+    var: client_csr.csr
+
+- name: Sign the CSR with our CA
+  delegate_to: "{{ groups['ca'][0] }}"
+  community.crypto.x509_certificate_pipe:
+    csr_content: "{{ client_csr.csr }}"
+    provider: ownca
+    ownca_path: /etc/ssl/ca/ca.crt
+    ownca_privatekey_path: /etc/ssl/ca/ca.key
+    ownca_privatekey_passphrase: "{{ ca_pass }}"
+    ownca_not_after: +365d  # valid for one year
+    ownca_not_before: "-1d"  # valid since yesterday  
+  #run_once: true
+  register: certificate
+
+- name: Write the client certificate file to the client
+  copy:
+    dest: /etc/ssl/client/certificate.pem
+    content: "{{ certificate.certificate }}"  
+  #run_once: true
+
+- name: Grab the root certificate used to sign the CSR
+  delegate_to: "{{ groups['ca'][0] }}"
+  slurp:
+    src: /etc/ssl/ca/ca.crt
+  register: ca_certificate_content
+
+- name: Print ca_certificate
+  ansible.builtin.debug:
+    var: ca_certificate_content
+
+- name: Write the CA certificate content to the default certificate stores on Ubuntu
+  copy:
+    content: "{{ ca_certificate_content['content'] | b64decode }}"
+    dest: "{{ item }}"
+  with_items: 
+    - "/etc/ssl/certs/ca_certificate.pem"
+    - "/usr/local/share/ca-certificates/ca_certificate.pem"
+    - "/usr/share/ca-certificates/ca_certificate.pem"
+    #- "/usr/local/etc/ssl/certs/ca_certificate.pem"
+
+- name: Run update-ca-certificates  
+  command: update-ca-certificates

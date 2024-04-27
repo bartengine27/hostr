@@ -56,8 +56,8 @@
         "Url": "https://{{ ansible_host }}:5000",
         "ClientCertificateMode": "AllowCertificate",
         "Certificate": {
-          "Path": "{{webserver_install_folder }}certificate.pem",
-          "KeyPath": "{{webserver_install_folder }}certificate.key",
+          "Path": "/etc/ssl/client/certificate.pem",
+          "KeyPath": "/etc/ssl/client/{{ ansible_host }}.key",
           "Password": "cars.be"
         }
       }

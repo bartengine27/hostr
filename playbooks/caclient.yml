@@ -40,5 +40,9 @@
       prompt: "Your CA passphrase"
       private: false
       default: "{{ lookup('ansible.builtin.env', 'CA_PASSPHRASE')}}"
+    - name: client_private_key_passpharse
+      prompt: "Your client private key passphrase"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CLIENT_PRIVATE_KEY_PASSPHRASE')}}"            
   roles:
      - hostr.caclient

@@ -1,5 +1,15 @@
 ---
 # tasks file for hostr.ca
+- name: Install pip3
+  apt:
+    pkg:
+      - python3-pip
+      - python3-cryptography
+
+# - name: Install cryptography python package, necessary to generate certificates with ansible
+#   ansible.builtin.pip:
+#     name: cryptography  
+
 - name: Install OpenSSL
   package:
     name: openssl
@@ -11,16 +21,16 @@
     state: directory
     mode: "0700"
 
-- name: Generate CA private key
+- name: Generate CA private key on the CA server)
   community.crypto.openssl_privatekey:
     path: "/etc/ssl/ca/ca.key"
     size: 4096
     format: "pkcs8"
     cipher: auto
     passphrase: "{{ ca_pass }}"
-  register: ca_private_key
+  register: ca_private_key  
 
-- name: Generate CA certificate signing request (CSR)
+- name: Generate CA certificate signing request (CSR) (not on the CA server)
   community.crypto.openssl_csr:
     path: "/etc/ssl/ca/ca.csr"
     privatekey_path: "{{ ca_private_key.filename }}"
@@ -33,13 +43,13 @@
     email_address: "{{ ca_email_address }}"
   register: ca_csr
 
-- name: Self-sign CA certificate
+- name: Self-sign CA certificate (on the CA server)
   community.crypto.x509_certificate:
     path: "/etc/ssl/ca/ca.crt"
     privatekey_path: "{{ ca_private_key.filename }}"
     csr_path: "{{ ca_csr.filename }}"
     privatekey_passphrase: "{{ ca_pass }}"
-    provider: selfsigned
+    provider: selfsigned  
   register: ca_certificate
 
 - name: Ensure permissions of CA files
@@ -52,20 +62,22 @@
     - "/etc/ssl/ca/ca.key"
     - "/etc/ssl/ca/ca.crt"
 
-- name: Fetch client CSR
-  fetch:
-    #src: "/etc/ssl/client/{{ item }}.csr"
-    src: "/tmp/csr.csr"
-    dest: "/tmp/{{ item }}.csr"
-  loop: "{{ groups['all'] | difference( groups['ca'] ) }}"
-  #when: "{{ item }} not in groups['ca']"
+# - name: Fetch client CSR
+#   delegate_to: "{{ item }}"
+#   fetch:
+#     src: "/etc/ssl/client/{{ item }}.csr"
+#     dest: "/tmp/{{ item }}.csr"
+#   loop: "{{ groups['all'] | difference( groups['ca'] ) }}"
 
-- name: Sign client CSR
-  openssl_certificate:
-    path: "/etc/ssl/client/{{ item }}.crt"
-    csr_path: "/tmp/{{ item }}.csr"
-    ca_path: "/etc/ssl/ca/ca.crt"
-    privatekey_path: "/etc/ssl/ca/ca.key"
-    provider: signed
-  loop: "{{ ansible_play_hosts }}"
-  when: inventory_hostname not in groups['ca']
+# - name: Sign client CSR (delegate to CA server)
+#   delegate_to: "{{ groups['ca'] }}"
+#   openssl_certificate:  
+#     path: "/etc/ssl/client/{{ item }}.crt"
+#     csr_path: "/tmp/{{ item }}.csr"
+#     ca_path: "/etc/ssl/ca/ca.crt"
+#     privatekey_path: "/etc/ssl/ca/ca.key"
+#     provider: signed
+  
+#   loop: "{{ ansible_play_hosts }}"
+#   #TODO review group firewall
+#   when: (inventory_hostname not in groups['ca']) and (inventory_hostname not in groups['firewall_public_ip']) and (inventory_hostname not in groups['firewall'])
