@@ -1,11 +1,19 @@
 ---
+- name: Install certificates, will fail on the Let's Encrypt certificate used by apt.grafana.com
+  apt:
+    pkg:
+      - ca-certificates    
+    state: latest
+    update_cache: yes    
   # based on https://citizix.com/how-to-install-and-set-up-grafana-in-ubuntu-20-04-using-ansible/
 - name: add grafana gpg key - repo is not trusted, add trusted=yes and ignore certificate checks
+  #note the two /etc/apt/ subfolders: depends on your Ubuntu version, trusted.gpg.d is for 20.04, keyrings is for newer versions
   ansible.builtin.shell: |
     apt-get install -y apt-transport-https software-properties-common wget
     mkdir -p /etc/apt/keyrings/
     wget --no-check-certificate -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/keyrings/grafana.gpg > /dev/null
-    echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg trusted=yes] https://apt.grafana.com stable main" | tee -a /etc/apt/sources.list.d/grafana.list    
+    wget --no-check-certificate -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/grafana.gpg >/dev/null
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/grafana.gpg trusted=yes] https://apt.grafana.com stable main" | tee -a /etc/apt/sources.list.d/grafana.list    
 - name: Update apt repo and cache
   apt:
     update_cache: yes
@@ -26,9 +34,23 @@
     name: grafana
     state: present
     update_cache: yes
-  notify:
-    - Enable grafana
-    - Start grafana    
+  # notify:
+  #   - Enable grafana
+  #   - Start grafana    
+- name: Enable grafana
+  systemd:
+    name: grafana-server
+    enabled: yes
+- name: Start grafana
+  systemd:
+    name: grafana-server
+    state: started    
+- name: Wait for Grafana to be fully started
+  wait_for:
+    path: "/usr/lib/systemd/system/grafana-server.service"
+    state: started
+    delay: 5
+    timeout: 60    
 - name: Create or update a Grafana user, in this case the default admin
   community.grafana.grafana_user:
     name: "Default admin"

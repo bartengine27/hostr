@@ -48,7 +48,7 @@
   until: publish_is_result.rc == 0        
 - name: Create the directory for the virtual file system (hard coded for now)
   ansible.builtin.file:
-    path: /webapp/"{{ abp_project_name }}".Domain.Shared/
+    path: "/webapp/{{ abp_project_name }}.Domain.Shared/"
     state: directory
     owner: root
     group: root

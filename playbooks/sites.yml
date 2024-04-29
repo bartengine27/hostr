@@ -1,0 +1,22 @@
+---
+# file: site.yml
+# run stand alone: vpn connection gets lost and is difficult to restore automatically in a consistent way
+#- import_playbook: proxmox.yml
+# first reboot host, openvpn does not restore itself? and next check your VPN
+#- import_playbook: promptforvars.yml
+- import_playbook: addknownvmhosts.yml
+- import_playbook: addknownexternalhosts.yml
+#- import_playbook: sshd.yml
+- import_playbook: ca.yml
+- import_playbook: caclient.yml
+- import_playbook: redis.yml
+- import_playbook: prometheus.yml
+- import_playbook: otelcollector.yml
+- import_playbook: grafana.yml
+- import_playbook: mssql.yml
+- import_playbook: webserver.yml
+- import_playbook: abprestapi.yml
+- import_playbook: authentication.yml
+- import_playbook: nginx.yml
+
+  

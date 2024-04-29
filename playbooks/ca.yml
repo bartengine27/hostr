@@ -16,6 +16,10 @@
       prompt: "Your CA name"
       private: false
       default: "{{ lookup('ansible.builtin.env', 'CA_NAME') }}"
+    - name: ca_alt_name
+      prompt: "The DNS alternative names"
+      private: false
+      default: "{{ lookup('ansible.builtin.env', 'CA_ALT_NAME') }}"                     
     - name: ca_country_code
       prompt: "Your CA country code"
       private: false

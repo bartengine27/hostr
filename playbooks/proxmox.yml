@@ -32,6 +32,6 @@
       private: false
       default: "{{ lookup('ansible.builtin.env', 'PROXMOX_LOCAL_STORAGE') }}"
   roles:
-    - proxmox.cars.be    
+    - hostr.proxmox
   vars:
     ansible_ssh_user: root

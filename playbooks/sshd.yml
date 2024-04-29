@@ -8,7 +8,7 @@
   vars_files:
     # - azure_ubuntu_vm/vars/main.yml
   vars_prompt:
-    # example prompt
+    # example
     #- name: project_name
     #  prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
     #  private: false

@@ -24,8 +24,9 @@
 [otlp_controller]
 192.168.1.67
 
-[firewall]
-192.168.1.50
+#TBD not used for now, pfSense is installed manually
+#[firewall]
+#192.168.1.50
 
 [proxy]
 192.168.1.20
@@ -37,5 +38,4 @@
 192.168.1.80
 
 [ca]
-#172.20.208.219
 192.168.1.90

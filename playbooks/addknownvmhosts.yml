@@ -5,9 +5,7 @@
   vars:
     ssh_known_hosts_command: "ssh-keyscan -T 10"
     ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
-    ssh_known_hosts: "{{ groups['all'] }}"
+    #ssh_known_hosts: "{{ groups['all'] }}"
+    ssh_known_hosts: "{{ groups['all'] | difference( groups['firewall_public_ip'] ) }}"
   roles:
     - hostr.knownvmhosts
-  hosts: webserver:identity_server:http_api
-  roles:
-    - hostr.knownexternalhosts

@@ -2,7 +2,8 @@ events {
 }
 
 http {
-
+    ssl_password_file /etc/keys/global.pass;
+    
     client_header_buffer_size 4k;
     #large_client_header_buffers 4 8k; # Increase if JWT or other headers are large      
     proxy_buffer_size   128k;

@@ -1,0 +1,6 @@
+# inspired by https://stackoverflow.com/questions/30226113/ansible-ssh-prompt-known-hosts-issue
+- name: "Configure the known_hosts file on the hosts (for example to get source code from github)"  
+  hosts: webserver:identity_server:http_api
+  remote_user: root
+  roles:
+    - hostr.knownexternalhosts    

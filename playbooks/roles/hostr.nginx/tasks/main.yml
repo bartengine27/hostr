@@ -30,19 +30,26 @@
 #https://computingforgeeks.com/generate-openssl-self-signed-certificates-with-ansible/
 #TODO don't use firefox for now, install our own CA - see stack overflow link below for a summary
 #https://stackoverflow.com/questions/59738140/why-is-firefox-not-trusting-my-self-signed-certificate
-#TODO remove hard coded password
-- name: Create private key (RSA, 4096 bits)
-  community.crypto.openssl_privatekey:
-    path: "{{ ssl_certificate_key }}"
-    format: "pkcs8"
-    #passphrase: cars.be
-    #cipher: auto
-- name: Create a self-signed certificate
-  community.crypto.x509_certificate:
-    path: "{{ ssl_certificate }}"
-    privatekey_path: "{{ ssl_certificate_key }}"
-    #privatekey_passphrase: cars.be
-    provider: selfsigned                
+
+- name: Create the SSL password file referenced in the nginx conf file
+  ansible.builtin.file:
+    path: /etc/keys/
+    state: directory
+    owner: root
+    group: root
+    mode: '0644'     
+- name: Write the private key password to the SSL password file referenced in the nginx conf file
+  ansible.builtin.copy:
+    dest: "/etc/keys/global.pass"
+    content: |
+      {{ client_private_key_passphrase }}
+- name: Create the snippets folder if it does not exist
+  ansible.builtin.file:
+    path: /etc/nginx/snippets/
+    state: directory
+    owner: root
+    group: root
+    mode: '0644'     
 - name: Create the self-signed.conf file which references our key and crt.
   ansible.builtin.copy:    
     dest: "/etc/nginx/snippets/self-signed.conf"
@@ -51,7 +58,7 @@
       ssl_certificate_key {{ ssl_certificate_key }};
     owner: root
     group: root
-    mode: '0644'
+    mode: '0644'   
 - name: Create the ssl-params file with security-enhancing SSL parameters. 
   ansible.builtin.copy:    
     dest: "/etc/nginx/snippets/ssl-params.conf"
@@ -68,7 +75,7 @@
     owner: root
     group: root
     mode: '0644'
-- name: create /etc/nginx/ssl/dhparam.pem
+- name: Create /etc/nginx/ssl/dhparam.pem
   ansible.builtin.shell: |
     mkdir -p /etc/nginx/ssl/
     openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048
@@ -91,8 +98,46 @@
 - name: Ensure NGINX is running and enabled
   ansible.builtin.service:
     name: nginx
-    state: started
+    state: restarted
     enabled: yes
+- name: Wait for NGINX to be fully started
+  wait_for:
+    path: "/lib/systemd/system/nginx.service"
+    state: started
+    delay: 5
+    timeout: 60   
+
+- name: Generate PKCS12 file to import in your browser
+  openssl_pkcs12:
+    action: export
+    friendly_name: "{{ project_domain }}"
+    certificate_path: "{{ ssl_certificate }}"
+    privatekey_path: "{{ ssl_certificate_key }}"
+    privatekey_passphrase: "{{ client_private_key_passphrase }}"
+    path: "{{ ssl_certificate_pkcs12 }}"
+
+- name: Fetch server.p12 file so you can upload it to your Firefox trust store - no password, import in Windows "Trusted Root Certification Authorities" and restart Firefox
+  fetch:
+    src: "{{ ssl_certificate_pkcs12 }}"
+    dest: nginx.p12
+    flat: yes
+- name: Install the server.p12 file in the Windows Certificate Store - untested
+  delegate_to: localhost
+  win_certificate_store:
+    path: nginx.p12
+    #password: 'YourPFXPassword'  # Ensure this is secured appropriately
+    state: present
+    store_location: LocalMachine
+    store_name: Root  # Root is the store name for Trusted Root Certification Authorities
+  when: ansible_os_family == "Windows"  
+- name: Install the server.p12 file on Ubuntu - untested
+  delegate_to: localhost
+  shell: |    
+    cp {{ ssl_certificate }} /usr/local/share/ca-certificates/
+    update-ca-certificates
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
+  args:
+    executable: /bin/bash
 
 - name: Obtain Let's Encrypt certificate
   include_role:
@@ -107,3 +152,4 @@
     certbot_certs:
       - domains:
           - pointedwords.be
+  when: proxy_lets_encrypt_enabled

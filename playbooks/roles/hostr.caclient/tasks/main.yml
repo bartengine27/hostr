@@ -6,10 +6,6 @@
       - python3-pip
       - python3-cryptography
 
-# - name: Install cryptography python package, necessary to generate certificates with ansible
-#   ansible.builtin.pip:
-#     name: cryptography  
-
 - name: Install OpenSSL
   package:
     name: openssl
@@ -20,12 +16,6 @@
     path: "/etc/ssl/client"
     state: directory
     mode: "0700"
-
-# - name: Generate private key for client
-#   openssl_privatekey:
-#     path: "/etc/ssl/client/{{ inventory_hostname }}.key"
-#     size: 2048
-#   register: client_private_key
 
 - name: Create private key (RSA, 4096 bits)
   community.crypto.openssl_privatekey:
@@ -41,6 +31,7 @@
     privatekey_path: "{{ client_private_key.filename }}"
     privatekey_passphrase: "{{ client_private_key_passpharse }}"
     common_name: "{{ inventory_hostname }}"
+    subject_alt_name: "{{ ca_alt_name }}"
     country_name: "{{ ca_country_code }}"
     state_or_province_name: "{{ ca_state }}"
     locality_name: "{{ ca_city }}"

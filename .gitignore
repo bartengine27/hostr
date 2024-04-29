@@ -172,3 +172,4 @@ cython_debug/
 diagrams.md
 playbooks/privatekey
 playbooks/publickey
+playbooks/nginx.p12
