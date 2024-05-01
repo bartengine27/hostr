@@ -1,2 +1,10 @@
 ---
 # defaults file for hostr.redis
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+redis_password: "{{ lookup('ansible.builtin.env', 'REDIS_PASSWORD') }}"
+redis_network_port: "{{ lookup('ansible.builtin.env', 'REDIS_PORT') }}"
+redis_network_interface: "{{ lookup('ansible.builtin.env', 'REDIS_NETWORK_INTERFACE') }}"      
+ansible_ssh_user: root      
+redis_port: "{{ redis_network_port }}"
+redis_bind_interface: "{{ redis_network_interface }}"
+redis_requirepass: "{{ redis_password }}"    

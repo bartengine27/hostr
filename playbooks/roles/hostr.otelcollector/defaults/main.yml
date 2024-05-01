@@ -1,2 +1,6 @@
 ---
 # defaults file for hostr.otelcollector
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+influxdb_username: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_USERNAME') }}"   
+influxdb_password: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_PASSWORD') }}"               
+influxdb_database_name: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_NAME') }}"    

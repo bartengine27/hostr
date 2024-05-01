@@ -121,6 +121,11 @@
     src: "{{ ssl_certificate_pkcs12 }}"
     dest: nginx.p12
     flat: yes
+- name: Fetch server pem certificate to install on Ubuntu
+  fetch:
+    src: "{{ ssl_certificate }}"
+    dest: nginx.crt
+    flat: yes      
 - name: Install the server.p12 file in the Windows Certificate Store - untested
   delegate_to: localhost
   win_certificate_store:
@@ -132,8 +137,9 @@
   when: ansible_os_family == "Windows"  
 - name: Install the server.p12 file on Ubuntu - untested
   delegate_to: localhost
+  become: True
   shell: |    
-    cp {{ ssl_certificate }} /usr/local/share/ca-certificates/
+    cp nginx.crt /usr/local/share/ca-certificates/
     update-ca-certificates
   when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
   args:

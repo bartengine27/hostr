@@ -1,2 +1,5 @@
 ---
 # defaults file for hostr.mssql
+  
+project_name: ansible
+database_password: "{{ lookup('ansible.builtin.env', 'SQL_SERVER_PASSWORD') }}"    

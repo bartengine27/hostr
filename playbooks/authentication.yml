@@ -3,46 +3,6 @@
   hosts: identity_server
   #become: yes
   remote_user: root
-  vars:
-    # example variables to enable/disable roles
-    authentication_a_feature_enabled: true
-  vars_prompt:
-    - name: project_name
-      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"      
-    - name: identityserver_public_repo
-      prompt: "Enter the git remote URL."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
-    - name: identityserver_install_folder
-      prompt: "Enter the install folder of the identity server."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'WEBSERVER_INSTALL_FOLDER') }}"
-    - name: asp_net_core_environment
-      prompt: "Enter the asp net core environment (Development, Acceptance or Production)"  
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'ASP_NET_CORE_ENVIRONMENT' ) }}"
-    - name: database_password
-      prompt: "The password of your database."  
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'SQL_SERVER_PASSWORD' ) }}"
-    - name: redis_password
-      prompt: "The password of your Redis."  
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'REDIS_PASSWORD' ) }}"  
-    - name: dotnet_sdk
-      prompt: "The dotnet SDK version."  
-      private: false
-      default: "dotnet-sdk-8.0"
-    - name: abp_project_name
-      prompt: The name of the ABP project, this is the name of the project you used in 'abp new Acme.BookStore -csf'
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"
-    - name: project_domain
-      prompt: "The project domain name, for example cars.be"
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'PROJECT_DOMAIN') }}"
   roles:
      - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
      - hostr.authentication

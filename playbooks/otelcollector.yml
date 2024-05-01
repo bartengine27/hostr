@@ -2,27 +2,5 @@
 - name: Deploy the Otel collectors
   hosts: otlp_controller
   remote_user: root
-  vars:
-    # example variables to enable/disable roles
-    otel_collector_a_feature_enabled: true
-  vars_files:
-    # - azure_ubuntu_vm/vars/main.yml
-  vars_prompt:
-    - name: project_name
-      prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
-    - name: influxdb_username
-      prompt: "The InfluxDB database user name."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_USERNAME') }}"   
-    - name: influxdb_password
-      prompt: "The InfluxDB database password."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_PASSWORD') }}"               
-    - name: influxdb_database_name
-      prompt: "The InfluxDB database name to setup."
-      private: false
-      default: "{{ lookup('ansible.builtin.env', 'INFLUXDB_DATABASE_NAME') }}"    
   roles:
      - hostr.otelcollector

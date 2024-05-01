@@ -1,30 +1,18 @@
 # Introduction
 
-While developing it may be useful to have a setup which mirrors your final production setup as close as possible. In practice, hardware and/or time are not always available on time to setup a test or acception environment which mirrors production. Therefore, having a setup that you can easily (re-)deploy on a (local) virtual environment may be your way out.  
-
-This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/containers to install a web site on prem or in the cloud to ease/speed-up development. The *Ansible* scripts in this project assume that you need servers to host the following roles:
-
-* Web Server
-* Cache
-* Database
-* Identity Server  
-* REST API endpoints
-* Prometheus monitoring
-* Grafana dashboards
-
-## Contents
-
 * [Introduction](#introduction)
-  * [Contents](#contents)
   * [Prerequisites](#prerequisites)
     * [Proxmox prerequisites](#proxmox-prerequisites)
       * [Hyper-V install](#hyper-v-install)
       * [Bare metal install](#bare-metal-install)
       * [Promox API user](#promox-api-user)
-    * [Azure prerequisites](#azure-prerequisites)
     * [Ansible prerequisites](#ansible-prerequisites)
     * [Secrets prerequisites](#secrets-prerequisites)
+    * [Ansible role settings](#ansible-role-settings)
     * [Git/SSH prerequisites](#gitssh-prerequisites)
+    * [Proxmox Firewall Preparation](#proxmox-firewall-preparation)
+    * [Bridges](#bridges)
+    * [SSH into the Proxmox VM](#ssh-into-the-proxmox-vm)
   * [Proxmox](#proxmox)
     * [Proxmox VM setup](#proxmox-vm-setup)
     * [Proxmox hosts file](#proxmox-hosts-file)
@@ -34,10 +22,6 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
     * [Stopping Proxmox VM(s)](#stopping-proxmox-vms)
     * [Starting Proxmox VM(s)](#starting-proxmox-vms)
     * [Removing Proxmox VM(s)](#removing-proxmox-vms)
-    * [Proxmox Firewall Preparation](#proxmox-firewall-preparation)
-    * [Bridges](#bridges)
-    * [SSH into the Proxmox VM](#ssh-into-the-proxmox-vm)
-  * [Azure](#azure)
   * [REDIS](#redis)
     * [Install REDIS](#install-redis)
   * [Authentication Server](#authentication-server)
@@ -60,8 +44,7 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
   * [Certificate Authority](#certificate-authority)
     * [Install Certificate Authority](#install-certificate-authority)
     * [Generate Client Certificates](#generate-client-certificates)
-    * [Sign CSRs and upload](#sign-csrs-and-upload)
-  * [Proxy](#proxy-1)
+  * [HTTPS Offloading](#https-offloading)
     * [NGINX](#nginx)
       * [Log format](#log-format)
       * [Load balancing](#load-balancing)
@@ -71,6 +54,18 @@ This project contains *Ansible* scripts to setup *Proxmox* and/or *Azure* VMs/co
       * [Optional websocket support](#optional-websocket-support)
   * [References](#references)
   * [TODO](#todo)
+
+While developing it may be useful to have a setup which mirrors your final production setup as close as possible. In practice, hardware and/or time are not always available on time to setup a test or acception environment which mirrors production. Therefore, having a setup that you can easily (re-)deploy on a (local) virtual environment may be your way out.  
+
+This project contains *Ansible* scripts to setup *Proxmox* VMs/containers to install a web site on prem or in the cloud to ease/speed-up development. The *Ansible* scripts in this project assume that you need servers to host the following roles:
+
+* Web Server
+* Cache
+* Database
+* Identity Server  
+* REST API endpoints
+* Prometheus monitoring
+* Grafana dashboards
 
 ## Prerequisites
 
@@ -149,10 +144,6 @@ After adding the user and API token, select Datacenter and click on Permissions 
 * Role: Administrator
 * Propagate: select
 
-### Azure prerequisites
-
-TODO
-
 ### Ansible prerequisites
 
 As we are using [Ansible](https://www.ansible.com/) to automate our install and deploy, you will have to meet the following minimum requirements on the hosts which will run the *Ansible* scripts: [Ansible minimum requirements](https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html).
@@ -214,9 +205,19 @@ export SSH_PUB_KEY="ssh-rsa AAAAB.... your_name@your_machine"
 
 If you are unsure about your public key, check `~/.ssh/id_rsa_pub`.
 
+### Ansible role settings
+
+Each role has its variables (settings) defind in `role_folder/defaults/main.yml`. Variables are read from env variables:
+
+```yaml
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+```
+
+You can - as usual in Ansible - easily override the default variables.  
+
 ### Git/SSH prerequisites
 
-When managing source code across virtual machines (VMs) on platforms like Proxmox or Azure, accessing source code from version control systems may have a security impact. A common practice involves cloning repositories using Git over SSH, authenticated via private SSH keys. However, storing private keys directly on VMs, especially those hosted on third-party servers, raises potential significant security risks. Instead, SSH agent forwarding emerges as a safer alternative.  
+When managing source code across virtual machines (VMs) on platforms like Proxmox, accessing source code from version control systems may have a security impact. A common practice involves cloning repositories using Git over SSH, authenticated via private SSH keys. However, storing private keys directly on VMs, especially those hosted on third-party servers, raises potential significant security risks. Instead, SSH agent forwarding emerges as a safer alternative.  
 
 SSH agent forwarding allows users to access a remote machine through SSH without placing private SSH keys on the server itself. Instead, the SSH authentication request is forwarded back to the user's local machine where the SSH agent resides. This means the private key is never exposed to the network or stored on the remote server, obviously enhancing security.
 
@@ -275,186 +276,6 @@ Some best practices:
 * **Security Hardening**: Regularly update and patch both local and remote systems to protect against vulnerabilities.
 
 :fire: If your source code is hosted on a public repository, you can off course skip the steps above.  
-
-## Proxmox
-
-### Proxmox VM setup
-
-As far as I know, *Ansible* is not the tool of choice to setup *VM*s on cloud/datacenter solutions like *Azure*, *Proxmox*, etc. Nevertheless, as an excercise, I've chosen to setup my *Azure* and *Proxmox* *VM*s with *Ansible*.  
-
-*Ansible* Uses an `inventory` to define the machines (*ip addresses*) and machine roles to install/setup your software infrastructure. As we start with a clean install (no existing *VM*s), it is rather difficult to define an `inventory`.  
-
-Therefore, we start with a play `proxmox.cars.be` which has a [vars file](./playbooks/proxmox.cars.be/vars/main.yml) defining the *inventory*, for example:
-
-```yml
-proxmox_vms:
- - ip: 192.168.1.60
-   id: 600
-   group:
-    - "webserver"
- - ip: 192.168.1.61
-   id: 601
-   group:
-    - "redis"
- - ip: 192.168.1.62
-   id: 602
-   group:
-    - "database"
-```
-
-On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group:` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
-
-After running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.  
-
-Running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play is detailed in [Uploading templates](###uploading-proxmox-vm(s)-templates) and [Installing VMs on Proxmox](###installing-proxmox-vm(s)).  
-
-The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
-
-### Proxmox hosts file
-
-You can pass a hosts file to the `ansible-playbook` command with:
-
-```bash
--i ./hosts
-```
-
-### Uploading Proxmox VM(s) templates
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_upload -vvv
-```
-
-:fire: If this tag fails, you may have to upgrade your community.general modules, see [issue](https://github.com/ansible-collections/community.general/issues/6974):
-
-```bash
-ansible-galaxy collection install community.general
-```
-
-you should have at least version 7.2.1
-
-```bash
-ansible-galaxy collection list
-```
-
-and look for community.general.
-
-:fire: You probably have two installs of community.general, if you'd like to run the system-wide install:
-
-```bash
-sudo ansible-galaxy collection install community.general
-```
-
-### Installing Proxmox VM(s)
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
-```
-
-### Addding Proxmox VM(s) to known_hosts
-
-If you removed existing VMs/Containers or are building new VMs/Containers, you should remove the old entries in `known_hosts` and add new entries:
-
-```bash
-ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook knowhosts-setup.yml -i hosts -K -vvv
-```
-
-When you observe an additional line being added to your known_hosts file after connecting to a server via SSH, even after manually adding the server's fingerprint with ssh-keyscan or with `ansible-playbook knowhosts-setup.yml`, it typically relates to how SSH handles and verifies the identity of the servers it connects to. Here are a few reasons why this might happen:
-
-1. **Different Key Types**
-If you initially add the server's `ED25519` key fingerprint to your known_hosts using ssh-keyscan -H -t ed25519 ip_address, but the server is also configured to use another type of SSH key (e.g., RSA, ECDSA), the SSH client might add the fingerprint of this additional key to the known_hosts file upon the first connection. This occurs because your initial scan and add operation only included the ED25519 key, and upon connection, SSH automatically adds any other keys presented by the server that weren't already in known_hosts.
-
-2. **Hostname and IP Address Entries**  
-Another common reason is the difference in how you reference the server in your ssh command versus what was initially scanned. For instance, if you scanned the IP address and then used the hostname (or vice versa) to connect, SSH treats these as separate entries. SSH distinguishes between IP addresses and hostnames because they can technically present different keys (consider virtual hosts or shared IP scenarios). As a result, SSH might add a new line for the same server under its different identifier (IP or hostname).
-
-3. **SSH Configuration and Aliases**  
-Your SSH client's configuration might influence how known_hosts is managed. For example, if you use an SSH config file (~/.ssh/config) with aliases or specific host entries that define hostname patterns or specific key types, your SSH client might treat connections that match different patterns as distinct, even if they ultimately resolve to the same server.
-
-4. **Port Forwarding or Jump Hosts**  
-If your connection involves port forwarding or using a jump host (also known as a bastion host), the SSH client may add entries for these intermediate steps. This is more likely in complex networking setups where direct connections to the target server are not possible without going through intermediary servers.
-
-Troubleshooting Tips:
-
-* **Review the known_hosts file**: Compare the entries before and after the connection. Look for differences in the key types, hostnames/IP addresses, or additional details that might explain the new entry.
-* **Use verbose mode with SSH**: Connecting with `ssh -v root@ip_address` can provide detailed logs that explain what keys are being checked, offered, and added to known_hosts. This might give you a clearer picture of why the additional line is added.
-* **Check SSH client configuration**: Review your SSH client's configuration file (if you have one) for any settings that might affect how known_hosts entries are managed or how connections are established.
-
-Understanding the exact reason requires examining the specifics of your SSH setup, the server configuration, and the entries in known_hosts.
-
-For our particular setup, we can edit the server config `sshd_config` file on the server we connect to to enforce the usage of `ED25519` keys:
-
-```ini
-#HostKey /etc/ssh/ssh_host_rsa_key
-#HostKey /etc/ssh/ssh_host_ecdsa_key
-HostKey /etc/ssh/ssh_host_ed25519_key
-KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
-PubkeyAcceptedKeyTypes ssh-ed25519
-```
-
-in addition, make sure that folder `/run/sshd` exists on the server:
-
-```bash
-mkdir /run/sshd
-chmod 0755 /run/sshd
-systemctl restart sshd
-```
-
-Clients, however, should now support `ED25519`, i.e. use:
-
-```bash
-ssh-keygen -t ed25519 -C you@cars.be
-```
-
-If you now connect with:
-
-```bash
-ssh -v root@192.168.1.68
-```
-
-you will notice in the output that ssh will attempt different keys, for example:
-
-```text
-debug1: Will attempt key: /home/you/.ssh/id_rsa RSA SHA256:....
-debug1: Will attempt key: /home/you/.ssh/id_ecdsa
-debug1: Will attempt key: /home/you/.ssh/id_ecdsa_sk
-debug1: Will attempt key: /home/you/.ssh/id_ed25519 ED25519 SHA256:....
-debug1: Will attempt key: /home/you/.ssh/id_ed25519_sk
-debug1: Will attempt key: /home/you/.ssh/id_xmss
-debug1: Will attempt key: /home/you/.ssh/id_dsa
-```
-
-To conclude, the server decides about the security of the keys used by the client, therefore, we will configure all sshd daemons for `ED25519`:  
-
-```bash
-ansible-playbook sshdserver_setup.yml -i hosts --user root -K -vvv
-```
-
-:fire: User root is specified with `--user root`: the hosts we connect to have the `ED25519` key under `/root/.ssh/authorized_keys`, so we have to connect as `root` to use this key.  
-
-### Stopping Proxmox VM(s)
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
-```
-
-### Starting Proxmox VM(s)
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_start -vvv
-```
-
-if necessary, you can restart with
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
-```
-
-### Removing Proxmox VM(s)
-
-Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
-
-```bash
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop,vm_remove -vvv
-```
 
 ### Proxmox Firewall Preparation
 
@@ -567,25 +388,191 @@ graph TB
   Internet <---> vmbr0  
 ```
 
-~~### Firewall~~
-
-This task will specifically focus on installing and configuring WireGuard, a popular, modern, and secure VPN software, on a Linux VM. WireGuard is chosen for its simplicity and ease of configuration compared to traditional VPN software.
-
-```bash
-ansible-playbook firewallserver-setup.yml -i hosts -K -vvv
-```
-
-Download the wireguard client [from](https://www.wireguard.com/install/). 
-
 ### SSH into the Proxmox VM
 
 ```bash
 ssh root@192.168.1.60 -i /home/user/.ssh/authorized_keys
 ```
 
-## Azure
+## Proxmox
 
-TODO
+### Proxmox VM setup
+
+As far as I know, *Ansible* is not the tool of choice to setup *VM*s on cloud/datacenter solutions like *Proxmox*, etc. Nevertheless, as an excercise, I've chosen to setup my *Proxmox* *VM*s with *Ansible*.  
+
+*Ansible* Uses an `inventory` to define the machines (*ip addresses*) and machine roles to install/setup your software infrastructure. As we start with a clean install (no existing *VM*s), it is rather difficult to define an `inventory`.  
+
+Therefore, we start with a play `proxmox.cars.be` which has a [vars file](./playbooks/proxmox.cars.be/vars/main.yml) defining the *inventory*, for example:
+
+```yml
+proxmox_vms:
+ - ip: 192.168.1.60
+   id: 600
+   group:
+    - "webserver"
+ - ip: 192.168.1.61
+   id: 601
+   group:
+    - "redis"
+ - ip: 192.168.1.62
+   id: 602
+   group:
+    - "database"
+```
+
+On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group:` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
+
+After running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.  
+
+Running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play is detailed in [Uploading templates](###uploading-proxmox-vm(s)-templates) and [Installing VMs on Proxmox](###installing-proxmox-vm(s)).  
+
+The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
+
+### Proxmox hosts file
+
+You can pass a hosts file to the `ansible-playbook` command with:
+
+```bash
+-i ./hosts
+```
+
+### Uploading Proxmox VM(s) templates
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_upload -vvv
+```
+
+:fire: If this tag fails, you may have to upgrade your community.general modules, see [issue](https://github.com/ansible-collections/community.general/issues/6974):
+
+```bash
+ansible-galaxy collection install community.general
+```
+
+you should have at least version 7.2.1
+
+```bash
+ansible-galaxy collection list
+```
+
+and look for community.general.
+
+:fire: You probably have two installs of community.general, if you'd like to run the system-wide install:
+
+```bash
+sudo ansible-galaxy collection install community.general
+```
+
+### Installing Proxmox VM(s)
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
+```
+
+### Addding Proxmox VM(s) to known_hosts
+
+If you removed existing VMs/Containers or are building new VMs/Containers, you should remove the old entries in `known_hosts` and add new entries:
+
+```bash
+ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook knowhosts-setup.yml -i hosts -K -vvv
+```
+
+When you observe an additional line being added to your known_hosts file after connecting to a server via SSH, even after manually adding the server's fingerprint with ssh-keyscan or with `ansible-playbook knowhosts-setup.yml`, it typically relates to how SSH handles and verifies the identity of the servers it connects to. There are a few reasons why this might happen:
+
+1. **Different Key Types**
+If you initially add the server's `ED25519` key fingerprint to your known_hosts using ssh-keyscan -H -t ed25519 ip_address, but the server is also configured to use another type of SSH key (e.g., RSA, ECDSA), the SSH client might add the fingerprint of this additional key to the known_hosts file upon the first connection. This occurs because your initial scan and add operation only included the ED25519 key, and upon connection, SSH automatically adds any other keys presented by the server that weren't already in known_hosts.
+
+2. **Hostname and IP Address Entries**  
+Another common reason is the difference in how you reference the server in your ssh command versus what was initially scanned. For instance, if you scanned the IP address and then used the hostname (or vice versa) to connect, SSH treats these as separate entries. SSH distinguishes between IP addresses and hostnames because they can technically present different keys (consider virtual hosts or shared IP scenarios). As a result, SSH might add a new line for the same server under its different identifier (IP or hostname).
+
+3. **SSH Configuration and Aliases**  
+Your SSH client's configuration might influence how known_hosts is managed. For example, if you use an SSH config file (~/.ssh/config) with aliases or specific host entries that define hostname patterns or specific key types, your SSH client might treat connections that match different patterns as distinct, even if they ultimately resolve to the same server.
+
+4. **Port Forwarding or Jump Hosts**  
+If your connection involves port forwarding or using a jump host (also known as a bastion host), the SSH client may add entries for these intermediate steps. This is more likely in complex networking setups where direct connections to the target server are not possible without going through intermediary servers.
+
+Troubleshooting Tips:
+
+* **Review the known_hosts file**: Compare the entries before and after the connection. Look for differences in the key types, hostnames/IP addresses, or additional details that might explain the new entry.
+* **Use verbose mode with SSH**: Connecting with `ssh -v root@ip_address` can provide detailed logs that explain what keys are being checked, offered, and added to known_hosts. This might give you a clearer picture of why the additional line is added.
+* **Check SSH client configuration**: Review your SSH client's configuration file (if you have one) for any settings that might affect how known_hosts entries are managed or how connections are established.
+
+Understanding the exact reason requires examining the specifics of your SSH setup, the server configuration, and the entries in known_hosts.
+
+For our particular setup, we can edit the server config `sshd_config` file on the server we connect to to enforce the usage of `ED25519` keys:
+
+```ini
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org
+PubkeyAcceptedKeyTypes ssh-ed25519
+```
+
+in addition, make sure that folder `/run/sshd` exists on the server:
+
+```bash
+mkdir /run/sshd
+chmod 0755 /run/sshd
+systemctl restart sshd
+```
+
+Clients, however, should now support `ED25519`, i.e. use:
+
+```bash
+ssh-keygen -t ed25519 -C you@cars.be
+```
+
+If you now connect with:
+
+```bash
+ssh -v root@192.168.1.68
+```
+
+you will notice in the output that ssh will attempt different keys, for example:
+
+```text
+debug1: Will attempt key: /home/you/.ssh/id_rsa RSA SHA256:....
+debug1: Will attempt key: /home/you/.ssh/id_ecdsa
+debug1: Will attempt key: /home/you/.ssh/id_ecdsa_sk
+debug1: Will attempt key: /home/you/.ssh/id_ed25519 ED25519 SHA256:....
+debug1: Will attempt key: /home/you/.ssh/id_ed25519_sk
+debug1: Will attempt key: /home/you/.ssh/id_xmss
+debug1: Will attempt key: /home/you/.ssh/id_dsa
+```
+
+To conclude, the server decides about the security of the keys used by the client, therefore, we will configure all sshd daemons for `ED25519`:  
+
+```bash
+ansible-playbook sshdserver_setup.yml -i hosts --user root -K -vvv
+```
+
+:fire: User root is specified with `--user root`: the hosts we connect to have the `ED25519` key under `/root/.ssh/authorized_keys`, so we have to connect as `root` to use this key.  
+
+### Stopping Proxmox VM(s)
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
+```
+
+### Starting Proxmox VM(s)
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_start -vvv
+```
+
+if necessary, you can restart with
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
+```
+
+### Removing Proxmox VM(s)
+
+Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
+
+```bash
+ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop,vm_remove -vvv
+```
 
 ## REDIS
 
@@ -600,7 +587,7 @@ In the drawing above, REDIS was added explicitely to stress the impact of the di
 ### Install REDIS
 
 ```bash
-ansible-playbook redis-setup.yml -i hosts -K -vvv
+ansible-playbook redis.yml -i hosts -K -vvv
 ```
 
 :fire: Note the `hosts` file, at the moment, only ip address are used in the host file. In an ideal case, hostnames as setup on *Proxmox* should be used grouped by labels redis, webserver, etc.
@@ -620,7 +607,7 @@ after running the redis playbook, you probably forgot to `source .env`.
 `ABP` supports [IdentityServer4](https://github.com/IdentityServer/IdentityServer4) and [OpenIddict](https://github.com/openiddict/openiddict-core). As the `ABP` startup templates support *OpenIddict* since *ABP v6.0.0* we will only support `OpenIddict`.  
 
 ```bash
-ansible-playbook identityserver-setup.yml -i hosts -K -vvv
+ansible-playbook authentication.yml -i hosts -K -vvv
 ```
 
 After installing the authentication server, you can request a client credentials (server to server), check the documentation and example [in the cars.be repo](https://github.com/bartengine27/cars.be/tree/abp_8).
@@ -630,7 +617,7 @@ After installing the authentication server, you can request a client credentials
 ### Install REST API
 
 ```bash
-ansible-playbook httpapiserver-setup.yml -i hosts -K -vvv
+ansible-playbook abprestapi.yml -i hosts -K -vvv
 ```
 
 The *REST API* contains a custom metric and controller, open the *REST API* interface (`Swagger`) and call `/api/car/increment` to increment the custom metric. If you'd like to monitor this metric in real-time, *SSH* into the [HTTP server](./playbooks/hosts) and run:  
@@ -646,7 +633,7 @@ dotnet-counters monitor --name Be.Cars.HttpApi.Host --counters Be.Cars.Metrics.C
 ### Install NGINX Proxy
 
 ```bash
-ansible-playbook proxyserver-setup.yml -i hosts -K -vvv
+ansible-playbook nginx.yml -i hosts -K -vvv
 ```
 
 ## Database
@@ -654,7 +641,7 @@ ansible-playbook proxyserver-setup.yml -i hosts -K -vvv
 ### Install SQL Server
 
 ```bash
-ansible-playbook database-setup.yml -i hosts -K -vvv
+ansible-playbook mssql.yml -i hosts -K -vvv
 ```
 
 After installing your DB server, you can SSH into the machine and open an SQL shell with (assuming you use password `p@55w0rD`):
@@ -670,7 +657,7 @@ sqlcmd -S 127.0.0.1 -U sa -P p@55w0rD -C
 For this project, we will host the application (Blazor application) on [Kestrel](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-7.0). `Kestrel` is automatically included by publishing the application.
 
 ```bash
-ansible-playbook webserver-setup.yml -i hosts -K -vvv
+ansible-playbook webserver.yml -i hosts -K -vvv
 ```
 
 :fire: Install the web server after installing the database: while installing the web server, the DB migration project will run and initialize the database.  
@@ -697,7 +684,7 @@ As illustrated in the figure above, Prometheus is configured with the metrics en
 #### Install Prometheus server
 
 ```bash
-ansible-playbook prometheusserver-setup.yml -i hosts -K -vvv
+ansible-playbook prometheus.yml -i hosts -K -vvv
 ```
 
 ### Collector
@@ -724,7 +711,7 @@ You can also use the [OpenTelemetry Collector](https://opentelemetry.io/docs/col
 #### Install InfluxDB
 
 ```bash
-ansible-playbook collectorserver-setup.yml -i hosts -K -vvv
+ansible-playbook otelcollector.yml -i hosts -K -vvv
 ```
 
 After installing, open the UI on `http://{{ groups['otlp_controller'][0] }}:8086)`.
@@ -734,7 +721,7 @@ After installing, open the UI on `http://{{ groups['otlp_controller'][0] }}:8086
 #### Install Grafana server
 
 ```bash
-ansible-playbook grafanaserver-setup.yml -i hosts -K -vvv
+ansible-playbook grafana.yml -i hosts -K -vvv
 ```
 
 After installing *Grafana*, you can browse to the *Grafana* endpoint (check the *Grafana* endpoint in [hosts](./playbooks/hosts)) and open the `ASP .NET Core` dashboard: 
@@ -766,7 +753,7 @@ By following the steps above, we can set up our own (small/simple) CA chain with
 
 To ensure that consumers trust our client certificates and/or to establish secure communication channels within our infrastructure (network communication within the datacentre), we have several options:
 
-* **Distribute CA Certificate**: Distribute the CA certificate (which was used to sign the client certificates) to the consumers of the client certificates. Consumers can then import the CA certificate into their trust store (e.g., browser's certificate store, operating system's certificate store) as a trusted root CA. This allows the consumers to trust any certificates signed by that CA.
+* **Distribute CA Certificate**: Distribute the CA certificate (which was used to sign the client certificates) to the consumers of the client certificates. Consumers can then import the CA certificate into their trust store (e.g., browser's certificate store, operating system's certificate store) as a trusted root CA. This allows the consumers to trust any certificates signed by that CA. :cupid: If you run the Ansible playbooks on Ubuntu, the `caclient` playbook will install the root certificate for you, on Windows, you will have to install the certificate manually (at least, for now).
 * **Certificate Chain**: Along with the client certificate, provide the entire certificate chain up to the root CA certificate. This includes the client certificate, any intermediate CA certificates, and the root CA certificate. Consumers can then verify the certificate chain, ensuring that each certificate in the chain is signed by the preceding one, up to the trusted root CA certificate. :fire: In this particular implementation, we have no certificate chain.
 * **Publicly Trusted CA**: If you require wider trust, consider obtaining client certificates from a publicly trusted CA (e.g., Let's Encrypt, DigiCert). Certificates issued by publicly trusted CAs are automatically trusted by most systems, as they are included in the trust stores of popular browsers and operating systems. :fire: For our public endpoint, we will use Let's Encrypt, internal traffic, however, will be encrypted with the self-generated client certificates.
 * **Custom Trust Store:** Create a custom trust store containing the CA certificate or certificate chain and distribute it to the consumers of the client certificates. Applications can then be configured to use this custom trust store to verify the authenticity of client certificates. :fire: Might be used in a future implementation.
@@ -787,11 +774,11 @@ ansible-playbook ca.yml -i hosts -K -vvv
 ansible-playbook caclient.yml -i hosts -K -vvv
 ```
 
-### Sign CSRs and upload
+## HTTPS Offloading
 
-## Proxy
+In the previous section, we explained how certificates are generated with our own CA. We can now use the certificates to encrypt internal traffic after offloading HTTPS traffic.
 
-If we'd like to use HTTPS offloading and load balance the web server and REST endpoint, we migth choose a setup similar to:
+As we'd like to use HTTPS offloading and load balance the web server and REST endpoint, we migth choose a setup similar to:
 
 ```mermaid
 graph TB
@@ -839,7 +826,7 @@ graph TD
     web -->|State Management| redis
 ```
 
-From the diagram above, the segregation of both networks should be obvious: internal traffic s routen over `ProxyInternal` and not visible on (a breached) `ProxyPublic`.  
+From the diagram above, the segregation of both networks should be obvious: internal traffic is routed over `ProxyInternal` and not visible on (a breached) `ProxyPublic`.  
 
 As the proxy acts as the entry point for incoming traffic, it can offload SSL/TLS for incoming HTTPS requests. The proxy decrypts the HTTPS traffic, re-encrypts the traffic and then routes the requests to the appropriate backend services. Backend services can - for instance - use certificates from an internal Certificate Authority (CA).  
 
@@ -865,8 +852,7 @@ graph TD
     nginx_internal -->|HTTPS| rest
     nginx_internal -->|HTTPS| web
     rest -->|State Management| redis
-    web -->|State Management| redis    
-    
+    web -->|State Management| redis        
 ```
 
 :fire: TODO to configure a DMZ (firewall), we need some extra info:
@@ -886,6 +872,7 @@ The proxy above may be implemented with different solutions:
 * Envoy Proxy
 * Caddy
 * F5
+* ...
 
 For this paricular setup, we will use NGINX.  
 
@@ -908,7 +895,7 @@ flowchart TD;
     Client--HTTPS-->NGINX
 ```
 
-The `NGINX` configuration for this setup illustrates a setup for managing encrypted, load-balanced connections to a backend API cluster, with a focus on detailed logging, security with SSL, and flexibility to support large headers and optional WebSocket connections:  
+The `NGINX` configuration for the following setup illustrates a setup for managing encrypted, load-balanced connections to a backend API cluster, with a focus on detailed logging, security with SSL, and flexibility to support large headers and optional WebSocket connections:  
 
 ```nginx
 http {
@@ -967,7 +954,7 @@ http {
 }
 ```
 
-If we'd like to include the web servers in the diagram and config above, we get a drawing like:
+If we'd like to include the web servers in the diagram and configured as above, we get a diagram like:
 
 ```mermaid
 flowchart TD;        
@@ -1072,7 +1059,7 @@ http {
 }
 ```
 
-This configuration above now serves a website for requests to cars.be on port 443 with HTTPS, except for HTTPS requests to cars.be/api/, which are proxied to the upstream https_api.  
+The configuration above now serves a website for requests to cars.be on port 443 with HTTPS, except for HTTPS requests to cars.be/api/, which are proxied to the upstream https_api.  
 
 As mentioned, the public certificate may be delivered by Let's Encrypt. If we'd like to automatically request/renew certificates, Let's Encrypt will need to check that we are the owners of our domain (cars.be in this example). Let's Encrypt executes such a test by requesting a special file from the http://domain/.well-known/acme-challenge directory. `certbot` Is the most common client for Let's Enrypt to *generate this special file*.  
 
@@ -1301,6 +1288,8 @@ http {
 }
 ```
 
+As routing based on hostnames has less impact on the web server and REST endpoint source code (no constraints on URLS), routing based on hostnames is the preferred solution in this project.  
+
 #### Log format
 
 To capture detailed information about requests and responses, we define a custom logging format: the `log_format` directive specifies a custom format named `upstreamlog`, which includes *timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times*. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers, in particular inspecting load balancing as the log will display the IP address of the upstream REST API node.
@@ -1360,18 +1349,12 @@ This part of the configuration provides the necessary headers to support WebSock
 
 ## TODO
 
-* ssh-keygen: add fingerprints automatically
-* all passwords to env variables
-* Azure
+* move proxmox playbook to a different "folder"
 * align the [vars](./playbooks/proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
 * generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)
-* install the webserver usually fails first
 * integrate [prometheus alerts](https://github.com/prometheus/alertmanager) or [grafana alerts](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alertmanager/) or ...
-* install Collector endpoint
-* custom dashboard displaying the custom metric
 * [ssh fingerprint checks](https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking)
-* setup nginx with ansible and a [self signed certifcate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-20-04-1)
 * [enable tcpdump in a container](https://cloud.garr.it/support/kb/general/enableTcpdumpInLXCContainer/)
 https://netsplit.uk/posts/2022/10/19/remote_ovh_lab/
-* pfSense `pfctl -d` and `pfctl -e` to disable/enable the packet filter -> allow the admin interface over the vpn
-* reboot the host, vms and containers after a re-install
+* pfSense `pfctl -d` and `pfctl -e` to disable/enable the packet filter
+* add DNS

@@ -1,17 +1,6 @@
 ---
 - name: Configure sshd to use only ED25519 keys
   hosts: all
-  remote_user: root
-  vars:
-    # example variables to enable/disable roles
-    sshd_a_feature_enabled: true
-  vars_files:
-    # - azure_ubuntu_vm/vars/main.yml
-  vars_prompt:
-    # example
-    #- name: project_name
-    #  prompt: "The project name which will be used to initialize resource group names, vms, nics, etc."
-    #  private: false
-    #  default: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"    
+  remote_user: root 
   roles:
      - hostr.sshd

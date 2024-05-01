@@ -1,2 +1,12 @@
 ---
 # defaults file for hostr.webserver
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+webserver_public_repo: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
+webserver_install_folder: "{{ lookup('ansible.builtin.env', 'WEBSERVER_INSTALL_FOLDER') }}"
+asp_net_core_environment: "{{ lookup('ansible.builtin.env', 'ASP_NET_CORE_ENVIRONMENT' ) }}"
+redis_password: "{{ lookup('ansible.builtin.env', 'REDIS_PASSWORD' ) }}"
+database_password: "{{ lookup('ansible.builtin.env', 'SQL_SERVER_PASSWORD' ) }}"        
+dotnet_sdk: "dotnet-sdk-8.0"
+abp_project_name: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"
+openiddict_application_identifier: "{{ lookup('ansible.builtin.env', 'OPENIDDICT_APPLICATION_IDENTIFIER' ) }}"
+project_domain: "{{ lookup('ansible.builtin.env', 'PROJECT_DOMAIN') }}"  

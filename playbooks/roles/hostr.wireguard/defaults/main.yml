@@ -1,2 +1,8 @@
 ---
 # defaults file for hostr.wireguard
+wireguard_interface_name: wg0
+wireguard_port: "{{ lookup('ansible.builtin.env', 'WIREGUARD_PORT') }}"
+client_public_key: "{{ lookup('ansible.builtin.env', 'WIREGUARD_CLIENT_PUBLIC_KEY') }}"
+server_private_key: "{{ lookup('ansible.builtin.env', 'WIREGUARD_SERVER_PRIVATE_KEY') }}"
+server_public_ip: "{{ lookup('ansible.builtin.env', 'WIREGUARD_SERVER_PUBLIC_KEY') }}"
+vpn_network: 10.0.0.1/24

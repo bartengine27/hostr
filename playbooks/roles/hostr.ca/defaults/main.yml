@@ -1,2 +1,11 @@
 ---
 # defaults file for hostr.ca
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+ca_name: "{{ lookup('ansible.builtin.env', 'CA_NAME') }}"
+ca_alt_name: "{{ lookup('ansible.builtin.env', 'CA_ALT_NAME') }}"                     
+ca_country_code: "{{ lookup('ansible.builtin.env', 'CA_COUNTRY_CODE') }}"
+ca_state: "{{ lookup('ansible.builtin.env', 'CA_STATE') }}"
+ca_city: "{{ lookup('ansible.builtin.env', 'CA_CITY') }}"
+ca_organization_name: "{{ lookup('ansible.builtin.env', 'CA_ORGANIZATION_NAME') }}"
+ca_email_address:  "{{ lookup('ansible.builtin.env', 'CA_EMAIL_ADDRESS') }}"
+ca_pass: "{{ lookup('ansible.builtin.env', 'CA_PASSPHRASE')}}"
