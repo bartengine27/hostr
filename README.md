@@ -1358,3 +1358,4 @@ This part of the configuration provides the necessary headers to support WebSock
 https://netsplit.uk/posts/2022/10/19/remote_ovh_lab/
 * pfSense `pfctl -d` and `pfctl -e` to disable/enable the packet filter
 * add DNS
+* remove cert generation outside of ca/caclient roles
