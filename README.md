@@ -12,10 +12,8 @@
     * [Git/SSH prerequisites](#gitssh-prerequisites)
     * [Proxmox Firewall Preparation](#proxmox-firewall-preparation)
     * [Bridges](#bridges)
-    * [SSH into the Proxmox VM](#ssh-into-the-proxmox-vm)
   * [Proxmox](#proxmox)
     * [Proxmox VM setup](#proxmox-vm-setup)
-    * [Proxmox hosts file](#proxmox-hosts-file)
     * [Uploading Proxmox VM(s) templates](#uploading-proxmox-vms-templates)
     * [Installing Proxmox VM(s)](#installing-proxmox-vms)
     * [Addding Proxmox VM(s) to known\_hosts](#addding-proxmox-vms-to-known_hosts)
@@ -388,12 +386,6 @@ graph TB
   Internet <---> vmbr0  
 ```
 
-### SSH into the Proxmox VM
-
-```bash
-ssh root@192.168.1.60 -i /home/user/.ssh/authorized_keys
-```
-
 ## Proxmox
 
 ### Proxmox VM setup
@@ -427,14 +419,6 @@ After running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, we can u
 Running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play is detailed in [Uploading templates](###uploading-proxmox-vm(s)-templates) and [Installing VMs on Proxmox](###installing-proxmox-vm(s)).  
 
 The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
-
-### Proxmox hosts file
-
-You can pass a hosts file to the `ansible-playbook` command with:
-
-```bash
--i ./hosts
-```
 
 ### Uploading Proxmox VM(s) templates
 
