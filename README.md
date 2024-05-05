@@ -64,7 +64,7 @@
 
 ## Repository Introduction
 
-Welcome to our GitHub repository where you'll find Ansible scripts written to facilitate the development of web applications by closely mirroring a typical production environment. This approach might address common challenges where hardware or time constraints make it difficult to set up a test or acceptance environment that accurately reflects various production settings.
+Welcome to our GitHub repository where you'll find Ansible scripts written to facilitate the development of web applications by mirroring a typical production environment. This approach might address common challenges where hardware or time constraints make it difficult to set up a test or acceptance environment that accurately reflects various production settings.
 
 ### Purpose of This Repository
 
@@ -105,7 +105,7 @@ To deploy the roles listed above, follow these steps:
 2. **Setup your inventory:**
    Ensure that your `hosts` file in the `./playbooks` directory is updated to reflect the infrastructure where you want to deploy the roles.
 
-3. **Configure all variables**
+3. **Configure role variables**
    Default variables are provided for all roles in `role_folder/defaults/vars.yml` and initialized by reading environment variables. Example environment variables are [available](./example.env).
 
 4. **Execute the Ansible Playbook:**
@@ -456,11 +456,11 @@ graph TB
 
 ### Proxmox VM setup
 
-As far as I know, *Ansible* is not the tool of choice to setup *VM*s on cloud/datacenter solutions like *Proxmox*, etc. Nevertheless, as an excercise, I've chosen to setup my *Proxmox* *VM*s with *Ansible*.  
+As far as I know, *Ansible* is not necessarily the tool of choice to setup *VM*s on cloud/datacenter solutions like *Proxmox*, etc. Nevertheless, as an excercise, I've chosen to setup my *Proxmox* *VM*s with *Ansible*.  
 
 *Ansible* Uses an `inventory` to define the machines (*ip addresses*) and machine roles to install/setup your software infrastructure. As we start with a clean install (no existing *VM*s), it is rather difficult to define an `inventory`.  
 
-Therefore, we start with a play `proxmox.cars.be` which has a [vars file](./playbooks/proxmox.cars.be/vars/main.yml) defining the *inventory*, for example:
+Therefore, we start with a play [proxmox](./playbooks/proxmox.yml) which uses [role](./playbooks/roles/hostr.proxmox/) and [vars file](./playbooks/roles/hostr.proxmox/vars/main.yml) defining the *inventory*, for example:
 
 ```yml
 proxmox_vms:
@@ -480,16 +480,16 @@ proxmox_vms:
 
 On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group:` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
 
-After running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.  
+After running the [proxmox](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.  
 
-Running the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play is detailed in [Uploading templates](#uploading-proxmox-vms-templates) and [Installing VMs on Proxmox](#installing-proxmox-vms).  
+Running the [proxmox](./playbooks/proxmox.yml) play is detailed in [Uploading templates](#uploading-proxmox-vms-templates) and [Installing VMs on Proxmox](#installing-proxmox-vms).  
 
-The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox.cars.be](./playbooks/proxmox.cars.be/) play, it is probably a good idea to change that in future versions.  
+:fire: The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox](./playbooks/proxmox.yml) play, it is probably a good idea to change that in future versions.  
 
 ### Uploading Proxmox VM(s) templates
 
 ```shell
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_upload -vvv
+ansible-playbook proxmox.yml -K --tags=vm_upload -vvv
 ```
 
 :fire: If this tag fails, you may have to upgrade your community.general modules, see [issue](https://github.com/ansible-collections/community.general/issues/6974):
@@ -515,7 +515,7 @@ sudo ansible-galaxy collection install community.general
 ### Installing Proxmox VM(s)
 
 ```shell
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
+ansible-playbook proxmox.yml -K --tags=vm_init -vvv
 ```
 
 ### Addding Proxmox VM(s) to known_hosts
@@ -601,19 +601,19 @@ ansible-playbook sshdserver_setup.yml -i hosts --user root -K -vvv
 ### Stopping Proxmox VM(s)
 
 ```shell
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
+ansible-playbook proxmox.yml -K --tags=vm_stop -vvv
 ```
 
 ### Starting Proxmox VM(s)
 
 ```shell
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_start -vvv
+ansible-playbook proxmox.yml -K --tags=vm_start -vvv
 ```
 
 if necessary, you can restart with
 
 ```shell
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
+ansible-playbook proxmox.yml -K --tags=vm_restart -vvv
 ```
 
 ### Removing Proxmox VM(s)
@@ -621,7 +621,7 @@ ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
 Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
 
 ```shell
-ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop,vm_remove -vvv
+ansible-playbook proxmox.yml -K --tags=vm_stop,vm_remove -vvv
 ```
 
 ## REDIS
@@ -1400,10 +1400,8 @@ This part of the configuration provides the necessary headers to support WebSock
 ## TODO
 
 * move proxmox playbook to a different "folder"
-* align the [vars](./playbooks/proxmox.cars.be/vars/main.yml) file with an *Ansible* `inventory`
 * generate the *Ansible* `inventory` file or use an `inventory` file as a *vars.yml* file to setup *VM*s (if possible)
 * integrate [prometheus alerts](https://github.com/prometheus/alertmanager) or [grafana alerts](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alertmanager/) or ...
-* [ssh fingerprint checks](https://stackoverflow.com/questions/32297456/how-to-ignore-ansible-ssh-authenticity-checking)
 * [enable tcpdump in a container](https://cloud.garr.it/support/kb/general/enableTcpdumpInLXCContainer/)
 https://netsplit.uk/posts/2022/10/19/remote_ovh_lab/
 * pfSense `pfctl -d` and `pfctl -e` to disable/enable the packet filter
