@@ -1,0 +1,6 @@
+---
+- name: Generate Certificate Signing Request (CSR) for Client
+  hosts: all,!ca
+  remote_user: root         
+  roles:
+     - hostr.caclient

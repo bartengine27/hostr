@@ -1,0 +1,66 @@
+{
+  "App": {      
+    "SelfUrl": "https://{{ project_domain }}/",
+    "CorsOrigins": "https://{{ project_domain }}"
+  },
+  "RemoteServices": {
+    "Default": {
+      "BaseUrl": "https://abpapi.{{ project_domain }}"      
+    },
+    "AbpAccountPublic": {      
+      "BaseUrl": "https://identity.{{ project_domain }}/"
+    }
+  },
+  "Redis": {
+    "Configuration": "{{ groups['redis'][0] }},abortConnect=false,password={{ redis_password }}"
+  },
+  "ConnectionStrings": {
+    "Default": "Server={{ groups['database'][0] }};Database=Cars;User Id=sa;Password={{ database_password }};TrustServerCertificate=True"
+  },
+  "AuthServer": {    
+    "Authority": "https://identity.{{ project_domain }}/",
+    "RequireHttpsMetadata": "true",
+    "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
+    "ClientSecret": "1q2w3e*"
+  },
+"OpenIddict": {
+    "Applications": {
+      "{{ openiddict_application_identifier }}_Web": {
+        "ClientId": "{{ openiddict_application_identifier }}_Web",
+        "ClientSecret": "1q2w3e*",
+        "RootUrl": "https://localhost:44377/"
+      },
+      "{{ openiddict_application_identifier }}_App": {
+        "ClientId": "{{ openiddict_application_identifier }}_App",
+        "RootUrl": "http://localhost:4200/"
+      },
+      "{{ openiddict_application_identifier }}_BlazorServerTiered": {
+        "ClientId": "{{ openiddict_application_identifier }}_BlazorServerTiered",
+        "ClientSecret": "1q2w3e*",
+        "RootUrl": "https://{{ project_domain }}/"
+      },
+      "{{ openiddict_application_identifier }}_Swagger": {
+        "ClientId": "{{ openiddict_application_identifier }}_Swagger",
+        "ClientSecret": "1q2w3e*",
+        "RootUrl": "https://abpapi.{{ project_domain }}/"
+      }
+    }
+  },
+  "StringEncryption": {
+    "DefaultPassPhrase": "TPX5DfbeSrrK8KBI"
+  },
+  //https://www.baeldung.com/openssl-self-signed-cert
+  "Kestrel": {
+    "Endpoints": {
+      "CarsBeHttpsEndpoint": {
+        "Url": "https://{{ ansible_host }}:5000",
+        "ClientCertificateMode": "AllowCertificate",
+        "Certificate": {
+          "Path": "/etc/ssl/client/certificate.pem",
+          "KeyPath": "/etc/ssl/client/{{ ansible_host }}.key",
+          "Password": "cars.be"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+---
+# defaults file for hostr.authentication
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"      
+identityserver_public_repo: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
+identityserver_install_folder: "{{ lookup('ansible.builtin.env', 'WEBSERVER_INSTALL_FOLDER') }}"
+asp_net_core_environment: "{{ lookup('ansible.builtin.env', 'ASP_NET_CORE_ENVIRONMENT' ) }}"
+database_password: "{{ lookup('ansible.builtin.env', 'SQL_SERVER_PASSWORD' ) }}"
+redis_password: "{{ lookup('ansible.builtin.env', 'REDIS_PASSWORD' ) }}"  
+dotnet_sdk: "dotnet-sdk-8.0"
+abp_project_name: "{{ lookup('ansible.builtin.env', 'SOLUTION_NAME' ) }}"
+project_domain: "{{ lookup('ansible.builtin.env', 'PROJECT_DOMAIN') }}"

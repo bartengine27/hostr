@@ -1,0 +1,5 @@
+---
+# defaults file for hostr.grafana
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+webserver_public_repo: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
+grafana_install_folder: "{{ lookup('ansible.builtin.env', 'GRAFANA_INSTALL_FOLDER') }}"    

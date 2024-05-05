@@ -1,0 +1,6 @@
+# inspired by https://stackoverflow.com/questions/30226113/ansible-ssh-prompt-known-hosts-issue
+- name: "Configure the known_hosts file after init of the VMs/Containers on Azure, Proxmox, etc."
+  hosts: localhost
+  connection: local
+  roles:
+    - hostr.knownvmhosts

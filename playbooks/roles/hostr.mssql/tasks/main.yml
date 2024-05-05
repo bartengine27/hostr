@@ -1,0 +1,65 @@
+---
+- name: Gather package facts
+  package_facts:
+    manager: apt
+# https://lowlydba.github.io/lowlydba.sqlserver/branch/main/collections/index_module.html
+# Use the Ubuntu distribution required by SQL Server,
+# see https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-ver16&tabs=ubuntu2004
+- name: "Install SQL Server if not installed"
+  # https://github.com/ansible/ansible-lint/issues/497
+  # set -o pipefail
+  # in our case: set bash in ~/.ansible.cfg
+  ansible.builtin.shell: |
+    set -o pipefail
+    apt -y install curl
+    apt -y install --reinstall software-properties-common
+    curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+    add-apt-repository -y "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2019.list)"
+    apt-get update    
+    apt-get install -y mssql-server
+  when: '"mssql-server" not in ansible_facts.packages'
+# RHEL is properly supported, see https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-deploy-ansible?view=sql-server-ver16
+# Ubuntu isn't, so, install "manually"
+- name: "Configure SQL Server - hangs?"
+  ansible.builtin.shell: |
+    set -o pipefail
+    systemctl stop mssql-server
+    /opt/mssql/bin/mssql-conf setup
+    systemctl start mssql-server
+  environment:
+    ACCEPT_EULA: "Y"
+    MSSQL_PID: "Developer"
+    # Login with 'sqlcmd -S localhost -U sa -P p@55w0rD -C' -C to accept the self-signed certificate
+    MSSQL_SA_PASSWORD: "{{ database_password }}"
+    MSSQL_TCP_PORT: 1433
+- name: "Install the SQL Server CLI tools"
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc
+    curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+    apt-get update
+    apt-get install -y mssql-tools18
+    apt-get install -y unixodbc-dev
+    echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
+    source ~/.bashrc
+  environment:
+    ACCEPT_EULA: "Y"    
+  when: '"mssql-tools18" not in ansible_facts.packages and "unixodbc-dev" not in ansible_facts.packages'
+- name: "Download the powershell deb"
+  # https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.3
+  ansible.builtin.get_url:
+    url: https://github.com/PowerShell/PowerShell/releases/download/v7.3.6/powershell_7.3.6-1.deb_amd64.deb
+    dest: /tmp/powershell_7.3.6-1.deb_amd64.deb
+    force_basic_auth: true
+- name: "Install Powershell and the SQL Server PowerShell module to manage SQL server"
+  ansible.builtin.shell: |
+    set -o pipefail
+    dpkg -i /tmp/powershell_7.3.6-1.deb_amd64.deb
+    ln -sf /usr/bin/pwsh /usr/bin/powershell
+    pwsh -Command "Set-PSRepository PSGallery | Install-Module -Name SqlServer -AcceptLicense -SkipPublisherCheck"
+- name: "Install pymssql to manage SQL Server with Python"        
+  ansible.builtin.apt:
+    pkg:
+      - pip
+      - python3-pymssql
+  when: '"pip" not in ansible_facts.packages and "python3-pymssql" not in ansible_facts.packages'

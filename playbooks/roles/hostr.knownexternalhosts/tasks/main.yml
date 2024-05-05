@@ -1,0 +1,11 @@
+---
+# tasks file for hostr.knownexternalhosts
+- name: Update known hosts
+  #ssh-keyscan writes to stderr, so we redirect it to /dev/null
+  ansible.builtin.shell: |  
+    ssh-keyscan -H -t ed25519 -T 15 github.com 2> /dev/null >> ~/.ssh/known_hosts
+  register: ssh_keyscan_result
+  retries: 5
+  delay: 5
+  until: ssh_keyscan_result.rc == 0    
+  ignore_errors: True

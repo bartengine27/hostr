@@ -1,0 +1,10 @@
+---
+# defaults file for proxmox.cars.be
+project_name: "{{ lookup('ansible.builtin.env', 'PROXMOX_PROJECT_NAME') }}"      
+proxmox_ip_address: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_IP') }}"
+proxmox_api_token: "{{ lookup('ansible.builtin.env', 'PROXMOX_API_SECRET') }}"
+proxmox_node: "{{ lookup('ansible.builtin.env', 'PROXMOX_NODE') }}"
+proxmox_api_user: "{{ lookup('ansible.builtin.env', 'PROXMOX_API_USER') }}"
+proxmox_api_token_id: "{{ lookup('ansible.builtin.env', 'PROXMOX_API_TOKEN') }}"
+proxmox_local_storage: "{{ lookup('ansible.builtin.env', 'PROXMOX_LOCAL_STORAGE') }}"
+ansible_ssh_user: root

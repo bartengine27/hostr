@@ -1,0 +1,10 @@
+---
+# handlers file for hostr.grafana
+- name: Enable grafana
+  systemd:
+    name: grafana-server
+    enabled: yes
+- name: Start grafana
+  systemd:
+    name: grafana-server
+    state: started

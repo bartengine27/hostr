@@ -1,0 +1,54 @@
+---
+# defaults file for hostr.prometheus
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"
+webserver_public_repo: "{{ lookup('ansible.builtin.env', 'GIT_WEBSITE_REPO') }}"  
+prometheus_install_folder: "{{ lookup('ansible.builtin.env', 'PROMETHEUS_INSTALL_FOLDER') }}"   
+#https://prometheus-community.github.io/ansible/branch/main/prometheus_role.html#ansible-collections-prometheus-prometheus-prometheus-role
+#https://prometheus.io/docs/prometheus/latest/configuration/configuration/#scrape_config
+prometheus_scrape_configs: [
+                                {
+                                    "job_name": "prometheus",
+                                    "metrics_path": "{{ prometheus_metrics_path }}",
+                                    "static_configs": [
+                                        {
+                                            "targets": [
+                                                "{{ ansible_fqdn | default(ansible_host) | default('localhost') }}:9090"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "job_name": "cars.be",
+                                    "metrics_path": "{{ prometheus_metrics_path }}",
+                                    "scheme": "https",
+                                    "tls_config": 
+                                        {
+                                            #TODO do not check certs for now
+                                            "insecure_skip_verify": true
+                                        },                                            
+                                    "static_configs": [
+                                        {
+                                            "targets": [
+                                                "{{ groups['webserver'][0] }}:5000"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "job_name": "cars.be rest api",
+                                    "metrics_path": "{{ prometheus_metrics_path }}",
+                                    "scheme": "https",
+                                    "tls_config": 
+                                        {
+                                            #TODO do not check certs for now
+                                            "insecure_skip_verify": true
+                                        },                                            
+                                    "static_configs": [
+                                        {
+                                            "targets": [
+                                                "{{ groups['http_api'][0] }}:5000"
+                                            ]
+                                        }
+                                    ]
+                                },
+                            ]   

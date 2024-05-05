@@ -1,0 +1,15 @@
+- name: "Redis setup playbook"
+  hosts: redis
+  remote_user: root  
+  roles:
+    - role: geerlingguy.redis
+      # TODO double check: ABP needs some of the commands
+      # redis_disabled_commands:
+      #   - FLUSHDB
+      #   - FLUSHALL
+      #   - KEYS
+      #   - PEXPIRE
+      #   - DEL
+      #   - CONFIG
+      #   - SHUTDOWN
+

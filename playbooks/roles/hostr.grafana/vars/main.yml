@@ -1,0 +1,4 @@
+---
+# vars file for hostr.grafana
+grafana_enable_admin: false
+grafana_enable_user: false

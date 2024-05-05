@@ -1,0 +1,6 @@
+---
+- name: Firewall and VPN setup playbook - NOT USED, using manual install of pfSense
+  hosts: firewall_public_ip
+  remote_user: root 
+  roles:
+     - hostr.wireguard
