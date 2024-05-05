@@ -1,7 +1,16 @@
 # Introduction
 
 * [Introduction](#introduction)
-  * [Prerequisites](#prerequisites)
+  * [Repository Introduction](#repository-introduction)
+    * [Purpose of This Repository](#purpose-of-this-repository)
+    * [Environment Roles Defined](#environment-roles-defined)
+  * [Setup Instructions](#setup-instructions)
+    * [Prerequisites](#prerequisites)
+    * [Running the Playbooks](#running-the-playbooks)
+    * [Expected Outcome](#expected-outcome)
+    * [Troubleshooting](#troubleshooting)
+  * [Contributing](#contributing)
+  * [Detailed Prerequisites](#detailed-prerequisites)
     * [Proxmox prerequisites](#proxmox-prerequisites)
       * [Hyper-V install](#hyper-v-install)
       * [Bare metal install](#bare-metal-install)
@@ -53,19 +62,76 @@
   * [References](#references)
   * [TODO](#todo)
 
-While developing it may be useful to have a setup which mirrors your final production setup as close as possible. In practice, hardware and/or time are not always available on time to setup a test or acception environment which mirrors production. Therefore, having a setup that you can easily (re-)deploy on a (local) virtual environment may be your way out.  
+## Repository Introduction
 
-This project contains *Ansible* scripts to setup *Proxmox* VMs/containers to install a web site on prem or in the cloud to ease/speed-up development. The *Ansible* scripts in this project assume that you need servers to host the following roles:
+Welcome to our GitHub repository where you'll find Ansible scripts written to facilitate the development of web applications by closely mirroring a typical production environment. This approach might address common challenges where hardware or time constraints make it difficult to set up a test or acceptance environment that accurately reflects various production settings.
 
-* Web Server
-* Cache
-* Database
-* Identity Server  
-* REST API endpoints
-* Prometheus monitoring
-* Grafana dashboards
+### Purpose of This Repository
 
-## Prerequisites
+This repository hosts Ansible scripts that allow you to deploy a complex web application environment either locally on your development machine, on-premises hardware, or in a cloud setup. By leveraging these scripts, developers may accelerate the setup process and ensure consistency across different environments, from development to production.
+
+### Environment Roles Defined
+
+The provided Ansible scripts are prepared to configure the following roles essential for a full-featured web application infrastructure:
+
+* **Web Server**: Hosts the web application interface.
+* **Cache**: Improves response time and reduces load on the database by storing recently accessed data.
+* **Database**: Manages data storage and retrieval.
+* **Identity Server**: Handles authentication and authorization services.
+* **REST API endpoints**: Facilitates communication between the client apps and server.
+* **Load Balancer**: Distributes incoming network traffic across multiple servers.
+* **Certificate Authority**: Issues SSL/TLS certificates for secured communications.
+* **HTTPS offloading**: Relieves backend application servers of the processing load associated with encrypting and decrypting public HTTPS traffic.
+* **Prometheus monitoring**: Collects and stores metrics as time-series data.
+* **Grafana dashboards**: Provides visualization of the metrics collected by Prometheus.
+
+## Setup Instructions
+
+### Prerequisites
+
+Before running the Ansible playbooks, ensure that you have the following:
+
+* Ansible installed on your local machine or a control node.
+* Sufficient privileges to manage the systems designated in your inventory.
+* Machines (VMs, containers, or bare metal) defined in your [hosts file](./playbooks/hosts) and accessible over your network.
+
+### Running the Playbooks
+
+To deploy the roles listed above, follow these steps:
+
+1. **Navigate to your local clone of this repository:**
+   Open a terminal and ensure you are in the repository directory.
+
+2. **Setup your inventory:**
+   Ensure that your `hosts` file in the `./playbooks` directory is updated to reflect the infrastructure where you want to deploy the roles.
+
+3. **Configure all variables**
+   Default variables are provided for all roles in `role_folder/defaults/vars.yml` and initialized by reading environment variables. Example environment variables are [available](./example.env).
+
+4. **Execute the Ansible Playbook:**
+   Run the following command to start the deployment process. This command will prompt you for your sudo password due to the `-K` flag and provide detailed output with the `-vvv` verbosity level.
+
+   ```shell
+   ansible-playbook site.yml -K -i hosts -vvv
+   ```
+
+### Expected Outcome
+
+After executing the playbook, all specified roles should be successfully configured and running across your specified machines. You can verify the status of each role through the corresponding management interfaces or by checking the services directly on each machine.
+
+### Troubleshooting
+
+If you encounter any issues during the setup, consider the following troubleshooting steps:
+
+* Verify network connectivity between your control node and the target machines.
+* Check the permissions and authentication details for the accounts used.
+* Review the verbose output provided by the Ansible execution for errors or warnings.
+
+## Contributing
+
+We welcome contributions to improve the scripts or documentation. Please feel free to fork the repository, make your changes, and submit a pull request.
+
+## Detailed Prerequisites
 
 ### Proxmox prerequisites
 
@@ -148,7 +214,7 @@ As we are using [Ansible](https://www.ansible.com/) to automate our install and 
 
 For this project, we will need some extra dependencies. Install the following *Ansible* role(s):
 
-```bash
+```shell
 ansible-galaxy install geerlingguy.redis
 ```
 
@@ -170,14 +236,14 @@ collections:
 
 and install with:
 
-```bash
+```shell
 ansible-galaxy role install -r requirements.yml
 ansible-galaxy collection install -r requirements.yml
 ```
 
 Add additional Python dependencies with:
 
-```bash
+```shell
 pip install proxmoxer
 ```
 
@@ -196,7 +262,7 @@ Keep your *PROD*, *ACC* and *DEV* secrets in the corresponding files and copy to
 
 Your `env` file should at least contain your public key to connect with ssh to the VMs:
 
-```bash
+```shell
 #!/bin/bash
 export SSH_PUB_KEY="ssh-rsa AAAAB.... your_name@your_machine"
 ```
@@ -422,19 +488,19 @@ The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansi
 
 ### Uploading Proxmox VM(s) templates
 
-```bash
+```shell
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_upload -vvv
 ```
 
 :fire: If this tag fails, you may have to upgrade your community.general modules, see [issue](https://github.com/ansible-collections/community.general/issues/6974):
 
-```bash
+```shell
 ansible-galaxy collection install community.general
 ```
 
 you should have at least version 7.2.1
 
-```bash
+```shell
 ansible-galaxy collection list
 ```
 
@@ -442,13 +508,13 @@ and look for community.general.
 
 :fire: You probably have two installs of community.general, if you'd like to run the system-wide install:
 
-```bash
+```shell
 sudo ansible-galaxy collection install community.general
 ```
 
 ### Installing Proxmox VM(s)
 
-```bash
+```shell
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
 ```
 
@@ -456,7 +522,7 @@ ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_init -vvv
 
 If you removed existing VMs/Containers or are building new VMs/Containers, you should remove the old entries in `known_hosts` and add new entries:
 
-```bash
+```shell
 ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook knowhosts-setup.yml -i hosts -K -vvv
 ```
 
@@ -494,7 +560,7 @@ PubkeyAcceptedKeyTypes ssh-ed25519
 
 in addition, make sure that folder `/run/sshd` exists on the server:
 
-```bash
+```shell
 mkdir /run/sshd
 chmod 0755 /run/sshd
 systemctl restart sshd
@@ -502,13 +568,13 @@ systemctl restart sshd
 
 Clients, however, should now support `ED25519`, i.e. use:
 
-```bash
+```shell
 ssh-keygen -t ed25519 -C you@cars.be
 ```
 
 If you now connect with:
 
-```bash
+```shell
 ssh -v root@192.168.1.68
 ```
 
@@ -526,7 +592,7 @@ debug1: Will attempt key: /home/you/.ssh/id_dsa
 
 To conclude, the server decides about the security of the keys used by the client, therefore, we will configure all sshd daemons for `ED25519`:  
 
-```bash
+```shell
 ansible-playbook sshdserver_setup.yml -i hosts --user root -K -vvv
 ```
 
@@ -534,19 +600,19 @@ ansible-playbook sshdserver_setup.yml -i hosts --user root -K -vvv
 
 ### Stopping Proxmox VM(s)
 
-```bash
+```shell
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop -vvv
 ```
 
 ### Starting Proxmox VM(s)
 
-```bash
+```shell
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_start -vvv
 ```
 
 if necessary, you can restart with
 
-```bash
+```shell
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
 ```
 
@@ -554,7 +620,7 @@ ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_restart -vvv
 
 Before removing a Proxmox VM, first stop the Proxmox VM, so execute the [stopping proxmox](#stopping-proxmox-vms) command or add tag vm_stop before the *vm_remove* tag in the following command:
 
-```bash
+```shell
 ansible-playbook proxmox_ubuntu_vm-setup.yml -K --tags=vm_stop,vm_remove -vvv
 ```
 
@@ -570,7 +636,7 @@ In the drawing above, REDIS was added explicitely to stress the impact of the di
 
 ### Install REDIS
 
-```bash
+```shell
 ansible-playbook redis.yml -i hosts -K -vvv
 ```
 
@@ -578,7 +644,7 @@ ansible-playbook redis.yml -i hosts -K -vvv
 
 :fire: If you get an error like
 
-```bash
+```shell
  "msg": "Unable to start service redis-server: Job for redis-server.service failed because the control process exited with error code.\nSee \"systemctl status redis-server.service\" and \"journalctl -xe\" for details.\n"
 ```
 
@@ -590,7 +656,7 @@ after running the redis playbook, you probably forgot to `source .env`.
 
 `ABP` supports [IdentityServer4](https://github.com/IdentityServer/IdentityServer4) and [OpenIddict](https://github.com/openiddict/openiddict-core). As the `ABP` startup templates support *OpenIddict* since *ABP v6.0.0* we will only support `OpenIddict`.  
 
-```bash
+```shell
 ansible-playbook authentication.yml -i hosts -K -vvv
 ```
 
@@ -600,13 +666,13 @@ After installing the authentication server, you can request a client credentials
 
 ### Install REST API
 
-```bash
+```shell
 ansible-playbook abprestapi.yml -i hosts -K -vvv
 ```
 
 The *REST API* contains a custom metric and controller, open the *REST API* interface (`Swagger`) and call `/api/car/increment` to increment the custom metric. If you'd like to monitor this metric in real-time, *SSH* into the [HTTP server](./playbooks/hosts) and run:  
 
-```bash
+```shell
 #if nessary, install dotnet-counters
 #dotnet tool install --global dotnet-counters
 dotnet-counters monitor --name Be.Cars.HttpApi.Host --counters Be.Cars.Metrics.CustomMetrics
@@ -616,7 +682,7 @@ dotnet-counters monitor --name Be.Cars.HttpApi.Host --counters Be.Cars.Metrics.C
 
 ### Install NGINX Proxy
 
-```bash
+```shell
 ansible-playbook nginx.yml -i hosts -K -vvv
 ```
 
@@ -624,13 +690,13 @@ ansible-playbook nginx.yml -i hosts -K -vvv
 
 ### Install SQL Server
 
-```bash
+```shell
 ansible-playbook mssql.yml -i hosts -K -vvv
 ```
 
 After installing your DB server, you can SSH into the machine and open an SQL shell with (assuming you use password `p@55w0rD`):
 
-```bash
+```shell
 sqlcmd -S 127.0.0.1 -U sa -P p@55w0rD -C
 ```
 
@@ -640,7 +706,7 @@ sqlcmd -S 127.0.0.1 -U sa -P p@55w0rD -C
 
 For this project, we will host the application (Blazor application) on [Kestrel](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-7.0). `Kestrel` is automatically included by publishing the application.
 
-```bash
+```shell
 ansible-playbook webserver.yml -i hosts -K -vvv
 ```
 
@@ -667,7 +733,7 @@ As illustrated in the figure above, Prometheus is configured with the metrics en
 
 #### Install Prometheus server
 
-```bash
+```shell
 ansible-playbook prometheus.yml -i hosts -K -vvv
 ```
 
@@ -694,7 +760,7 @@ You can also use the [OpenTelemetry Collector](https://opentelemetry.io/docs/col
 
 #### Install InfluxDB
 
-```bash
+```shell
 ansible-playbook otelcollector.yml -i hosts -K -vvv
 ```
 
@@ -704,7 +770,7 @@ After installing, open the UI on `http://{{ groups['otlp_controller'][0] }}:8086
 
 #### Install Grafana server
 
-```bash
+```shell
 ansible-playbook grafana.yml -i hosts -K -vvv
 ```
 
