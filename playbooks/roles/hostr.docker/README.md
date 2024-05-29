@@ -57,7 +57,7 @@ This role was created by [Bart](https://engine27.be).
 
 ## TODO
 
-`docker_users`
+* check for empty variables
 
 ## Known Issues
 
