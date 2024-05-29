@@ -1,38 +1,84 @@
-Role Name
-=========
+I have extracted your Ansible Docker role. Based on the standard Ansible role structure and the contents of the extracted files, here is a suggested `README.md` for your role:
 
-A brief description of the role goes here.
+```markdown
+# hostr.docker
 
-Requirements
-------------
+## Overview
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This Ansible role installs and configures Docker on a target host. It ensures that Docker is installed, configured with appropriate settings, and that the service is enabled and running.
 
-Role Variables
---------------
+## Requirements
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+This role requires the target host to be a supported Ubuntu distribution with access to the internet for package installations.
 
-Dependencies
-------------
+## Role Variables
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+The following variables are available for this role and can be customized to suit your needs. Default values are set in `defaults/main.yml`.
 
-Example Playbook
-----------------
+```yaml
+# defaults/main.yml
+docker_users: []
+docker_daemon_options:
+  {
+    "log-driver": "json-file",
+    "log-opts": {
+      "max-size": "100m"
+    }
+  }
+docker_package_state: present
+docker_service_state: started
+docker_service_enabled: true
+```
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+http_proxy: "{{ lookup('ansible.builtin.env', 'HTTP_PROXY') }}"
+https_proxy: "{{ lookup('ansible.builtin.env', 'HTTPS_PROXY') }}"
+no_proxy: "{{ lookup('ansible.builtin.env', 'NO_PROXY') }}"
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+docker_default_address_pools_base: 172.17.0.0/16
+docker_default_address_pools_size: 20
+docker_log_driver: json-file
+docker_log_opts_max_size: 200m
+docker_log_opts_max_file: 5
 
-License
--------
+| Variable                | Default Value                                                              | Description                                           |
+|-------------------------|----------------------------------------------------------------------------|-------------------------------------------------------|
+| `http_proxy`            | `[]`                                                                       | HTTP proxy used by docker.                            |
+| `https_proxy`           | `[]`                                                                       | HTTPS proxy used by docker.                           |
+| `no_proxy`              | `[]`                                                                       | Do not use proxy.                                     |
+| `docker_default_address_pools_base` | `[]`                                                           | The IP subnet to choose Docker container IP address from. |
+| `docker_default_address_pools_size` | `[]`                                                           | The size of the IP subnet.                            |
+| `docker_log_driver`     | `[]`                                                                       | The Docker log driver.                                |
+| `docker_log_opts_max_size`          | `[]`                                                           | The maximum size of a Docker log file                 |
+| `docker_log_opts_max_file`          | `[]`                                                           | The maximum number of log files                       |
+| `docker_users`          | `[]`                                                                       | List of users to be added to the `docker` group.      |
 
-BSD
+## Dependencies
 
-Author Information
-------------------
+This role has no dependencies on other roles.
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## Example Playbook
+
+Below is an example of how to use this role in a playbook:
+
+```yaml
+- name: Install and configure Docker
+  hosts: all
+  become: true
+  roles:
+    - role: hostr.docker
+      vars:
+        docker_users:
+          - user1
+          - user2
+        docker_log_driver: json-file
+        docker_log_opts_max_size: 200m
+        docker_log_opts_max_file: 5
+```
+
+## License
+
+MIT
+
+## Author Information
+
+This role was created by [Bart](https://engine27.be).
