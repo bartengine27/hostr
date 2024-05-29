@@ -22,7 +22,7 @@ The following variables are available for this role and can be customized to sui
 | `docker_log_driver`     | ``                 |  json-file                                           | The Docker log driver.                                |
 | `docker_log_opts_max_size`          | ``     |  200m                                                | The maximum size of a Docker log file                 |
 | `docker_log_opts_max_file`          | ``     |  5                                                   | The maximum number of log files                       |
-| `docker_users`          | ``                 |  - user1 - user2                                     | List of users to be added to the `docker` group.      |
+| `docker_users`          | ``                 |    - name: user1 <br/> pubkey: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIID42JAWkOxmP1WjuVVPNLeqsEq3KiiSHlWALLd22u68 bart@engine27.be <br/> - name: user2 <br/> pubkey: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIID42JAWkOxmP1WjuVVPNLeqsEq3KiiSHlWALLd22u68 bart@engine27.be                                      | List of users to be added to the `docker` group.      |
 
 ## Dependencies
 
@@ -58,3 +58,7 @@ This role was created by [Bart](https://engine27.be).
 ## TODO
 
 `docker_users`
+
+## Known Issues
+
+* `sudo user1`: sudo: setrlimit(RLIMIT_CORE): Operation not permitted

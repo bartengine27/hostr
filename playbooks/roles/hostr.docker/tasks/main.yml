@@ -46,6 +46,32 @@
     group: root
     mode: '0644'
 
+- name: Add the users with a bash shell, appending the group 'docker' to the user's groups
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: /bin/bash
+    groups: docker
+    append: yes
+  loop: "{{ docker_users }}"
+
+- name: Create .ssh directory
+  ansible.builtin.file:
+    path: "/home/{{ item.name }}/.ssh"
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0700'
+  loop: "{{ docker_users }}"
+
+- name: Set authorized key for the new user
+  ansible.builtin.copy:
+    dest: "/home/{{ item.name }}/.ssh/authorized_keys"
+    content: "{{ item.pubkey }}"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0600'
+  loop: "{{ docker_users }}"  
+
 - name: Enable service docker, ensure it is not masked
   ansible.builtin.systemd:
     name: docker
