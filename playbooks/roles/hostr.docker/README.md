@@ -12,11 +12,6 @@ This role requires the target host to be a supported Ubuntu distribution with ac
 
 The following variables are available for this role and can be customized to suit your needs. Default values are set in `defaults/main.yml`: 
 
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
-
 | Variable                | Default Value                                                              | Description                                           |
 |-------------------------|----------------------------------------------------------------------------|-------------------------------------------------------|
 | `http_proxy`            | `[]`                                                                       | HTTP proxy used by docker.                            |
