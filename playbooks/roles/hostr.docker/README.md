@@ -12,17 +12,17 @@ This role requires the target host to be a supported Ubuntu distribution with ac
 
 The following variables are available for this role and can be customized to suit your needs. Default values are set in `defaults/main.yml`: 
 
-| Variable                | Default Value                                                              | Description                                           |
-|-------------------------|----------------------------------------------------------------------------|-------------------------------------------------------|
-| `http_proxy`            | `[]`                                                                       | HTTP proxy used by docker.                            |
-| `https_proxy`           | `[]`                                                                       | HTTPS proxy used by docker.                           |
-| `no_proxy`              | `[]`                                                                       | Do not use proxy.                                     |
-| `docker_default_address_pools_base` | `[]`                                                           | The IP subnet to choose Docker container IP address from. |
-| `docker_default_address_pools_size` | `[]`                                                           | The size of the IP subnet.                            |
-| `docker_log_driver`     | `[]`                                                                       | The Docker log driver.                                |
-| `docker_log_opts_max_size`          | `[]`                                                           | The maximum size of a Docker log file                 |
-| `docker_log_opts_max_file`          | `[]`                                                           | The maximum number of log files                       |
-| `docker_users`          | `[]`                                                                       | List of users to be added to the `docker` group.      |
+| Variable                | Default Value     | Example Value                                         | Description                                           |
+|-------------------------|-------------------|---------------------------------------------------------|-------------------------------------------------------|
+| `http_proxy`            | ``                 |  http://my_proxy:my_proxy_port/                      | HTTP proxy used by docker.                            |
+| `https_proxy`           | ``                 |  http://my_proxy:my_proxy_port/                      | HTTPS proxy used by docker.                           |
+| `no_proxy`              | ``                 |  localhost,127.0.0.0/8,you.local,registry.you.local  | Do not use proxy.                                     |
+| `docker_default_address_pools_base` | ``     |  172.17.0.0/16                                       | The IP subnet to choose Docker container IP address from. |
+| `docker_default_address_pools_size` | ``     |  20                                                  | The size of the IP subnet.                            |
+| `docker_log_driver`     | ``                 |  json-file                                           | The Docker log driver.                                |
+| `docker_log_opts_max_size`          | ``     |  200m                                                | The maximum size of a Docker log file                 |
+| `docker_log_opts_max_file`          | ``     |  5                                                   | The maximum number of log files                       |
+| `docker_users`          | ``                 |  - user1 - user2                                     | List of users to be added to the `docker` group.      |
 
 ## Dependencies
 
