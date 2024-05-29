@@ -15,31 +15,6 @@ This role requires the target host to be a supported Ubuntu distribution with ac
 
 The following variables are available for this role and can be customized to suit your needs. Default values are set in `defaults/main.yml`.
 
-```yaml
-# defaults/main.yml
-docker_users: []
-docker_daemon_options:
-  {
-    "log-driver": "json-file",
-    "log-opts": {
-      "max-size": "100m"
-    }
-  }
-docker_package_state: present
-docker_service_state: started
-docker_service_enabled: true
-```
-
-http_proxy: "{{ lookup('ansible.builtin.env', 'HTTP_PROXY') }}"
-https_proxy: "{{ lookup('ansible.builtin.env', 'HTTPS_PROXY') }}"
-no_proxy: "{{ lookup('ansible.builtin.env', 'NO_PROXY') }}"
-
-docker_default_address_pools_base: 172.17.0.0/16
-docker_default_address_pools_size: 20
-docker_log_driver: json-file
-docker_log_opts_max_size: 200m
-docker_log_opts_max_file: 5
-
 | Variable                | Default Value                                                              | Description                                           |
 |-------------------------|----------------------------------------------------------------------------|-------------------------------------------------------|
 | `http_proxy`            | `[]`                                                                       | HTTP proxy used by docker.                            |
@@ -82,3 +57,7 @@ MIT
 ## Author Information
 
 This role was created by [Bart](https://engine27.be).
+
+## TODO
+
+`docker_users`
