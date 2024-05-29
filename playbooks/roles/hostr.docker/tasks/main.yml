@@ -1,0 +1,63 @@
+---
+# tasks file for pza.docker - based on https://docs.docker.com/engine/install/ubuntu/
+- name: Install Docker dependencies
+  ansible.builtin.apt:
+    name:
+      - ca-certificates 
+      - curl
+    state: latest
+    update_cache: yes
+
+- name: Install keyring
+  ansible.builtin.shell: |
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null    
+
+- name: Install Docker
+  ansible.builtin.apt:
+    name: 
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io 
+      - docker-buildx-plugin 
+      - docker-compose-plugin
+    state: latest
+    update_cache: true
+
+- name: Install python pip
+  ansible.builtin.apt:
+    name: python3-pip
+    state: latest
+
+- name: Install python docker library modules
+  pip:
+    name: docker
+
+- name: Place docker daemon configuration file
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable service docker, ensure it is not masked
+  ansible.builtin.systemd:
+    name: docker
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+    state: restarted
+
+- name: Enable service containerd, ensure it is not masked
+  ansible.builtin.systemd:
+    name: containerd
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+    state: restarted

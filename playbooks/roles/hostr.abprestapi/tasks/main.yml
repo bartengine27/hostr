@@ -1,15 +1,15 @@
 - name: Install dependencies
-  apt:
+  ansible.builtin.apt:
     pkg:
       - gnupg
     state: latest
     update_cache: yes
 - name: Update repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: 'ppa:git-core/ppa'
     state: present   
 - name: Install git, pip3, etc.
-  apt:
+  ansible.builtin.apt:
     pkg: 
       - git
       - python3-pip
@@ -72,21 +72,21 @@
     owner: root
     group: root
 - name: Copy httpapiserver.service.j2 drop-in
-  template:
+  ansible.builtin.template:
     src: httpapiserver.service.j2
     dest: /etc/systemd/system/httpapiserver.service
     owner: root
     group: root
     mode: 0644
 - name: Copy appsettings.json
-  template:
+  ansible.builtin.template:
     src: httpapiserver.appsettings.json.j2
     dest: "{{ http_api_install_folder }}build/appsettings.{{ asp_net_core_environment }}.json"
     owner: root
     group: root
     mode: 0644
 - name: reload systemctl
-  command: systemctl daemon-reload
+  ansible.builtin.command: systemctl daemon-reload
 - name: Make sure a service unit is running
   ansible.builtin.systemd_service:
     #start after reboot

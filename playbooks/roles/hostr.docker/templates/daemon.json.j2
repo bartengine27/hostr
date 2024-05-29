@@ -1,0 +1,20 @@
+{
+  "log-driver": "{{ docker_log_driver }}",  
+  "log-opts": 
+  {
+    "max-size": "{{ docker_log_opts_max_size }}",
+    "max-file": "{{ docker_log_opts_max_file }}"
+  },
+  "default-address-pools": [
+    {
+      "base": "{{ docker_default_address_pools_base }}",
+      "size": {{ docker_default_address_pools_size }}
+    }
+  ],
+  "proxies":
+  {
+    "http-proxy": "{{ http_proxy }}",
+    "https-proxy": "{{ https_proxy }}",
+    "no-proxy": "{{ no_proxy }}"
+  }
+}
