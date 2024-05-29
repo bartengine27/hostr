@@ -1,6 +1,3 @@
-I have extracted your Ansible Docker role. Based on the standard Ansible role structure and the contents of the extracted files, here is a suggested `README.md` for your role:
-
-```markdown
 # hostr.docker
 
 ## Overview
@@ -13,7 +10,12 @@ This role requires the target host to be a supported Ubuntu distribution with ac
 
 ## Role Variables
 
-The following variables are available for this role and can be customized to suit your needs. Default values are set in `defaults/main.yml`.
+The following variables are available for this role and can be customized to suit your needs. Default values are set in `defaults/main.yml`: 
+
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
 
 | Variable                | Default Value                                                              | Description                                           |
 |-------------------------|----------------------------------------------------------------------------|-------------------------------------------------------|
