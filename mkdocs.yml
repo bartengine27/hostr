@@ -1,0 +1,86 @@
+site_name: hostr Documentation
+
+docs_dir: .
+site_dir: ./docs/site
+
+nav:
+  - Home: 
+    - Welcome: ./docs/index.md
+    - Repository Introduction: ./docs/repositoryintroduction.md
+    - Setup Instructions: ./docs/setupinstructions.md
+    - Detailed Prerequisites: ./docs/detailedprerequisites.md
+    - Proxmox: ./docs/proxmox.md
+    - Redis: ./docs/redis.md    
+    - Authentication Server: ./docs/authenticationserver.md
+    - REST API: ./docs/restapi.md
+    - Proxy: ./docs/proxy.md
+    - Database: ./docs/database.md
+    - Web Server: ./docs/webserver.md
+    - Application Performance Monitoring: ./docs/applicationperformancemonitoring.md
+    - Certificate Authority: ./docs/certificateauthority.md
+    - HTTPS Offloading: ./docs/httpsoffloading.md
+    - References: ./docs/references.md
+    - TODO: ./docs/todo.md
+  - Roles: 
+    - ABP REST API: ./playbooks/roles/hostr.abprestapi/README.md
+    - Authentication Server: ./playbooks/roles/hostr.authentication/README.md
+    - Certificate Authority: ./playbooks/roles/hostr.ca/README.md
+    - Certificate Authority Client: ./playbooks/roles/hostr.caclient/README.md
+    - Grafana: ./playbooks/roles/hostr.grafana/README.md
+    - Known External Hosts: ./playbooks/roles/hostr.knownexternalhosts/README.md
+    - Known VM Hosts: ./playbooks/roles/hostr.knownvmhosts/README.md
+    - MS SQLServer: ./playbooks/roles/hostr.mssql/README.md
+    - NGINX: ./playbooks/roles/hostr.nginx/README.md
+    - OTEL Collector: ./playbooks/roles/hostr.otelcollector/README.md
+    - Prometheus: ./playbooks/roles/hostr.prometheus/README.md
+    - Proxmox: ./playbooks/roles/hostr.proxmox/README.md
+    - Redis: ./playbooks/roles/hostr.redis/README.md
+    - SSHD: ./playbooks/roles/hostr.sshd/README.md
+    - Web Server: ./playbooks/roles/hostr.webserver/README.md
+    - Wireguard: ./playbooks/roles/hostr.wireguard/README.md
+  - About: ./docs/about.md
+
+plugins:
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - same-dir
+
+theme:
+  name: material  
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    # - content.footnote.tooltips
+    # - content.tabs.link
+    - content.tooltips
+    # - header.autohide
+    # - navigation.expand
+    - navigation.footer
+    # - navigation.indexes
+    # - navigation.instant
+    # - navigation.instant.prefetch
+    # - navigation.instant.progress
+    # - navigation.prune
+    # - navigation.sections
+    # - navigation.tabs
+    # - navigation.tabs.sticky
+    # - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    #- toc.follow
+  # Don't include MkDocs' JavaScript - no search box if you do enable
+  include_search_page: false
+  search_index_only: true    
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
