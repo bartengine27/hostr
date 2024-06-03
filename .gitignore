@@ -173,3 +173,6 @@ diagrams.md
 playbooks/privatekey
 playbooks/publickey
 playbooks/nginx.p12
+
+#mkdocs
+docs/site/
