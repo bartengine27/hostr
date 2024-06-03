@@ -4,7 +4,7 @@ Before running the Ansible playbooks, ensure that you have the following:
 
 * Ansible installed on your local machine or a control node.
 * Sufficient privileges to manage the systems designated in your inventory.
-* Machines (VMs, containers, or bare metal) defined in your [hosts file](./playbooks/hosts) and accessible over your network.
+* Machines (VMs, containers, or bare metal) defined in your [hosts file](./../playbooks/hosts) and accessible over your network.
 
 ### Running the Playbooks
 
@@ -17,7 +17,7 @@ To deploy the roles listed above, follow these steps:
    Ensure that your `hosts` file in the `./playbooks` directory is updated to reflect the infrastructure where you want to deploy the roles.
 
 3. **Configure role variables**
-   Default variables are provided for all roles in `role_folder/defaults/vars.yml` and initialized by reading environment variables. Example environment variables are [available](./example.env).
+   Default variables are provided for all roles in `role_folder/defaults/vars.yml` and initialized by reading environment variables. Example environment variables are [available](./../example.env).
 
 4. **Execute the Ansible Playbook:**
    Run the following command to start the deployment process. This command will prompt you for your sudo password for the hosts defined in the inventory due to the `-K` flag and provide detailed output with the `-vvv` verbosity level.

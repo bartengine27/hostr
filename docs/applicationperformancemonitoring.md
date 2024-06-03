@@ -58,6 +58,6 @@ After installing, open the UI on `http://{{ groups['otlp_controller'][0] }}:8086
 ansible-playbook grafana.yml -i hosts -K -vvv
 ```
 
-After installing *Grafana*, you can browse to the *Grafana* endpoint (check the *Grafana* endpoint in [hosts](./playbooks/hosts)) and open the `ASP .NET Core` dashboard: 
+After installing *Grafana*, you can browse to the *Grafana* endpoint (check the *Grafana* endpoint in [hosts](./../playbooks/hosts)) and open the `ASP .NET Core` dashboard: 
 
 ![ASP .NET Core dashboard](./ASP.NET%20Core%20metrics.png)

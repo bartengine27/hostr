@@ -38,6 +38,7 @@ nav:
     - SSHD: ./playbooks/roles/hostr.sshd/README.md
     - Web Server: ./playbooks/roles/hostr.webserver/README.md
     - Wireguard: ./playbooks/roles/hostr.wireguard/README.md
+  - Contributing: ./docs/contributing.md
   - About: ./docs/about.md
 
 plugins:

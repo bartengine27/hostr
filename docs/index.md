@@ -45,9 +45,9 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 ```
 
-Typically, you can find the configuration settings in a [configuration section](https://squidfunk.github.io/mkdocs-material/reference/diagrams/) on the [Material for MkDocs documentation site](https://squidfunk.github.io/mkdocs-material/).  
+Typically, you can find the configuration settings in a [configuration section](https://squidfunk.github.io/mkdocs-material/reference/diagrams/) on the [Material for MkDocs documentation site](https://squidfunk.github.io/mkdocs-material/).   
 
-Check the [mkdocs](./mkdocs.yml) file for more plugin/extension examples.
+Check the [mkdocs](../mkdocs.yml) file for more plugin/extension examples.
 
 ## Project layout
 

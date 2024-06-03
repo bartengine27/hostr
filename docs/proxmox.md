@@ -4,7 +4,7 @@ As far as I know, *Ansible* is not necessarily the tool of choice to setup *VM*s
 
 *Ansible* Uses an `inventory` to define the machines (*ip addresses*) and machine roles to install/setup your software infrastructure. As we start with a clean install (no existing *VM*s), it is rather difficult to define an `inventory`.  
 
-Therefore, we start with a play [proxmox](./playbooks/proxmox.yml) which uses [role](./playbooks/roles/hostr.proxmox/) and [vars file](./playbooks/roles/hostr.proxmox/vars/main.yml) defining the *inventory*, for example:
+Therefore, we start with a play [proxmox](./../playbooks/proxmox.yml) which uses [role](./../playbooks/roles/hostr.proxmox/README.md) and [vars file](./../playbooks/roles/hostr.proxmox/vars/main.yml) defining the *inventory*, for example:
 
 ```yml
 proxmox_vms:
@@ -24,11 +24,11 @@ proxmox_vms:
 
 On the other hand, it is probably wise to structure/group *ip addresses* and *vm id*s under `group:` which is more aligned with an *Ansible inventory* (and easier to maintain). :fire: That's for another version.  
 
-After running the [proxmox](./playbooks/proxmox.cars.be/) play, we can use the initialized *VM*s as defined in the [vars file](./playbooks/proxmox.cars.be/vars/main.yml) as the basis for the *Ansible* `ìnventory`.  
+After running the [proxmox](./../playbooks/proxmox.yml) play, we can use the initialized *VM*s as defined in the [vars file](./../playbooks/roles/hostr.proxmox/vars/main.yml) as the basis for the *Ansible* `ìnventory`.  
 
-Running the [proxmox](./playbooks/proxmox.yml) play is detailed in [Uploading templates](#uploading-proxmox-vms-templates) and [Installing VMs on Proxmox](#installing-proxmox-vms).  
+Running the [proxmox](./../playbooks/proxmox.yml) play is detailed in [Uploading templates](#uploading-proxmox-vms-templates) and [Installing VMs on Proxmox](#installing-proxmox-vms).  
 
-:fire: The [hosts](./playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./playbooks/hosts) file is not generated from the [proxmox](./playbooks/proxmox.yml) play, it is probably a good idea to change that in future versions.  
+:fire: The [hosts](./../playbooks/hosts) file contains the `inventory` for the other *Ansible* plays. :fire: At this moment, the [hosts](./../playbooks/hosts) file is not generated from the [proxmox](./../playbooks/proxmox.yml) play, it is probably a good idea to change that in future versions.  
 
 ### Uploading Proxmox VM(s) templates
 
