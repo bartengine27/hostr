@@ -1,0 +1,6 @@
+---
+- name: SQLServer setup playbook
+  hosts: database
+  remote_user: root   
+  roles:
+     - hostr.mssql

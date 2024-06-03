@@ -1,0 +1,6 @@
+- name: Deploy the Prometheus Servers
+  hosts: prometheus  
+  remote_user: root
+  roles:
+    - prometheus.prometheus.prometheus
+    - hostr.prometheus

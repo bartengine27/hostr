@@ -1,0 +1,9 @@
+[Interface]
+Address = {{ vpn_network }}
+ListenPort = {{ wireguard_port }}
+PrivateKey = {{ server_private_key }}
+
+# Client (Your Desktop)
+[Peer]
+PublicKey = {{ server_public_ip }}
+AllowedIPs = 10.0.0.2/32, 192.168.1.0/16

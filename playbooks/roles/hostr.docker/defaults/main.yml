@@ -1,0 +1,16 @@
+---
+# defaults file for hostr.docker
+http_proxy: "{{ lookup('ansible.builtin.env', 'HTTP_PROXY') }}"
+https_proxy: "{{ lookup('ansible.builtin.env', 'HTTPS_PROXY') }}"
+no_proxy: "{{ lookup('ansible.builtin.env', 'NO_PROXY') }}"
+
+docker_default_address_pools_base: 172.17.0.0/16
+docker_default_address_pools_size: 20
+docker_log_driver: json-file
+docker_log_opts_max_size: 200m
+docker_log_opts_max_file: 5
+docker_users: 
+  - name: user1
+    pubkey: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIID42JAWkOxmP1WjuVVPNLeqsEq3KiiSHlWALLd22u68 bart@engine27.be 
+  - name: user2  
+    pubkey: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIID42JAWkOxmP1WjuVVPNLeqsEq3KiiSHlWALLd22u68 bart@engine27.be 

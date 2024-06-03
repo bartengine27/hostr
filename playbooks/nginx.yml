@@ -1,0 +1,7 @@
+- name: Deploy the NGINX Servers
+  hosts: proxy
+  #become: yes
+  remote_user: root       
+  roles:
+    - geerlingguy.certbot
+    - hostr.nginx

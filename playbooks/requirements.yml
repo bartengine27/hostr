@@ -1,0 +1,21 @@
+---
+roles:
+  # to install redis
+  - name: geerlingguy.redis
+    type: galaxy
+    source: https://github.com/geerlingguy/ansible-role-redis
+  # to use Let's Encrypt
+  - name: geerlingguy.certbot
+    type: galaxy
+    source: https://github.com/geerlingguy/ansible-role-certbot
+  # to install dotnet    
+  - name: ppst0.dotnet
+    type: galaxy
+    source: https://github.com/ppst0/ansible-role-dotnet
+
+collections:  
+  - prometheus.prometheus  
+  - grafana.grafana
+  - name: community.grafana
+    version: 1.8.0
+  - community.crypto  

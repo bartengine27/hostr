@@ -1,0 +1,7 @@
+---
+- name: Deploy the Web Servers
+  hosts: webserver
+  remote_user: root  
+  roles:
+    - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
+    - hostr.webserver

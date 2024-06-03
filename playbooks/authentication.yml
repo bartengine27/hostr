@@ -1,0 +1,8 @@
+---
+- name: Deploy the Authentication Servers
+  hosts: identity_server
+  #become: yes
+  remote_user: root
+  roles:
+     - { role: ppst0.dotnet, dotnet_package: "{{ dotnet_sdk }}" }
+     - hostr.authentication

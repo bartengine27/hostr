@@ -1,0 +1,107 @@
+---
+- name: Install dependencies
+  apt:
+    pkg:
+      - gnupg
+    state: latest
+    update_cache: yes
+- name: Update repository
+  apt_repository:
+    repo: 'ppa:git-core/ppa'
+    state: present
+- name: Install git, pip3, etc.
+  apt:
+    pkg: 
+      - git
+      - python3-pip
+    state: present
+    update_cache: yes        
+- name: Install cryptography python package, necessary to generate certificates with ansible
+  ansible.builtin.pip:
+    name: cryptography
+- name: Install the ABP CLI tool
+  ansible.builtin.shell: |
+    dotnet tool install -g Volo.Abp.Cli        
+- name: "Clone the source code"
+  ansible.builtin.git:
+    repo: "{{ webserver_public_repo }}"
+    dest: "{{ webserver_install_folder }}"
+    clone: yes
+    update: yes
+    depth: 1
+#https://docs.ansible.com/ansible/latest/collections/community/crypto/docsite/guide_selfsigned.html
+#https://computingforgeeks.com/generate-openssl-self-signed-certificates-with-ansible/
+#TODO don't use firefox for now, install our own CA - see stack overflow link below for a summary
+#https://stackoverflow.com/questions/59738140/why-is-firefox-not-trusting-my-self-signed-certificate
+#TODO remove hard coded password
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
+    path: "{{webserver_install_folder }}certificate.key"
+    format: "pkcs8"
+    passphrase: cars.be
+    cipher: auto
+- name: Create a self-signed certificate
+  community.crypto.x509_certificate:
+    path: "{{webserver_install_folder }}certificate.pem"
+    privatekey_path: "{{webserver_install_folder }}certificate.key"
+    privatekey_passphrase: cars.be
+    provider: selfsigned
+# dotnet build the.sln -c Release
+# dotnet test -c Release --no-build
+# dotnet publish the\app.csproj --no-build -c Release
+# ASPNETCORE_URLS=http://*:5000 ./Be.Cars.Blazor -> check the systemctl service file
+- name: "Publish the Webserver-Blazor project"
+  ansible.builtin.shell: |                
+    mkdir "{{ webserver_install_folder }}"build
+    cd "{{ webserver_install_folder }}"
+    rm -Rf "{{ webserver_install_folder }}"build
+    dotnet clean "{{ abp_project_name }}".sln
+    /root/.dotnet/tools/abp install-libs
+    dotnet build -c Release  --self-contained false "{{ abp_project_name }}".sln
+    dotnet publish  src/"{{ abp_project_name }}".Blazor/"{{ abp_project_name }}".Blazor.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
+    dotnet publish  src/"{{ abp_project_name }}".DbMigrator/"{{ abp_project_name }}".DbMigrator.csproj -c Release --no-build -o "{{ webserver_install_folder }}"build
+  register: publish_webserver_result
+  retries: 5
+  delay: 10
+  until: publish_webserver_result.rc == 0             
+- name: Create the directory for the virtual file system (hard coded for now)
+  ansible.builtin.file:
+    path: "/webapp/{{ abp_project_name }}.Domain.Shared/"
+    state: directory
+    owner: root
+    group: root
+- name: Copy webserver_blazor.service drop-in
+  template:
+    src: webserver_blazor.service.j2
+    dest: /etc/systemd/system/webserver_blazor.service
+    owner: root
+    group: root
+    mode: 0644
+- name: Copy appsettings.json
+  template:
+    src: webserver.appsettings.json.j2
+    dest: "{{ webserver_install_folder }}build/appsettings.{{ asp_net_core_environment }}.json"
+    owner: root
+    group: root
+    mode: 0644
+- name: reload systemctl
+  command: systemctl daemon-reload
+- name: Make sure a service unit is running
+  ansible.builtin.systemd_service:
+    #start after reboot
+    enabled: true
+    #restart now so we don't have to reboot the machine
+    #restart and not start: if we were running before the daemon-reload, we have to restart to get the new config
+    state: restarted
+    name: webserver_blazor
+- name: "Run the DB migrator - uses appsettings.json by default"
+  ansible.builtin.shell: |   
+    cd {{webserver_install_folder}}build/
+    cp appsettings."{{ asp_net_core_environment }}".json appsettings.json
+    ./"{{ abp_project_name }}".DbMigrator 
+  environment:
+    ASPNETCORE_ENVIRONMENT: "{{ asp_net_core_environment }}"
+  register: db_migrator_result
+  retries: 5
+  delay: 10
+  until: db_migrator_result.rc == 0

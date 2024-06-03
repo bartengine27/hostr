@@ -1,0 +1,1662 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../setupinstructions/">
+      
+      
+        <link rel="next" href="../proxmox/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+    
+    
+      
+        <title>Detailed Prerequisites - hostr Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#proxmox-prerequisites" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="hostr Documentation" class="md-header__button md-logo" aria-label="hostr Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            hostr Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Detailed Prerequisites
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="hostr Documentation" class="md-nav__button md-logo" aria-label="hostr Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    hostr Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repositoryintroduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repository Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setupinstructions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Instructions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Detailed Prerequisites
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Detailed Prerequisites
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#proxmox-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proxmox prerequisites
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proxmox prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hyper-v-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hyper-V install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bare-metal-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bare metal install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#promox-api-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      Promox API user
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ansible-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ansible prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secrets prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ansible-role-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ansible role settings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gitssh-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Git/SSH prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proxmox-firewall-preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proxmox Firewall Preparation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bridges" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bridges
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Proxmox
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../redis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Redis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authenticationserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authentication Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../restapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    REST API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Proxy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Database
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Web Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../applicationperformancemonitoring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Application Performance Monitoring
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificateauthority/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Certificate Authority
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../httpsoffloading/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    HTTPS Offloading
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    References
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../todo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TODO
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Roles
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Roles
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.abprestapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ABP REST API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.authentication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authentication Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.ca/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Certificate Authority
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.caclient/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Certificate Authority Client
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.grafana/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Grafana
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.knownexternalhosts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Known External Hosts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.knownvmhosts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Known VM Hosts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.mssql/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MS SQLServer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.nginx/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NGINX
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.otelcollector/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OTEL Collector
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.prometheus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Prometheus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.proxmox/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Proxmox
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.redis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Redis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.sshd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SSHD
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.webserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Web Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.wireguard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Wireguard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#proxmox-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proxmox prerequisites
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proxmox prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hyper-v-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hyper-V install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bare-metal-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bare metal install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#promox-api-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      Promox API user
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ansible-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ansible prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secrets prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ansible-role-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ansible role settings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gitssh-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Git/SSH prerequisites
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proxmox-firewall-preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Proxmox Firewall Preparation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bridges" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bridges
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  <h1>Detailed Prerequisites</h1>
+
+<h3 id="proxmox-prerequisites">Proxmox prerequisites</h3>
+<p>If you'd like to deploy on Proxmox, first install Proxmox on a host. Your host is a bare metal machine or a virtual machine with nesting enabled. <a href="https://www.qemu.org/">Qemu</a> For instance, allows to nest VMs. <strong>TBC</strong>  </p>
+<p>Depending on your particular installation and/or test requirements, it may be relevant to configure an <em>DNS</em> server during the <em>Proxmox</em> installation: this will ensure that the machine running <em>Proxmox</em> (bare metal or VM) and the VMs running on <em>Proxmox</em> all are in the same subnet.</p>
+<p>In this document/config it is assumed that you will use the following domain(s):</p>
+<div class="highlight"><pre><span></span><code># the ip address of the machine that (will) run(s) your web site, for example the ip address of proxmox vm 100
+192.168.1.60 cars.be
+</code></pre></div>
+<p>Add the entries above in the hosts file on</p>
+<ul>
+<li>the machine running the Ansible installation scripts</li>
+<li>the clients you use to visit the web site</li>
+</ul>
+<p>If all has gone well, you should have (after running the <em>Ansible</em> scripts) a setup like:</p>
+<p><img alt="setup" src="../Proxmox%20setup.drawio.png" /></p>
+<h4 id="hyper-v-install">Hyper-V install</h4>
+<p>You can install Proxmox on Windows Hyper-V. Create the virtual machine with the standard procedure and execute the following command in Powershell</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Set-VMProcessor</span> <span class="n">-VMName</span> <span class="p">&lt;</span><span class="n">Name</span> <span class="n">of</span> <span class="n">your</span> <span class="n">Proxmox</span> <span class="n">VM</span><span class="p">&gt;</span> <span class="n">-ExposeVirtualizationExtensions</span> <span class="nv">$true</span>
+</code></pre></div>
+<p>to switch on Hyper-V's nested virtualization. Download and mount the Proxmox ISO, after booting, click in the VM screen and tap on Enter to start the install. If your install hangs at <code>Trying to detect country</code>, disable your internet connection and restart the installer.  </p>
+<p>After installing Proxmox on Hyper-V, you will notice that calling an endpoint on your Hyper-V VM from WSL2 doesn't work. Open the Hyper-V Manager and next the Virtual Switch Manager</p>
+<p><img alt="Switches" src="../wsl_hypervvm_switches.png" /></p>
+<p>and note the two different virtual switches. As documented <a href="https://techcommunity.microsoft.com/t5/itops-talk-blog/windows-subsystem-for-linux-2-addressing-traffic-routing-issues/ba-p/1764074">on</a> we need to enable forwarding across both virtual switches:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Get-NetIPInterface</span> <span class="p">|</span> <span class="nb">where </span><span class="p">{</span><span class="nv">$_</span><span class="p">.</span><span class="n">InterfaceAlias</span> <span class="o">-eq</span> <span class="s1">&#39;vEthernet (Default Switch)&#39;</span> <span class="o">-or</span> <span class="nv">$_</span><span class="p">.</span><span class="n">InterfaceAlias</span> <span class="o">-eq</span> <span class="s1">&#39;vEthernet (WSL (Hyper-V firewall))&#39;</span><span class="p">}</span> <span class="p">|</span> <span class="nb">Set-NetIPInterface</span> <span class="n">-Forwarding</span> <span class="n">Enabled</span>
+</code></pre></div>
+<p>Check setting forwarding with:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Get-NetIPInterface</span> <span class="p">|</span> <span class="nb">select </span><span class="n">ifIndex</span><span class="p">,</span><span class="n">InterfaceAlias</span><span class="p">,</span><span class="n">AddressFamily</span><span class="p">,</span><span class="n">ConnectionState</span><span class="p">,</span><span class="n">Forwarding</span> <span class="p">|</span> <span class="nb">Sort-Object</span> <span class="n">-Property</span> <span class="n">IfIndex</span> <span class="p">|</span> <span class="nb">Format-Table</span>
+</code></pre></div>
+<p>:fire: Note the <strong>vEthernet(...)</strong> in the IP interface aliases, if you are not sure about the aliases, first run</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Get-NetIPInterface</span>
+</code></pre></div>
+<p>:fire: This setting is disabled after rebooting!</p>
+<p>and check the second column.  </p>
+<p>Besides forwarding traffic between the (virtual) switches, you can also add a route which <em>routes</em> traffic destined for your Proxmox instance to the virtual switch used by your VM. In the network settings of your VM, you will have to use the IP address of your virtual switch as the gateway.</p>
+<p>For example, if the <em>IP address</em> of your VM is <code>172.18.60.44</code> and the <em>IP address</em> of your Hyper-V virtual switch used by your VM is <code>172.17.240.1</code>, you can route the traffic destined for your VM with:  </p>
+<div class="highlight"><pre><span></span><code>route<span class="w"> </span>-p<span class="w"> </span>add<span class="w"> </span><span class="m">172</span>.18.60.44<span class="w"> </span>MASK<span class="w"> </span><span class="m">255</span>.255.255.255<span class="w"> </span><span class="m">172</span>.17.240.1
+</code></pre></div>
+<p>the <code>-p</code> option ensures that the route will persist after a reboot. The <code>MASK</code> ensures that only the traffic for the VM is routed over the virtual switch. If you run several VMs, you may have to change the <code>MASK</code>.  </p>
+<p>Later on, you can remove this route with:</p>
+<div class="highlight"><pre><span></span><code>route<span class="w"> </span>-p<span class="w"> </span>delete<span class="w"> </span><span class="m">172</span>.18.60.44
+</code></pre></div>
+<p>You can get the IP address of your VM by executing the following command on your VM (open a VM connection in the Hyper-V Manager):</p>
+<div class="highlight"><pre><span></span><code>ip<span class="w"> </span>addr
+</code></pre></div>
+<p>and you get the IP address of your virtual switch by executing the following command on the Windows host:  </p>
+<div class="highlight"><pre><span></span><code>ipconfig
+</code></pre></div>
+<p>Look for the IP address of a switch with a name like <code>Ethernet adapter vEthernet (Default Switch)</code>.  </p>
+<p>:fire: Note that the host (the machine running Hyper-V) may change its IP address, it is the IP address of the VM and the IP address of the switch which have to be static in this setup.  </p>
+<p>After adding the route, you will need to change the gateway on your VM as the route defines how to forward traffic to the VM, the path for the return traffic (the replies) will be defined by the gateway. For Proxmox edit the following file on the VM:  </p>
+<div class="highlight"><pre><span></span><code>nano<span class="w"> </span>/etc/networks/interfaces
+</code></pre></div>
+<p>and change the gateway in the interfaces config, for example:  </p>
+<div class="highlight"><pre><span></span><code><span class="c1"># network interface settings; autogenerated</span>
+<span class="c1"># Please do NOT modify this file directly, unless you know what</span>
+<span class="c1"># you&#39;re doing.</span>
+<span class="c1">#</span>
+<span class="c1"># If you want to manage parts of the network configuration manually,</span>
+<span class="c1"># please utilize the &#39;source&#39; or &#39;source-directory&#39; directives to do</span>
+<span class="c1"># so.</span>
+<span class="c1"># PVE will preserve these directives, but will NOT read its network</span>
+<span class="c1"># configuration from sourced files, so do not attempt to move any of</span>
+<span class="c1"># the PVE managed interfaces into external files!</span>
+
+<span class="na">auto lo</span>
+<span class="na">iface lo inet loopback</span>
+
+<span class="na">iface eth0 inet manual</span>
+
+<span class="na">auto vmbr0</span>
+<span class="na">iface vmbr0 inet static</span>
+<span class="w">        </span><span class="na">address 172.18.60.44/16</span>
+<span class="w">        </span><span class="c1">#gateway 172.18.60.1</span>
+<span class="w">        </span><span class="na">gateway 172.17.240.1 # the ip address of your virtual switch</span>
+<span class="w">        </span><span class="na">bridge-ports eth0</span>
+<span class="w">        </span><span class="na">bridge-stp off</span>
+<span class="w">        </span><span class="na">bridge-fd 0</span>
+</code></pre></div>
+<p>Another option is setting up a <a href="https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/user-guide/setup-nat-network"><code>NAT</code></a>. As routing probably has the least impact, using routing is probably wise:  </p>
+<ul>
+<li>
+<p><strong>Minimal Configuration Changes</strong>: Unlike reconfiguring network settings on either the host or the VM, routing typically involves making changes at the network infrastructure level. Once set up, these routing configurations generally require minimal maintenance and do not impact the individual devices' network settings.</p>
+</li>
+<li>
+<p><strong>Supports Dynamic IP Assignment</strong>: Routing can accommodate scenarios where devices may obtain IP addresses dynamically, such as through DHCP. As long as routing configurations are properly set up, devices can communicate regardless of their assigned IP addresses.</p>
+</li>
+<li>
+<p><strong>Scalability</strong>: Routing allows for scalability and flexibility. It enables communication between devices across different subnets, in our case communication between the subnet of the Windows host and the subnet of the VM.</p>
+</li>
+<li>
+<p><strong>Isolation</strong>: Routing helps maintain network isolation between different segments, this is probably less relevant for this setup.</p>
+</li>
+<li>
+<p><strong>Centralized Management</strong>: Routing configurations are typically managed centrally, similar to isolation, less relevant for this setup.</p>
+</li>
+</ul>
+<h4 id="bare-metal-install">Bare metal install</h4>
+<p>Follow the default installation procedure <a href="https://www.proxmox.com/en/proxmox-virtual-environment/get-started">on</a>.</p>
+<h4 id="promox-api-user">Promox API user</h4>
+<p>Before using the Ansible scripts, you will need a Proxmox API user:</p>
+<ul>
+<li>Log into the Proxmox Web UI</li>
+<li>Select datacenter from the left menu</li>
+<li>Select users fromf the left sub-menu</li>
+<li>We will use the default root@pam user</li>
+<li>Select API tokens from the left sub-menu</li>
+<li>Click add</li>
+<li>User: root@pam</li>
+<li>Token ID: input a random string, for <a href="https://www.random.org/passwords/?num=1&amp;len=24&amp;format=plain&amp;rnd=new">example</a> and record the token ID</li>
+<li>record the token secret</li>
+</ul>
+<p>After adding the user and API token, select Datacenter and click on Permissions and Add API Token Permission. Choose</p>
+<ul>
+<li>Path: /</li>
+<li>API Token: root@pam<tokenID></li>
+<li>Role: Administrator</li>
+<li>Propagate: select</li>
+</ul>
+<h3 id="ansible-prerequisites">Ansible prerequisites</h3>
+<p>As we are using <a href="https://www.ansible.com/">Ansible</a> to automate our install and deploy, you will have to meet the following minimum requirements on the hosts which will run the <em>Ansible</em> scripts: <a href="https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_module.html">Ansible minimum requirements</a>.</p>
+<p>For this project, we will need some extra dependencies. Install the following <em>Ansible</em> role(s):</p>
+<div class="highlight"><pre><span></span><code>ansible-galaxy<span class="w"> </span>install<span class="w"> </span>geerlingguy.redis
+</code></pre></div>
+<p>:fire: Microsoft has an ansible SQL Server role which supports RHEL, as we use Ubuntu for now, the Microsoft Ansible SQL Server role is not usable.</p>
+<p>or write all dependencies to a <code>requirements.yml</code> file</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">roles</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">geerlingguy.redis</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">galaxy</span>
+<span class="w">    </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://galaxy.ansible.com</span>
+
+<span class="nt">collections</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># With just the collection name</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my_namespace.my_collection</span><span class="w">    </span>
+</code></pre></div>
+<p>and install with:</p>
+<div class="highlight"><pre><span></span><code>ansible-galaxy<span class="w"> </span>role<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.yml
+ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.yml
+</code></pre></div>
+<p>Add additional Python dependencies with:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>proxmoxer
+</code></pre></div>
+<h3 id="secrets-prerequisites">Secrets prerequisites</h3>
+<p>Secrets are stored in env variables in files</p>
+<ul>
+<li>.env</li>
+<li>.env.prod</li>
+<li>.env.acc</li>
+<li>.env.dev</li>
+</ul>
+<p>Keep your <em>PROD</em>, <em>ACC</em> and <em>DEV</em> secrets in the corresponding files and copy to <code>.env</code> before you start the ansible scripts. <code>source</code> .env Before executing your first Ansible script.</p>
+<p>:fire: Obviously, none of the <code>env</code> files belongs in your repo.</p>
+<p>Your <code>env</code> file should at least contain your public key to connect with ssh to the VMs:</p>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SSH_PUB_KEY</span><span class="o">=</span><span class="s2">&quot;ssh-rsa AAAAB.... your_name@your_machine&quot;</span>
+</code></pre></div>
+<p>If you are unsure about your public key, check <code>~/.ssh/id_rsa_pub</code>.</p>
+<h3 id="ansible-role-settings">Ansible role settings</h3>
+<p>Each role has its variables (settings) defind in <code>role_folder/defaults/main.yml</code>. Variables are read from env variables:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">project_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{{</span><span class="nv"> </span><span class="s">lookup(&#39;ansible.builtin.env&#39;,</span><span class="nv"> </span><span class="s">&#39;PROJECT_NAME&#39;)</span><span class="nv"> </span><span class="s">}}&quot;</span>
+</code></pre></div>
+<p>You can - as usual in Ansible - easily override the default variables.  </p>
+<h3 id="gitssh-prerequisites">Git/SSH prerequisites</h3>
+<p>When managing source code across virtual machines (VMs) on platforms like Proxmox, accessing source code from version control systems may have a security impact. A common practice involves cloning repositories using Git over SSH, authenticated via private SSH keys. However, storing private keys directly on VMs, especially those hosted on third-party servers, raises potential significant security risks. Instead, SSH agent forwarding emerges as a safer alternative.  </p>
+<p>SSH agent forwarding allows users to access a remote machine through SSH without placing private SSH keys on the server itself. Instead, the SSH authentication request is forwarded back to the user's local machine where the SSH agent resides. This means the private key is never exposed to the network or stored on the remote server, obviously enhancing security.</p>
+<p>You can setup SSH agent forwarding on your local machine with:</p>
+<ul>
+<li><strong>Enable SSH Agent on Local Machine</strong>: Before initiating a connection, ensure the SSH agent is running on your local machine and your private key is added. This can be done using:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nb">eval</span><span class="w"> </span><span class="k">$(</span>ssh-agent<span class="w"> </span>-s<span class="k">)</span><span class="w">  </span>
+<span class="c1"># note the full path, if you are using WSL and the windows agent (1password, etc.) you have to be explicit about &quot;which ssh config&quot; you are changing (Ansible does not use the 1password Windows agent)</span>
+/usr/bin/ssh-add<span class="w"> </span><span class="c1"># add all keys under ~/.ssh/</span>
+/usr/bin/ssh-add<span class="w"> </span>-l<span class="w"> </span><span class="c1"># list all keys</span>
+</code></pre></div>
+<ul>
+<li><strong>Configure SSH to Use Agent Forwarding</strong>: Modify the SSH configuration file (~/.ssh/config) on your local machine to enable agent forwarding. You can specify this globally or for specific hosts:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>Host<span class="w"> </span><span class="m">192</span>.168.1.*<span class="w">    </span>
+<span class="w">  </span>ForwardAgent<span class="w"> </span>yes
+</code></pre></div>
+<ul>
+<li><strong>Connect to the VM</strong>: Once configured, you can connect to the VM using SSH. The agent forwarding will carry your authentication from the local machine to the VM:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>/usr/bin/ssh-add<span class="w"> </span><span class="c1"># note the full path, if you are using WSL and the windows agent (1password, etc.) you have to be explicit about &quot;which ssh config&quot; you are changing (Ansible does not use the 1password Windows agent)</span>
+/usr/bin/ssh<span class="w"> </span>-v<span class="w"> </span>-T<span class="w"> </span>git@github.com
+<span class="c1">#Hi your_account! You&#39;ve successfully authenticated, but GitHub does not provide shell access.</span>
+/usr/bin/ssh<span class="w"> </span>root@192.168.1.60<span class="w"> </span><span class="c1"># SSH into your host, you can test this once your hosts are &quot;online and reachable&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$SSH_AUTH_SOCK</span><span class="w"> </span><span class="c1">#response should not be empty</span>
+<span class="c1">#/tmp/ssh-n9uZGGjGAC/agent.2806</span>
+ssh<span class="w"> </span>-v<span class="w"> </span>-T<span class="w"> </span>git@github.com<span class="w"> </span><span class="c1"># on your host, you probably are not using WSL and the windows agent  </span>
+<span class="c1">#Hi username You&#39;ve successfully authenticated, but GitHub does not provide shell access.</span>
+</code></pre></div>
+<ul>
+<li><strong>Clone Repository Using SSH on the VM</strong>: On the VM, use Git to clone the repository as usual. The SSH agent will authenticate using your local machine’s private key, as an example (will be executed in Ansible scripts):  </li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:user/repository.git
+</code></pre></div>
+<p>Some advantages of SSH agent forwarding:</p>
+<ul>
+<li><strong>Enhanced Security</strong>: The primary advantage is security. Your private SSH keys remain secure on your local machine, reducing the risk of exposure through VM compromise.</li>
+<li><strong>Ease of Use</strong>: Once set up, the process is transparent to the user. You can seamlessly authenticate to Git repositories without managing multiple keys on different VMs.</li>
+</ul>
+<p>Some drawbacks and potential considerations:</p>
+<ul>
+<li><strong>Security Risks with Misconfiguration</strong>: If not configured properly, SSH agent forwarding can expose your local SSH agent to remote machines, which could be a vector for an attack if the remote machine is compromised.</li>
+<li><strong>Dependency on Local Machine</strong>: Your local machine must be online and accessible whenever operations requiring SSH authentication are performed, potentially limiting flexibility.</li>
+<li><strong>Complex Setup</strong>: The initial setup requires understanding of SSH configurations and might be more complex compared to simply copying keys to servers.</li>
+</ul>
+<p>Some best practices:</p>
+<ul>
+<li><strong>Limit Forwarding</strong>: Only enable agent forwarding to trusted hosts to mitigate the risk of exposing your SSH agent to a compromised server.</li>
+<li><strong>Monitor Sessions</strong>: Keep an eye on active SSH sessions that utilize agent forwarding to ensure they are legitimate and necessary.</li>
+<li><strong>Security Hardening</strong>: Regularly update and patch both local and remote systems to protect against vulnerabilities.</li>
+</ul>
+<p>:fire: If your source code is hosted on a public repository, you can off course skip the steps above.  </p>
+<h3 id="proxmox-firewall-preparation">Proxmox Firewall Preparation</h3>
+<p>Before you can install a firewall, you have to make sure that at least one of your VMs an access the Internet, all
+other VMs on Proxmox have to be able to communicate with each other in a LAN only. No Internet connectivity is required for
+the "non firewall" VMs.  </p>
+<p>In order to arrange this setup, we will need two bridges:</p>
+<ul>
+<li>one bridge which will <em>bridge</em> the incoming Internet traffic to the firewall and vice-versa</li>
+<li>one bridge which will allow the VMs to communicate within a LAN</li>
+<li>the VMs within the LAN use the LAN IP address of the firewall as gateway to return traffic over the firewall/VPN</li>
+</ul>
+<p>A step-by-step guide to achieve this:</p>
+<ul>
+<li>You should have one existing bridge with a IPv4 which equals your public IP address (not the additional IP address)</li>
+<li>edit the MAC address of the network interface of the VM which has to access the Internet, enter the MAC address of the additional IP address</li>
+<li>Create a New Bridge for the Internal Network</li>
+<li>Log into Proxmox VE Web Interface: Open your browser and access the Proxmox VE web interface by navigating to your Proxmox server's IP address.  </li>
+<li>Navigate to 'System' -&gt; 'Network': Here you will see your current network configuration, including any bridges and physical interfaces.</li>
+<li>Create a New Bridge:<ul>
+<li>Click on "Create" and select "Linux Bridge".</li>
+<li>Give the bridge a meaningful name, like vmbr1 (assuming vmbr0 is your existing bridge for the internet connection).</li>
+<li>Assign it an IP address that fits within your internal network scheme (e.g., 192.168.1.1/16). If the Proxmox host doesn't need to communicate on this network, you may leave the IP address field empty.</li>
+<li>Leave the Gateway field empty (the existing bridge has a Gateway)</li>
+<li>Ensure the "Autostart" option is checked.</li>
+<li>Leave the "Bridge ports" field empty if this bridge is for internal VM communication only.</li>
+<li>Click "Create".</li>
+</ul>
+</li>
+<li>Attach a Second Network Interface to Your VM</li>
+<li>Select Your VM: In the Proxmox web interface, go to the "Server View", find the VM you want to configure, and click on it.</li>
+<li>Add Network Device:<ul>
+<li>With the VM selected, go to the "Hardware" tab.</li>
+<li>Click "Add" and choose "Network Device".</li>
+<li>For "Model", you can choose "VirtIO (paravirtualized)" for better performance or "e1000" for broader compatibility.</li>
+<li>Under "Bridge", select the new bridge you created (vmbr1).</li>
+<li>Click "Add".</li>
+</ul>
+</li>
+<li>Configure the Operating System Inside the VM: After attaching the second network interface, you need to configure the operating system inside the VM to use this new interface.  </li>
+<li>Access Your VM: Log into your VM via the Proxmox console or SSH.</li>
+<li>Identify the New Interface: Run ip a or ifconfig to list your network interfaces. You should see a new one (likely named eth1 or similar).</li>
+<li>Configure the Network Interface: You'll need to edit the network configuration file or use a network manager to configure the interface. The exact steps vary depending on your Linux distribution, for Ubuntu:</li>
+</ul>
+<div class="highlight"><pre><span></span><code># /etc/network/interfaces - create the file if it does not exist
+auto eth1
+iface eth1 inet static
+    address 192.168.1.x
+    netmask 255.255.0.0
+    gateway 192.168.1.1
+</code></pre></div>
+<p>For pfSense, you don't need to edit /etc/network/interfaces or /etc/netplan/..., it is sufficient to add the second network interface and assign its IP address in the pfSense UI.
+* Restart the Network Service or the VM to apply changes.  </p>
+<h3 id="bridges">Bridges</h3>
+<p>The terms <em>bridge</em> and <em>switch</em> are often used interchangeably in the context of networking, but they refer to devices that operate at the data link layer (Layer 2) of the OSI model.  </p>
+<p>A bridge in Proxmox (or any other virtualization platform) is conceptually closer to a physical switch than to a traditional physical bridge in terms of its functionality and use case. Here's why:</p>
+<ul>
+<li>
+<p>Virtual Bridges and Physical Switches: Similarities</p>
+</li>
+<li>
+<p><strong>Multiple Connections</strong>: Both virtual bridges in Proxmox and physical switches are designed to connect multiple devices (or virtual machines/containers in the case of Proxmox) within a network. They allow for the creation of network segments that can communicate internally and externally.</p>
+</li>
+<li><strong>Traffic Management</strong>: Like a physical switch, a virtual bridge can manage and forward traffic between its connected interfaces based on MAC addresses, efficiently directing packets to their intended destinations within the virtual network or to external networks. </li>
+<li>
+<p><strong>Advanced Networking Features</strong>: While not as feature-rich as some high-end physical switches, virtual bridges in Proxmox can still offer several advanced networking features, such as VLAN tagging, which is a hallmark of switch capabilities.</p>
+</li>
+<li>
+<p>Differences from Physical Bridges</p>
+</li>
+<li>
+<p><strong>Functionality</strong>: Traditional physical bridges were primarily used to connect two network segments, with a focus on reducing collision domains and managing traffic between these segments. While a Proxmox bridge can perform a similar role in a virtual environment, it more closely mirrors the multiport, multipurpose functionality of switches by allowing numerous virtual machines and containers to connect to various networks.</p>
+</li>
+<li>
+<p><strong>Port Density</strong>: Physical bridges typically have a very limited number of ports (often just two), akin to the simplest form of segmentation. In contrast, a virtual bridge in Proxmox can handle connections from numerous VMs and containers simultaneously, much like a physical switch with many ports.</p>
+</li>
+<li>
+<p>Use in Virtualization</p>
+</li>
+<li>
+<p><strong>Network Virtualization</strong>: Virtual bridges play a crucial role in network virtualization, providing a platform for VMs and containers to communicate as if they were connected to a physical switch. This is essential for creating complex virtual network topologies that resemble physical network infrastructures.</p>
+</li>
+<li><strong>Flexibility and Scalability</strong>: In virtual environments, bridges offer a level of flexibility and scalability that is more characteristic of switches. Administrators can dynamically adjust network configurations, add or remove VMs from networks, and implement security policies or VLANs without needing physical hardware changes.</li>
+</ul>
+<p>In summary, while the terminology may suggest a direct analogy to physical bridges, in practice, the role of a bridge in Proxmox and other virtualized environments aligns more closely with the functionalities of a physical switch, especially concerning its ability to connect multiple devices and manage network traffic efficiently within a virtualized networking context.</p>
+<p>For our setup, that becomes:</p>
+<pre class="mermaid"><code>graph TB
+  subgraph Internet
+  end
+  subgraph Proxmox
+    direction TB
+
+    subgraph vmbr0 [vmbr0&lt;br&gt;Public IPv4: 37.187.28.32&lt;br&gt;Gateway: 37.187.28.254]
+
+    end
+
+    subgraph VM500 [VM 500 - PfSense]
+      direction TB
+      eth0(eth0&lt;br&gt;MAC Additional IP)
+      eth1(eth1&lt;br&gt;IP: 192.168.1.51)
+      eth0 &lt;--firewall--&gt; eth1
+    end
+
+    subgraph vmbr1 [vmbr1&lt;br&gt;LAN Subnet: 192.168.1.1/16&lt;br&gt;Gateway: 192.168.1.51]
+
+    end       
+
+    subgraph LAN [LAN Subnet: 192.168.1.1/16&lt;br&gt;Gateway: 192.168.1.51]
+
+    end
+
+    vmbr0 --&gt; eth0
+    eth1 --&gt; vmbr1
+    vmbr1 --&gt; LAN    
+  end 
+  Internet &lt;---&gt; vmbr0  </code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../setupinstructions/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Setup Instructions">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Setup Instructions
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../proxmox/" class="md-footer__link md-footer__link--next" aria-label="Next: Proxmox">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Proxmox
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.code.select", "content.tooltips", "navigation.footer", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,6 @@
+---
+- name: Deploy the CA Servers
+  hosts: ca
+  remote_user: root
+  roles:
+     - hostr.ca

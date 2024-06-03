@@ -1,0 +1,14 @@
+[Unit]
+Description=Webserver Blazor
+Requires=network.target
+After=syslog.target network.target
+[Service]
+Environment="ASPNETCORE_ENVIRONMENT={{ asp_net_core_environment }}"
+WorkingDirectory={{webserver_install_folder}}build/
+ExecStart={{webserver_install_folder}}build/{{abp_project_name}}.Blazor
+# Restart service after 10 seconds if the dotnet service crashes:
+Restart=on-failure
+User=root
+Environment="ASPNETCORE_URLS=http://*:5000"
+[Install]
+WantedBy=multi-user.target

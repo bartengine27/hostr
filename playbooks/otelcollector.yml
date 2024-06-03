@@ -1,0 +1,6 @@
+---
+- name: Deploy the Otel collectors
+  hosts: otlp_controller
+  remote_user: root
+  roles:
+     - hostr.otelcollector

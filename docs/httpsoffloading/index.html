@@ -1,0 +1,1792 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../certificateauthority/">
+      
+      
+        <link rel="next" href="../references/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.25">
+    
+    
+      
+        <title>HTTPS Offloading - hostr Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nginx" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="hostr Documentation" class="md-header__button md-logo" aria-label="hostr Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            hostr Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              HTTPS Offloading
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="hostr Documentation" class="md-nav__button md-logo" aria-label="hostr Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    hostr Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Welcome
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repositoryintroduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repository Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../setupinstructions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setup Instructions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../detailedprerequisites/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Detailed Prerequisites
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Proxmox
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../redis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Redis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authenticationserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authentication Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../restapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    REST API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Proxy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../database/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Database
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Web Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../applicationperformancemonitoring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Application Performance Monitoring
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../certificateauthority/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Certificate Authority
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    HTTPS Offloading
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    HTTPS Offloading
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nginx" class="md-nav__link">
+    <span class="md-ellipsis">
+      NGINX
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NGINX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log format
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-balancing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load balancing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#https-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTPS configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access logging
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#location-block-and-proxy-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Location block and proxy settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-websocket-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional websocket support
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../references/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    References
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../todo/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    TODO
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Roles
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Roles
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.abprestapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ABP REST API
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.authentication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authentication Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.ca/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Certificate Authority
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.caclient/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Certificate Authority Client
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.grafana/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Grafana
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.knownexternalhosts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Known External Hosts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.knownvmhosts/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Known VM Hosts
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.mssql/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MS SQLServer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.nginx/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    NGINX
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.otelcollector/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OTEL Collector
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.prometheus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Prometheus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.proxmox/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Proxmox
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.redis/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Redis
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.sshd/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SSHD
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.webserver/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Web Server
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playbooks/roles/hostr.wireguard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Wireguard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nginx" class="md-nav__link">
+    <span class="md-ellipsis">
+      NGINX
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NGINX">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log format
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-balancing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Load balancing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#https-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTPS configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#access-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      Access logging
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#location-block-and-proxy-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Location block and proxy settings
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-websocket-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional websocket support
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  <h1>HTTPS Offloading</h1>
+
+<p>In the previous section, we explained how certificates are generated with our own CA. We can now use the certificates to encrypt internal traffic after offloading HTTPS traffic.</p>
+<p>As we'd like to use HTTPS offloading and load balance the web server and REST endpoint, we migth choose a setup similar to:</p>
+<pre class="mermaid"><code>graph TB
+    client1(Internet Client 1) --&gt;|HTTPS request| nginx[Load Balancing&lt;br/&gt;HTTPS offloading]
+    client2(Internet Client 2) --&gt;|HTTPS request| nginx
+    client3(Internet Client 3) --&gt;|HTTPS request| nginx
+
+    nginx --&gt;|Distribute request| ws1[Web Server 1]
+    nginx --&gt;|Distribute request| ws2[Web Server 2]
+    nginx --&gt;|Distribute request| re1[REST Endpoint 1]
+    nginx --&gt;|Distribute request| re2[REST Endpoint 2]
+
+    ws1 --&gt;|Optional state management| redis[(REDIS Instance)]
+    ws2 --&gt;|Optional state management| redis
+    re1 --&gt;|Optional state management| redis
+    re2 --&gt;|Optional state management| redis</code></pre>
+<p>Note that internal traffic (for example the Web Server querying the REST endpoint) runs over a publically acessible <em>proxy</em> and is not necessarily encrypted. Moreover, if the proxy acting as the HTTPS offloader and load balancer is compromised, an attacker could potentially gain access to both the unencrypted internal traffic routed through it and the encrypted traffic it decrypts, which makes it a critical point of security.  </p>
+<p>Implementing a Demilitarized Zone (DMZ) is an approach to solve this: mitigate risks by segregating different parts of a network, hence, limiting the potential impact of a breach. A potential approach:  </p>
+<pre class="mermaid"><code>graph TD
+    subgraph Internet
+      client[Client]
+    end
+
+    subgraph DMZ
+      nginx_public[ProxyPublic]
+    end
+
+    subgraph Internal Network
+      nginx_internal[ProxyInternal]
+      rest[REST Endpoints]
+      web[Web Servers]
+      redis[(REDIS)]
+    end
+
+    client --&gt; nginx_public
+    nginx_public -.-&gt;|Secure Channel| nginx_internal
+    nginx_internal --&gt; rest
+    nginx_internal --&gt; web
+    rest --&gt;|State Management| redis
+    web --&gt;|State Management| redis</code></pre>
+<p>From the diagram above, the segregation of both networks should be obvious: internal traffic is routed over <code>ProxyInternal</code> and not visible on (a breached) <code>ProxyPublic</code>.  </p>
+<p>As the proxy acts as the entry point for incoming traffic, it can offload SSL/TLS for incoming HTTPS requests. The proxy decrypts the HTTPS traffic, re-encrypts the traffic and then routes the requests to the appropriate backend services. Backend services can - for instance - use certificates from an internal Certificate Authority (CA).  </p>
+<pre class="mermaid"><code>graph TD
+    subgraph Internet
+      client[Client]
+    end
+
+    subgraph DMZ
+      nginx_public[ProxyPublic]
+    end
+
+    subgraph Internal Network
+      nginx_internal[ProxyInternal]
+      rest[REST Endpoints]
+      web[Web Servers]
+      redis[(REDIS)]
+    end
+
+    client --&gt;|HTTPS| nginx_public    
+    nginx_public --&gt;|HTTPS| nginx_internal
+    nginx_internal --&gt;|HTTPS| rest
+    nginx_internal --&gt;|HTTPS| web
+    rest --&gt;|State Management| redis
+    web --&gt;|State Management| redis        </code></pre>
+<p>:fire: TODO to configure a DMZ (firewall), we need some extra info:
+| Source IP | Destination IP | Protocol (HTTPS TCP/443 or DNS UDP/53 or ...) |
+|:---------:|:--------------:|:-----------------------------------------:|
+| 192.168.51|192.168.1.60    |HTTPS TCP/443                              |</p>
+<h3 id="nginx">NGINX</h3>
+<p>The proxy above may be implemented with different solutions:</p>
+<ul>
+<li>NGINX</li>
+<li>Traefik</li>
+<li>HAProxy</li>
+<li>Apache HTTP Server</li>
+<li>IIS</li>
+<li>Envoy Proxy</li>
+<li>Caddy</li>
+<li>F5</li>
+<li>...</li>
+</ul>
+<p>For this paricular setup, we will use NGINX.  </p>
+<p>The following NGINX configuration demonstrates a setup designed to facilitate secure HTTPS connections to a load-balanced backend comprised of multiple HTTPS API servers:</p>
+<pre class="mermaid"><code>flowchart TD;        
+    RESTAPI1[REST Endpoint node1];
+    RESTAPI2[REST Endpoint node2];
+    RESTAPI3[REST Endpoint node2];
+
+    NGINX--load balances/HTTPS--&gt;RESTAPI1;
+    NGINX--load balances/HTTPS--&gt;RESTAPI2;
+    NGINX--load balances/HTTPS--&gt;RESTAPI3;
+
+    RESTAPI1--data protection--&gt;Redis;
+    RESTAPI2--data protection--&gt;Redis;
+    RESTAPI3--data protection--&gt;Redis;
+
+    Client--HTTPS--&gt;NGINX</code></pre>
+<p>The <code>NGINX</code> configuration for the following setup illustrates a setup for managing encrypted, load-balanced connections to a backend API cluster, with a focus on detailed logging, security with SSL, and flexibility to support large headers and optional WebSocket connections:  </p>
+<div class="highlight"><pre><span></span><code><span class="k">http</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kn">log_format</span><span class="w"> </span><span class="s">upstreamlog</span><span class="w"> </span><span class="s">&#39;[</span><span class="nv">$time_local]</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$remote_user</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$server_name</span><span class="w"> </span><span class="nv">$host</span><span class="w"> </span><span class="s">to:</span><span class="w"> </span><span class="nv">$upstream_addr:</span><span class="w"> </span><span class="nv">$request</span><span class="w"> </span><span class="nv">$status</span><span class="w"> </span><span class="s">upstream_response_time</span><span class="w"> </span><span class="nv">$upstream_response_time</span><span class="w"> </span><span class="s">msec</span><span class="w"> </span><span class="nv">$msec</span><span class="w"> </span><span class="s">request_time</span><span class="w"> </span><span class="nv">$request_time&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">upstream</span><span class="w"> </span><span class="s">https_api</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.64</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.68</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.69</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/self-signed.conf</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/ssl-params.conf</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">client_header_buffer_size</span><span class="w"> </span><span class="mi">4k</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">large_client_header_buffers</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="mi">8k</span><span class="p">;</span><span class="w"> </span><span class="c1"># Increase if JWT or other headers are large      </span>
+
+<span class="w">        </span><span class="kn">access_log</span><span class="w"> </span><span class="s">/var/log/nginx/access.log</span><span class="w"> </span><span class="s">upstreamlog</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1"># The location ^~ /api/ block captures all requests starting with /api/ and forwards them to the https_api upstream. The ^~ modifier gives this location precedence over regular expression locations that might also match.</span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">^~</span><span class="w"> </span><span class="s">/api/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1"># The proxy_pass https://https_api; directive tells NGINX to forward the requests to the defined upstream group https_api. Ensure the scheme (https://) matches your upstream configuration. If your upstream servers are configured with HTTP, change the scheme accordingly.</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://https_api</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Header adjustments are defined inside the /api/ location block to ensure they&#39;re applied only to the proxied requests.          </span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Real-IP</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Authorization</span><span class="w"> </span><span class="nv">$http_authorization</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Additional necessary proxy settings</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1"># The location / block is modified to return a 404 error for any requests that don&#39;t match the /api/ path. This effectively drops traffic not intended for the API.        </span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">return</span><span class="w"> </span><span class="mi">404</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">      </span><span class="c1"># Optional: Redirect the root path specifically if necessary</span>
+<span class="w">      </span><span class="c1"># location = / {</span>
+<span class="w">      </span><span class="c1">#     return 404;</span>
+<span class="w">      </span><span class="c1"># }</span>
+
+<span class="w">      </span><span class="c1"># Other possible headers you might want to set</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Authorization &quot;&quot;; # If you need to reset the Authorization header</span>
+
+<span class="w">      </span><span class="c1"># WebSocket support (if needed)</span>
+<span class="w">      </span><span class="c1"># proxy_http_version 1.1;</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Upgrade $http_upgrade;</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Connection &quot;upgrade&quot;;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>If we'd like to include the web servers in the diagram and configured as above, we get a diagram like:</p>
+<pre class="mermaid"><code>flowchart TD;        
+    subgraph /
+        web1[Web Server node1]
+        web2[Web Server node2]    
+    end
+    subgraph /api
+        RESTAPI1[REST Endpoint node1];
+        RESTAPI2[REST Endpoint node2];
+        RESTAPI3[REST Endpoint node2];
+    end
+
+    NGINX--load balances/HTTPS--&gt;RESTAPI1;
+    NGINX--load balances/HTTPS--&gt;RESTAPI2;
+    NGINX--load balances/HTTPS--&gt;RESTAPI3;
+
+
+    NGINX--load balances/HTTPS--&gt;web1;
+    NGINX--load balances/HTTPS--&gt;web2;    
+
+
+    web1--data protection--&gt;Redis;
+    web2--data protection--&gt;Redis;   
+
+    RESTAPI1--data protection--&gt;Redis;
+    RESTAPI2--data protection--&gt;Redis;
+    RESTAPI3--data protection--&gt;Redis;
+
+    Client--HTTPS--&gt;NGINX</code></pre>
+<p>and an NGINX config:</p>
+<div class="highlight"><pre><span></span><code><span class="k">http</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kn">log_format</span><span class="w"> </span><span class="s">upstreamlog</span><span class="w"> </span><span class="s">&#39;[</span><span class="nv">$time_local]</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$remote_user</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$server_name</span><span class="w"> </span><span class="nv">$host</span><span class="w"> </span><span class="s">to:</span><span class="w"> </span><span class="nv">$upstream_addr:</span><span class="w"> </span><span class="nv">$request</span><span class="w"> </span><span class="nv">$status</span><span class="w"> </span><span class="s">upstream_response_time</span><span class="w"> </span><span class="nv">$upstream_response_time</span><span class="w"> </span><span class="s">msec</span><span class="w"> </span><span class="nv">$msec</span><span class="w"> </span><span class="s">request_time</span><span class="w"> </span><span class="nv">$request_time&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">upstream</span><span class="w"> </span><span class="s">https_api</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.64</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.68</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.69</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">upstream</span><span class="w"> </span><span class="s">web_api</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.60</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.61</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="c1"># The server_name directive specifies cars.be as the domain this server block will respond to, also for /api/!</span>
+<span class="w">        </span><span class="kn">server_name</span><span class="w"> </span><span class="s">cars.be</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/self-signed.conf</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/ssl-params.conf</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">client_header_buffer_size</span><span class="w"> </span><span class="mi">4k</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">large_client_header_buffers</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="mi">8k</span><span class="p">;</span><span class="w"> </span><span class="c1"># Increase if JWT or other headers are large      </span>
+
+<span class="w">        </span><span class="kn">access_log</span><span class="w"> </span><span class="s">/var/log/nginx/access.log</span><span class="w"> </span><span class="s">upstreamlog</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1"># Serve the website for cars.be except for paths under /api/</span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://web_api/</span>
+<span class="w">        </span><span class="err">}</span>
+
+<span class="w">        </span><span class="c1"># The location ^~ /api/ block captures all requests starting with /api/ and forwards them to the https_api upstream. The ^~ modifier gives this location precedence over regular expression locations that might also match.</span>
+<span class="w">        </span><span class="s">location</span><span class="w"> </span><span class="s">^~</span><span class="w"> </span><span class="s">/api/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1"># The proxy_pass https://https_api; directive tells NGINX to forward the requests to the defined upstream group https_api. Ensure the scheme (https://) matches your upstream configuration. If your upstream servers are configured with HTTP, change the scheme accordingly.</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://https_api</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Header adjustments are defined inside the /api/ location block to ensure they&#39;re applied only to the proxied requests.          </span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Real-IP</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Authorization</span><span class="w"> </span><span class="nv">$http_authorization</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Additional necessary proxy settings</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1"># The location / block is modified to return a 404 error for any requests that don&#39;t match the /api/ path. This effectively drops traffic not intended for the API.        </span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">return</span><span class="w"> </span><span class="mi">404</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">      </span><span class="c1"># Optional: Redirect the root path specifically if necessary</span>
+<span class="w">      </span><span class="c1"># location = / {</span>
+<span class="w">      </span><span class="c1">#     return 404;</span>
+<span class="w">      </span><span class="c1"># }</span>
+
+<span class="w">      </span><span class="c1"># Other possible headers you might want to set</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Authorization &quot;&quot;; # If you need to reset the Authorization header</span>
+
+<span class="w">      </span><span class="c1"># WebSocket support (if needed)</span>
+<span class="w">      </span><span class="c1"># proxy_http_version 1.1;</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Upgrade $http_upgrade;</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Connection &quot;upgrade&quot;;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The configuration above now serves a website for requests to cars.be on port 443 with HTTPS, except for HTTPS requests to cars.be/api/, which are proxied to the upstream https_api.  </p>
+<p>As mentioned, the public certificate may be delivered by Let's Encrypt. If we'd like to automatically request/renew certificates, Let's Encrypt will need to check that we are the owners of our domain (cars.be in this example). Let's Encrypt executes such a test by requesting a special file from the http://domain/.well-known/acme-challenge directory. <code>certbot</code> Is the most common client for Let's Enrypt to <em>generate this special file</em>.  </p>
+<div class="highlight"><pre><span></span><code><span class="k">http</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kn">log_format</span><span class="w"> </span><span class="s">upstreamlog</span><span class="w"> </span><span class="s">&#39;[</span><span class="nv">$time_local]</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$remote_user</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$server_name</span><span class="w"> </span><span class="nv">$host</span><span class="w"> </span><span class="s">to:</span><span class="w"> </span><span class="nv">$upstream_addr:</span><span class="w"> </span><span class="nv">$request</span><span class="w"> </span><span class="nv">$status</span><span class="w"> </span><span class="s">upstream_response_time</span><span class="w"> </span><span class="nv">$upstream_response_time</span><span class="w"> </span><span class="s">msec</span><span class="w"> </span><span class="nv">$msec</span><span class="w"> </span><span class="s">request_time</span><span class="w"> </span><span class="nv">$request_time&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">upstream</span><span class="w"> </span><span class="s">https_api</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.64</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.68</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.69</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">upstream</span><span class="w"> </span><span class="s">web_api</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.60</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server</span><span class="w"> </span><span class="n">192.168.1.61</span><span class="p">:</span><span class="mi">5000</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">server_name</span><span class="w"> </span><span class="s">cars.be</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/.well-known/acme-challenge/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">root</span><span class="w"> </span><span class="s">/var/www/letsencrypt</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">allow</span><span class="w"> </span><span class="s">all</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">return</span><span class="w"> </span><span class="mi">301</span><span class="w"> </span><span class="s">https://</span><span class="nv">$host$request_uri</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="c1"># The server_name directive specifies cars.be as the domain this server block will respond to, also for /api/!</span>
+<span class="w">        </span><span class="kn">server_name</span><span class="w"> </span><span class="s">cars.be</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/self-signed.conf</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/ssl-params.conf</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">client_header_buffer_size</span><span class="w"> </span><span class="mi">4k</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">large_client_header_buffers</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="mi">8k</span><span class="p">;</span><span class="w"> </span><span class="c1"># Increase if JWT or other headers are large      </span>
+
+<span class="w">        </span><span class="kn">access_log</span><span class="w"> </span><span class="s">/var/log/nginx/access.log</span><span class="w"> </span><span class="s">upstreamlog</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1"># Serve the website for cars.be except for paths under /api/</span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://web_api/</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1"># The location ^~ /api/ block captures all requests starting with /api/ and forwards them to the https_api upstream. The ^~ modifier gives this location precedence over regular expression locations that might also match.</span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">^~</span><span class="w"> </span><span class="s">/api/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1"># The proxy_pass https://https_api; directive tells NGINX to forward the requests to the defined upstream group https_api. Ensure the scheme (https://) matches your upstream configuration. If your upstream servers are configured with HTTP, change the scheme accordingly.</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://https_api</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Header adjustments are defined inside the /api/ location block to ensure they&#39;re applied only to the proxied requests.          </span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Real-IP</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Authorization</span><span class="w"> </span><span class="nv">$http_authorization</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Additional necessary proxy settings</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">      </span><span class="c1"># Other possible headers you might want to set</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Authorization &quot;&quot;; # If you need to reset the Authorization header</span>
+
+<span class="w">      </span><span class="c1"># WebSocket support (if needed)</span>
+<span class="w">      </span><span class="c1"># proxy_http_version 1.1;</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Upgrade $http_upgrade;</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Connection &quot;upgrade&quot;;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>In the NGINX configuration examples above, the routing of traffic is based on URLs, if we route traffic based on server names we get the following representation:</p>
+<pre class="mermaid"><code>flowchart TB
+    client([Client]) --&gt;|HTTPS request| nginx[NGINX]
+    nginx --&gt;|Decides based on identity.cars.be| identity[NGINX server block &lt;/br&gt; for Authentication]
+    nginx --&gt;|Decides based on abpapi.cars.be| abpapi[NGINX server block &lt;/br&gt; for REST]
+    nginx --&gt;|Decides based on cars.be| web[NGINX server block &lt;/br&gt; for Web]
+
+    subgraph identityZ [ ]
+        identity --&gt; identity_api([Upstream identity_api])
+        identity_api --&gt;|HTTPS traffic| Authentication1
+        identity_api --&gt;|HTTPS traffic| Authentication2
+    end
+
+    subgraph abpapiZ [ ]
+        abpapi --&gt; abp_api([Upstream abp_api])
+        abp_api --&gt;|HTTPS traffic| REST1
+        abp_api --&gt;|HTTPS traffic| REST2
+    end
+
+    subgraph webZ [ ]
+        web --&gt; web_api([Upstream web_api])
+        web_api --&gt;|HTTPS traffic| WEB1
+        web_api --&gt;|HTTPS traffic| WEB2
+    end    </code></pre>
+<p>For our particular setup, this becomes:</p>
+<div class="highlight"><pre><span></span><code><span class="k">events</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+
+<span class="k">http</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kn">client_header_buffer_size</span><span class="w"> </span><span class="mi">4k</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">#large_client_header_buffers 4 8k; # Increase if JWT or other headers are large      </span>
+<span class="w">    </span><span class="kn">proxy_buffer_size</span><span class="w">   </span><span class="mi">128k</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">proxy_buffers</span><span class="w">   </span><span class="mi">4</span><span class="w"> </span><span class="mi">256k</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">proxy_busy_buffers_size</span><span class="w">   </span><span class="mi">256k</span><span class="p">;</span>
+<span class="w">    </span><span class="kn">large_client_header_buffers</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="mi">16k</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">log_format</span><span class="w"> </span><span class="s">upstreamlog</span><span class="w"> </span><span class="s">&#39;[</span><span class="nv">$time_local]</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$remote_user</span><span class="w"> </span><span class="s">-</span><span class="w"> </span><span class="nv">$server_name</span><span class="w"> </span><span class="nv">$host</span><span class="w"> </span><span class="s">to:</span><span class="w"> </span><span class="nv">$upstream_addr:</span><span class="w"> </span><span class="nv">$request</span><span class="w"> </span><span class="nv">$status</span><span class="w"> </span><span class="s">upstream_response_time</span><span class="w"> </span><span class="nv">$upstream_response_time</span><span class="w"> </span><span class="s">msec</span><span class="w"> </span><span class="nv">$msec</span><span class="w"> </span><span class="s">request_time</span><span class="w"> </span><span class="nv">$request_time&#39;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kn">upstream</span><span class="w"> </span><span class="s">abp_api</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">{%</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">host</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">groups[&#39;http_api&#39;]</span><span class="w"> </span><span class="s">%</span><span class="err">}</span>
+<span class="w">        </span><span class="s">server</span><span class="w"> </span><span class="p">{</span><span class="kn">{</span><span class="w"> </span><span class="s">host</span><span class="w"> </span><span class="err">}}</span><span class="p">:{</span><span class="kn">{</span><span class="w"> </span><span class="s">hostvars[host][&#39;service_port&#39;]</span><span class="w"> </span><span class="err">}}</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">{%</span><span class="w"> </span><span class="s">endfor</span><span class="w"> </span><span class="s">%</span><span class="err">}</span>
+<span class="w">    </span><span class="err">}</span>
+
+<span class="w">    </span><span class="s">upstream</span><span class="w"> </span><span class="s">web_api</span><span class="w"> </span><span class="p">{</span><span class="w">        </span>
+<span class="w">        </span><span class="kn">{%</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">host</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">groups[&#39;webserver&#39;]</span><span class="w"> </span><span class="s">%</span><span class="err">}</span>
+<span class="w">        </span><span class="s">server</span><span class="w"> </span><span class="p">{</span><span class="kn">{</span><span class="w"> </span><span class="s">host</span><span class="w"> </span><span class="err">}}</span><span class="p">:{</span><span class="kn">{</span><span class="w"> </span><span class="s">hostvars[host][&#39;service_port&#39;]</span><span class="w"> </span><span class="err">}}</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">{%</span><span class="w"> </span><span class="s">endfor</span><span class="w"> </span><span class="s">%</span><span class="err">}</span>
+<span class="w">    </span><span class="err">}</span>
+
+<span class="w">    </span><span class="s">upstream</span><span class="w"> </span><span class="s">identity_api</span><span class="w"> </span><span class="p">{</span><span class="w">        </span>
+<span class="w">        </span><span class="kn">{%</span><span class="w"> </span><span class="s">for</span><span class="w"> </span><span class="s">host</span><span class="w"> </span><span class="s">in</span><span class="w"> </span><span class="s">groups[&#39;identity_server&#39;]</span><span class="w"> </span><span class="s">%</span><span class="err">}</span>
+<span class="w">        </span><span class="s">server</span><span class="w"> </span><span class="p">{</span><span class="kn">{</span><span class="w"> </span><span class="s">host</span><span class="w"> </span><span class="err">}}</span><span class="p">:{</span><span class="kn">{</span><span class="w"> </span><span class="s">hostvars[host][&#39;service_port&#39;]</span><span class="w"> </span><span class="err">}}</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">{%</span><span class="w"> </span><span class="s">endfor</span><span class="w"> </span><span class="s">%</span><span class="err">}</span>
+<span class="w">    </span><span class="err">}</span>
+
+<span class="w">    </span><span class="s">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="c1"># The server_name directive specifies cars.be as the domain this server block will respond to, also for /api/!</span>
+<span class="w">        </span><span class="kn">server_name</span><span class="w"> </span><span class="s">identity.</span><span class="p">{</span><span class="kn">{</span><span class="w"> </span><span class="s">project_domain</span><span class="w"> </span><span class="err">}}</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/self-signed.conf</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/ssl-params.conf</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">access_log</span><span class="w"> </span><span class="s">/var/log/nginx/access.log</span><span class="w"> </span><span class="s">upstreamlog</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1"># Serve the website for identity.cars.be</span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://identity_api/</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Header adjustments are defined inside the /api/ location block to ensure they&#39;re applied only to the proxied requests.          </span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Real-IP</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Authorization</span><span class="w"> </span><span class="nv">$http_authorization</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Additional necessary proxy settings</span>
+<span class="w">        </span><span class="p">}</span><span class="w">    </span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="c1"># The server_name directive specifies cars.be as the domain this server block will respond to, also for /api/!</span>
+<span class="w">        </span><span class="kn">server_name</span><span class="w"> </span><span class="s">abpapi.</span><span class="p">{</span><span class="kn">{</span><span class="w"> </span><span class="s">project_domain</span><span class="w"> </span><span class="err">}}</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/self-signed.conf</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/ssl-params.conf</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">access_log</span><span class="w"> </span><span class="s">/var/log/nginx/access.log</span><span class="w"> </span><span class="s">upstreamlog</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1"># Serve the website for identity.cars.be</span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://abp_api/</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Header adjustments are defined inside the /api/ location block to ensure they&#39;re applied only to the proxied requests.          </span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Real-IP</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Authorization</span><span class="w"> </span><span class="nv">$http_authorization</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Additional necessary proxy settings</span>
+<span class="w">        </span><span class="p">}</span><span class="w">    </span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kn">server</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">listen</span><span class="w"> </span><span class="s">[::]:443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+<span class="w">        </span><span class="c1"># The server_name directive specifies cars.be as the domain this server block will respond to, also for /api/!</span>
+<span class="w">        </span><span class="kn">server_name</span><span class="w"> </span><span class="p">{</span><span class="kn">{</span><span class="w"> </span><span class="s">project_domain</span><span class="w"> </span><span class="err">}}</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/self-signed.conf</span><span class="p">;</span>
+<span class="w">        </span><span class="kn">include</span><span class="w"> </span><span class="s">snippets/ssl-params.conf</span><span class="p">;</span>
+
+<span class="w">        </span><span class="kn">access_log</span><span class="w"> </span><span class="s">/var/log/nginx/access.log</span><span class="w"> </span><span class="s">upstreamlog</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1"># Serve the website for cars.be except for paths under /api/</span>
+<span class="w">        </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">https://web_api/</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Header adjustments are defined inside the /api/ location block to ensure they&#39;re applied only to the proxied requests.          </span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Real-IP</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+<span class="w">            </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Authorization</span><span class="w"> </span><span class="nv">$http_authorization</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1"># Additional necessary proxy settings</span>
+<span class="w">        </span><span class="p">}</span><span class="w">        </span>
+
+<span class="w">      </span><span class="c1"># Other possible headers you might want to set</span>
+<span class="w">      </span><span class="c1"># proxy_set_header Authorization &quot;&quot;; # If you need to reset the Authorization header</span>
+
+<span class="w">      </span><span class="c1"># WebSocket support (if needed)</span>
+<span class="w">      </span><span class="kn">proxy_http_version</span><span class="w"> </span><span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+<span class="w">      </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Upgrade</span><span class="w"> </span><span class="nv">$http_upgrade</span><span class="p">;</span>
+<span class="w">      </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Connection</span><span class="w"> </span><span class="s">&quot;upgrade&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>As routing based on hostnames has less impact on the web server and REST endpoint source code (no constraints on URLS), routing based on hostnames is the preferred solution in this project.  </p>
+<h4 id="log-format">Log format</h4>
+<p>To capture detailed information about requests and responses, we define a custom logging format: the <code>log_format</code> directive specifies a custom format named <code>upstreamlog</code>, which includes <em>timestamps, client IP, the requested server name and host, the upstream server address that handled the request, the request details, status code, response times, and request processing times</em>. This detailed logging is crucial for debugging and monitoring the performance of the upstream servers, in particular inspecting load balancing as the log will display the IP address of the upstream REST API node.</p>
+<h4 id="load-balancing">Load balancing</h4>
+<p>Distribute incoming traffic across multiple backend servers: the upstream block named <code>http_api</code> defines a cluster of servers (with specified IP addresses and port numbers) that requests will be load balanced across. This setup increases the application's scalability and reliability by distributing the load and providing redundancy.</p>
+<h4 id="https-configuration">HTTPS configuration</h4>
+<p>We configure NGINX to serve HTTPS traffic and to use specific SSL parameters and certificates.</p>
+<ul>
+<li>The <strong>listen 443 ssl directives</strong> instruct NGINX to listen for incoming connections on port 443 with SSL encryption, including IPv6 connections ([::]:443 ssl).</li>
+<li>The <strong>include directives</strong> incorporate additional SSL configurations and self-signed certificate details from external files (self-signed.conf and ssl-params.conf), modularizing the SSL setup for easier management.</li>
+<li>client_header_buffer_size And large_client_header_buffers directives adjust the buffer sizes for client request headers, accommodating potentially large JWT tokens or other large headers.</li>
+</ul>
+<p>Note the HTTPS offloading and re-encryption in the configuration above which involves the NGINX server acting as a termination point for incoming HTTPS connections from clients. NGINX decrypts these connections, inspects the traffic, and then re-encrypts the traffic before forwarding it to the backend servers over HTTPS using separate, internal SSL certificates. This process allows for secure communication both externally with clients and internally within the data center:</p>
+<ul>
+<li><strong>Decryption of Incoming HTTPS Requests</strong>: NGINX uses public-facing SSL certificates to decrypt data received over SSL/TLS from clients. This is the offloading part.</li>
+<li><strong>Inspection and Processing</strong>: Once decrypted, NGINX can inspect, log, or manipulate the HTTP content as necessary. This step can involve modifying headers, applying access controls, or making routing decisions.</li>
+<li><strong>Re-Encryption and Forwarding</strong>: NGINX then re-encrypts the requests using internal SSL certificates and forwards them to the backend servers over HTTPS. This ensures that traffic remains secure as it traverses the internal network.</li>
+<li><strong>Secure Internal Communication</strong>: The backend servers, configured with the internal certificates, decrypt the re-encrypted requests, process them, and send back the responses. NGINX then encrypts the responses again (if necessary) before sending them back to the clients.</li>
+</ul>
+<p>HTTPS offloading and re-encryption has the following benefits:</p>
+<ul>
+<li><strong>Enhanced Security Across the Board</strong>: This setup ensures end-to-end encryption of data, maintaining security from the client to the NGINX server and from the NGINX server to the backend servers. Using internal certificates for the data center adds an extra layer of security within the internal network.</li>
+<li><strong>Centralized Public SSL Management</strong>: Public-facing SSL certificate management remains centralized at the NGINX server, simplifying the administration of public encryption keys and certificates.</li>
+<li><strong>Flexible Trust and Security Policies</strong>: The separation of external and internal certificates allows for distinct trust domains and security policies. For example, stronger or different encryption standards can be applied internally compared to what is used for public internet traffic.</li>
+<li><strong>Inspection and Added Controls</strong>: Decrypting the traffic at the NGINX layer allows for detailed inspection and the application of additional security controls before re-encrypting and sending it to backend services. This can be crucial for compliance with security policies, logging, or performing deep packet inspection for threat detection.</li>
+<li><strong>Performance and Scalability</strong>: While the NGINX server handles the computational overhead of encrypting and decrypting traffic twice, it offloads backend servers from doing so. This can be optimized by using hardware that accelerates SSL processing. Furthermore, it allows backend servers to be scaled out without the need to manage public SSL certificates on each of them.</li>
+<li><strong>Secure Internal Traffic</strong>: Using HTTPS internally protects against potential threats lurking within the data center, ensuring that sensitive data is encrypted in transit even within the network's trusted boundaries.</li>
+</ul>
+<p>In summary, employing HTTPS offloading and re-encryption with NGINX provides robust security by ensuring encrypted traffic both externally and internally while centralizing certificate management and offering the ability to inspect and manipulate HTTP traffic. This configuration enhances the overall security posture and flexibility of managing traffic flows within distributed application architectures.</p>
+<h4 id="access-logging">Access logging</h4>
+<p>In orde to use a custom-defined log file path and format, the <code>access_log</code> directive specifies the path to the access log file and instructs NGINX to use the <em>upstreamlog</em> format (<code>log_format upstreamlog '[$ti...</code>) for logging, ensuring that detailed information about each request and its handling is logged for future analysis.</p>
+<h4 id="location-block-and-proxy-settings">Location block and proxy settings</h4>
+<p>Request routing and proxying behavior for the root path is defined with:</p>
+<ul>
+<li>The <strong>location / block</strong> matches all requests and uses the proxy_pass directive to forward them to the http_api upstream cluster, enabling load balancing.</li>
+<li>The <strong>proxy_set_header directives</strong> modify request headers to include the original host, the real client IP address, and the protocol used, ensuring that the proxied requests contain necessary information for backend services to process them correctly.</li>
+<li>The configuration optionally supports <strong>forwarding the Authorization header</strong>, preserving JWT or other authentication tokens needed by the backend services.</li>
+</ul>
+<h4 id="optional-websocket-support">Optional websocket support</h4>
+<p>This part of the configuration provides the necessary headers to support WebSocket connections if needed:</p>
+<ul>
+<li>The commented-out directives (<code>proxy_http_version</code>, <code>proxy_set_header Upgrade</code>, and <code>proxy_set_header Connection</code>) are set up to enable WebSocket support, ensuring that NGINX can proxy WebSocket connections correctly. These lines can be uncommented and adjusted as needed based on the application's requirements.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../certificateauthority/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Certificate Authority">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Certificate Authority
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../references/" class="md-footer__link md-footer__link--next" aria-label="Next: References">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                References
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.code.select", "content.tooltips", "navigation.footer", "navigation.tracking", "search.highlight", "search.share", "search.suggest"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.081f42fc.min.js"></script>
+      
+    
+  </body>
+</html>

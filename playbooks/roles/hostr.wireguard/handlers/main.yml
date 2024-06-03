@@ -1,0 +1,6 @@
+---
+# handlers file for hostr.wireguard
+- name: Restart WireGuard
+  ansible.builtin.systemd:
+    name: wg-quick@{{ wireguard_interface_name }}
+    state: restarted

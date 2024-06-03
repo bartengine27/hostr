@@ -1,0 +1,6 @@
+---
+- name: Configure sshd to use only ED25519 keys
+  hosts: all
+  remote_user: root 
+  roles:
+     - hostr.sshd

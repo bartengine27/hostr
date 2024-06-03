@@ -1,0 +1,35 @@
+[redis]
+192.168.1.61
+
+[database]
+ 192.168.1.62
+
+[webserver]
+192.168.1.60 service_port=5000 dotnet_method_install=snap
+
+[identity_server]
+192.168.1.63 service_port=5000
+
+[http_api]
+192.168.1.64  service_port=5000
+192.168.1.68  service_port=5000
+192.168.1.69  service_port=5000
+
+[prometheus]
+192.168.1.66
+
+[grafana]
+192.168.1.65
+
+[otlp_controller]
+192.168.1.67
+
+#TBD not used for now, pfSense is installed manually
+#[firewall]
+#192.168.1.50
+
+[proxy]
+192.168.1.20
+
+[ca]
+192.168.1.90

@@ -1,0 +1,24 @@
+global:
+  scrape_interval:     5s
+  evaluation_interval: 5s
+
+rule_files:
+  - all.rules
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['10.110.0.2:9090']
+        labels:
+          alias: prometheus
+
+  - job_name: '10.20.0.1'
+    static_configs:
+      - targets: ['10.20.0.1:9100']
+        labels:
+          alias: 10.20.0.1
+  - job_name: '10.20.0.2'
+    static_configs:
+      - targets: ['10.20.0.2:9100']
+        labels:
+          alias: 10.20.0.2

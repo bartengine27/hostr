@@ -1,0 +1,17 @@
+{
+  "App": {
+    "SelfUrl": "https://{{ ansible_host }}:5000",
+    "ClientUrl": "https://{{ ansible_host }}:5000",
+    "CorsOrigins": "https://abpapi.{{ project_domain }},https://identity.{{ project_domain }},https://{{ project_domain }}",
+    "RedirectAllowedUrls": "https://abpapi.{{ project_domain }},https://identity.{{ project_domain }},https://{{ project_domain }}"
+  },
+  "ConnectionStrings": {
+    "Default": "Server={{ groups['database'][0] }};Database=Cars;User Id=sa;Password={{ database_password }};TrustServerCertificate=True"
+  },
+  "Redis": {
+    "Configuration": "{{ groups['redis'][0] }},abortConnect=false,password={{ redis_password }}"
+  },
+  "StringEncryption": {
+    "DefaultPassPhrase": "TPX5DfbeSrrK8KBI"
+  }
+}

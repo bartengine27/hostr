@@ -1,0 +1,44 @@
+---
+# tasks file for hostr.wireguard
+- name: Install resolvconf
+  ansible.builtin.apt:
+    name: resolvconf
+    state: present
+
+- name: Install WireGuard
+  ansible.builtin.package:
+    name: wireguard
+    state: present
+
+- name: Configure WireGuard Interface
+  ansible.builtin.template:
+    src: firewall_wg0.conf.j2
+    dest: /etc/wireguard/{{ wireguard_interface_name }}.conf
+    mode: '0600'
+  notify: Restart WireGuard
+
+- name: Enable IP Forwarding
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes
+
+- name: Allow SSH
+  ansible.builtin.ufw:
+    rule: allow
+    port: 22
+    proto: tcp
+
+- name: Allow WireGuard Traffic Through Firewall
+  ansible.builtin.ufw:
+    rule: allow
+    port: "{{ wireguard_port }}"
+    proto: udp
+
+- name: Start and Enable WireGuard Interface
+  ansible.builtin.systemd:
+    name: wg-quick@{{ wireguard_interface_name }}
+    state: started
+    enabled: yes
+    

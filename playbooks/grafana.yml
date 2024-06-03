@@ -1,0 +1,13 @@
+---
+- name: Deploy the Grafana Servers
+  hosts: grafana
+  remote_user: root
+  module_defaults:
+    group/community.grafana.grafana:
+      grafana_url: "http://{{ groups['grafana'][0] }}:3000"
+      #api user
+      grafana_user: "admin"
+      #todo move to settings
+      grafana_password: "admin"   
+  roles:
+     - hostr.grafana

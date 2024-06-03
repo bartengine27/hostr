@@ -1,0 +1,60 @@
+---
+# tasks file for hostr.ca
+- name: Install pip3
+  apt:
+    pkg:
+      - python3-pip
+      - python3-cryptography
+
+- name: Install OpenSSL
+  package:
+    name: openssl
+    state: present
+
+- name: Create CA directory structure
+  file:
+    path: "/etc/ssl/ca"
+    state: directory
+    mode: "0700"
+
+- name: Generate CA private key
+  community.crypto.openssl_privatekey:
+    path: "/etc/ssl/ca/ca.key"
+    size: 4096
+    format: "pkcs8"
+    cipher: auto
+    passphrase: "{{ ca_pass }}"
+  register: ca_private_key  
+
+- name: Generate CA certificate signing request (CSR)
+  community.crypto.openssl_csr:
+    path: "/etc/ssl/ca/ca.csr"
+    privatekey_path: "{{ ca_private_key.filename }}"
+    privatekey_passphrase: "{{ ca_pass }}"
+    common_name: "{{ ca_name }}"
+    subject_alt_name: "{{ ca_alt_name }}"
+    country_name: "{{ ca_country_code }}"
+    state_or_province_name: "{{ ca_state }}"
+    locality_name: "{{ ca_city }}"
+    organization_name: "{{ ca_organization_name }}"
+    email_address: "{{ ca_email_address }}"
+  register: ca_csr
+
+- name: Self-sign CA certificate
+  community.crypto.x509_certificate:
+    path: "/etc/ssl/ca/ca.crt"
+    privatekey_path: "{{ ca_private_key.filename }}"
+    csr_path: "{{ ca_csr.filename }}"
+    privatekey_passphrase: "{{ ca_pass }}"
+    provider: selfsigned  
+  register: ca_certificate
+
+- name: Ensure permissions of CA files
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: "0600"
+  loop:
+    - "/etc/ssl/ca/ca.key"
+    - "/etc/ssl/ca/ca.crt"

@@ -1,0 +1,14 @@
+---
+# defaults file for hostr.nginx
+
+# TBD
+proxy_lets_encrypt_enabled: false
+# ssl_certificate: /etc/ssl/certs/nginx-selfsigned.crt
+# ssl_certificate_key: /etc/ssl/private/nginx-selfsigned.key
+ssl_certificate: "/etc/ssl/client/certificate.pem"
+ssl_certificate_key: "/etc/ssl/client/{{ ansible_host }}.key"
+ssl_certificate_pkcs12: "/etc/ssl/client/server.p12"
+  
+project_name: "{{ lookup('ansible.builtin.env', 'PROJECT_NAME') }}"    
+project_domain: "{{ lookup('ansible.builtin.env', 'PROJECT_DOMAIN') }}"   
+client_private_key_passphrase: "{{ lookup('ansible.builtin.env', 'CLIENT_PRIVATE_KEY_PASSPHRASE')}}"    

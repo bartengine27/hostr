@@ -1,0 +1,19 @@
+---
+# tasks file for hostr.knownhosts
+- name: For each host, remove the host from the '{{ ssh_known_hosts }}'
+  #shell: "ssh-keyscan {{ item }},`dig +short {{ item }}`"
+  shell: "ssh-keygen -R {{ item }}"
+  with_items: "{{ ssh_known_hosts }}"
+  register: ssh_known_host_results
+  ignore_errors: True
+
+- name: Add/update the public key of all servers in the '{{ ssh_known_hosts }}'
+  #ssh-keyscan writes to stderr, so we redirect it to /dev/null
+  ansible.builtin.shell: |  
+    ssh-keyscan -H -t ed25519 -T 15 {{ item }} 2> /dev/null >> ~/.ssh/known_hosts
+  register: ssh_keyscan_result
+  retries: 5
+  delay: 5
+  until: ssh_keyscan_result.rc == 0
+  with_items:  "{{ ssh_known_hosts }}"
+  ignore_errors: True

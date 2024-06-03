@@ -1,0 +1,437 @@
+# Configuration for telegraf agent
+[agent]
+  ## Default data collection interval for all inputs
+  interval = "10s"
+  ## Rounds collection interval to 'interval'
+  ## ie, if interval="10s" then always collect on :00, :10, :20, etc.
+  round_interval = true
+
+  ## Telegraf will send metrics to outputs in batches of at most
+  ## metric_batch_size metrics.
+  ## This controls the size of writes that Telegraf sends to output plugins.
+  metric_batch_size = 1000
+
+  ## Maximum number of unwritten metrics per output.  Increasing this value
+  ## allows for longer periods of output downtime without dropping metrics at the
+  ## cost of higher maximum memory usage.
+  metric_buffer_limit = 10000
+
+  ## Collection jitter is used to jitter the collection by a random amount.
+  ## Each plugin will sleep for a random time within jitter before collecting.
+  ## This can be used to avoid many plugins querying things like sysfs at the
+  ## same time, which can have a measurable effect on the system.
+  collection_jitter = "0s"
+
+  ## Collection offset is used to shift the collection by the given amount.
+  ## This can be be used to avoid many plugins querying constraint devices
+  ## at the same time by manually scheduling them in time.
+  # collection_offset = "0s"
+
+  ## Default flushing interval for all outputs. Maximum flush_interval will be
+  ## flush_interval + flush_jitter
+  flush_interval = "10s"
+  ## Jitter the flush interval by a random amount. This is primarily to avoid
+  ## large write spikes for users running a large number of telegraf instances.
+  ## ie, a jitter of 5s and interval 10s means flushes will happen every 10-15s
+  flush_jitter = "0s"
+
+  ## Collected metrics are rounded to the precision specified. Precision is
+  ## specified as an interval with an integer + unit (e.g. 0s, 10ms, 2us, 4s).
+  ## Valid time units are "ns", "us" (or "µs"), "ms", "s".
+  ##
+  ## By default or when set to "0s", precision will be set to the same
+  ## timestamp order as the collection interval, with the maximum being 1s:
+  ##   ie, when interval = "10s", precision will be "1s"
+  ##       when interval = "250ms", precision will be "1ms"
+  ##
+  ## Precision will NOT be used for service inputs. It is up to each individual
+  ## service input to set the timestamp at the appropriate precision.
+  precision = "0s"
+
+  ## Log at debug level.
+  # debug = false
+  ## Log only error level messages.
+  # quiet = false
+
+  ## Log target controls the destination for logs and can be one of "file",
+  ## "stderr" or, on Windows, "eventlog".  When set to "file", the output file
+  ## is determined by the "logfile" setting.
+  # logtarget = "file"
+
+  ## Name of the file to be logged to when using the "file" logtarget.  If set to
+  ## the empty string then logs are written to stderr.
+  # logfile = ""
+
+  ## The logfile will be rotated after the time interval specified.  When set
+  ## to 0 no time based rotation is performed.  Logs are rotated only when
+  ## written to, if there is no log activity rotation may be delayed.
+  # logfile_rotation_interval = "0h"
+
+  ## The logfile will be rotated when it becomes larger than the specified
+  ## size.  When set to 0 no size based rotation is performed.
+  # logfile_rotation_max_size = "0MB"
+
+  ## Maximum number of rotated archives to keep, any older logs are deleted.
+  ## If set to -1, no archives are removed.
+  # logfile_rotation_max_archives = 5
+
+  ## Pick a timezone to use when logging or type 'local' for local time.
+  ## Example: America/Chicago
+  # log_with_timezone = ""
+
+  ## Override default hostname, if empty use os.Hostname()
+  hostname = ""
+  ## If set to true, do no set the "host" tag in the telegraf agent.
+  omit_hostname = false
+
+  ## Method of translating SNMP objects. Can be "netsnmp" (deprecated) which
+  ## translates by calling external programs snmptranslate and snmptable,
+  ## or "gosmi" which translates using the built-in gosmi library.
+  # snmp_translator = "netsnmp"
+
+  ## Name of the file to load the state of plugins from and store the state to.
+  ## If uncommented and not empty, this file will be used to save the state of
+  ## stateful plugins on termination of Telegraf. If the file exists on start,
+  ## the state in the file will be restored for the plugins.
+  # statefile = ""
+
+	## Flag to skip running processors after aggregators
+	## By default, processors are run a second time after aggregators. Changing
+	## this setting to true will skip the second run of processors.
+	# skip_processors_after_aggregators = false
+
+###############################################################################
+#                            INPUT PLUGINS                                    #
+###############################################################################
+
+
+# Read metrics about cpu usage
+[[inputs.cpu]]
+  ## Whether to report per-cpu stats or not
+  percpu = true
+  ## Whether to report total system cpu stats or not
+  totalcpu = true
+  ## If true, collect raw CPU time metrics
+  collect_cpu_time = false
+  ## If true, compute and report the sum of all non-idle CPU states
+  ## NOTE: The resulting 'time_active' field INCLUDES 'iowait'!
+  report_active = false
+  ## If true and the info is available then add core_id and physical_id tags
+  core_tags = false
+
+
+# Read metrics about disk usage by mount point
+[[inputs.disk]]
+  ## By default stats will be gathered for all mount points.
+  ## Set mount_points will restrict the stats to only the specified mount points.
+  # mount_points = ["/"]
+
+  ## Ignore mount points by filesystem type.
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+
+  ## Ignore mount points by mount options.
+  ## The 'mount' command reports options of all mounts in parathesis.
+  ## Bind mounts can be ignored with the special 'bind' option.
+  # ignore_mount_opts = []
+
+
+# Read metrics about disk IO by device
+[[inputs.diskio]]
+  ## By default, telegraf will gather stats for all devices including
+  ## disk partitions.
+  ## Setting devices will restrict the stats to the specified devices.
+  ## NOTE: Globbing expressions (e.g. asterix) are not supported for
+  ##       disk synonyms like '/dev/disk/by-id'.
+  # devices = ["sda", "sdb", "vd*", "/dev/disk/by-id/nvme-eui.00123deadc0de123"]
+  ## Uncomment the following line if you need disk serial numbers.
+  # skip_serial_number = false
+  #
+  ## On systems which support it, device metadata can be added in the form of
+  ## tags.
+  ## Currently only Linux is supported via udev properties. You can view
+  ## available properties for a device by running:
+  ## 'udevadm info -q property -n /dev/sda'
+  ## Note: Most, but not all, udev properties can be accessed this way. Properties
+  ## that are currently inaccessible include DEVTYPE, DEVNAME, and DEVPATH.
+  # device_tags = ["ID_FS_TYPE", "ID_FS_USAGE"]
+  #
+  ## Using the same metadata source as device_tags, you can also customize the
+  ## name of the device via templates.
+  ## The 'name_templates' parameter is a list of templates to try and apply to
+  ## the device. The template may contain variables in the form of '$PROPERTY' or
+  ## '${PROPERTY}'. The first template which does not contain any variables not
+  ## present for the device is used as the device name tag.
+  ## The typical use case is for LVM volumes, to get the VG/LV name instead of
+  ## the near-meaningless DM-0 name.
+  # name_templates = ["$ID_FS_LABEL","$DM_VG_NAME/$DM_LV_NAME"]
+
+
+# Plugin to collect various Linux kernel statistics.
+# This plugin ONLY supports Linux
+[[inputs.kernel]]
+  ## Additional gather options
+  ## Possible options include:
+  ## * ksm - kernel same-page merging
+  ## * psi - pressure stall information
+  # collect = []
+
+
+# Read metrics about memory usage
+[[inputs.mem]]
+  # no configuration
+
+
+# Get the number of processes and group them by status
+# This plugin ONLY supports non-Windows
+[[inputs.processes]]
+  ## Use sudo to run ps command on *BSD systems. Linux systems will read
+  ## /proc, so this does not apply there.
+  # use_sudo = false
+
+
+# Read metrics about swap memory usage
+# This plugin ONLY supports Linux
+[[inputs.swap]]
+  # no configuration
+
+
+# Read metrics about system load & uptime
+[[inputs.system]]
+  # no configuration
+
+###############################################################################
+#                            INPUT PLUGIN OpenTelemetry                       #
+###############################################################################
+
+# # Receive OpenTelemetry traces, metrics, and logs over gRPC
+[[inputs.opentelemetry]]
+#   ## Override the default (0.0.0.0:4317) destination OpenTelemetry gRPC service
+#   ## address:port
+   service_address = "0.0.0.0:4317"
+#
+#   ## Override the default (5s) new connection timeout
+#   # timeout = "5s"
+#
+#   ## Override the default span attributes to be used as line protocol tags.
+#   ## These are always included as tags:
+#   ## - trace ID
+#   ## - span ID
+#   ## The default values are strongly recommended for use with Jaeger:
+#   ## - service.name
+#   ## - span.name
+#   ## Other common attributes can be found here:
+#   ## - https://github.com/open-telemetry/opentelemetry-collector/tree/main/semconv
+#   # span_dimensions = ["service.name", "span.name"]
+#
+#   ## Override the default log record attributes to be used as line protocol tags.
+#   ## These are always included as tags, if available:
+#   ## - trace ID
+#   ## - span ID
+#   ## The default values:
+#   ## - service.name
+#   ## Other common attributes can be found here:
+#   ## - https://github.com/open-telemetry/opentelemetry-collector/tree/main/semconv
+#   ## When using InfluxDB for both logs and traces, be certain that log_record_dimensions
+#   ## matches the span_dimensions value.
+#   # log_record_dimensions = ["service.name"]
+#
+#   ## Override the default (prometheus-v1) metrics schema.
+#   ## Supports: "prometheus-v1", "prometheus-v2"
+#   ## For more information about the alternatives, read the Prometheus input
+#   ## plugin notes.
+#   # metrics_schema = "prometheus-v1"
+#
+#   ## Optional TLS Config.
+#   ## For advanced options: https://github.com/influxdata/telegraf/blob/v1.18.3/docs/TLS.md
+#   ##
+#   ## Set one or more allowed client CA certificate file names to
+#   ## enable mutually authenticated TLS connections.
+#   # tls_allowed_cacerts = ["/etc/telegraf/clientca.pem"]
+#   ## Add service certificate and key.
+#   # tls_cert = "/etc/telegraf/cert.pem"
+#   # tls_key = "/etc/telegraf/key.pem"
+
+
+
+###############################################################################
+#                            OUTPUT PLUGINS                                   #
+###############################################################################
+
+
+# # Configuration for sending metrics to InfluxDB 2.0
+[[outputs.influxdb_v2]]
+#   ## The URLs of the InfluxDB cluster nodes.
+#   ##
+#   ## Multiple URLs can be specified for a single cluster, only ONE of the
+#   ## urls will be written to each interval.
+#   ##   ex: urls = ["https://us-west-2-1.aws.cloud2.influxdata.com"]
+   urls = ["http://{{ groups['otlp_controller'][0] }}:8086"]
+#
+#   ## Token for authentication.
+   token = "{{ all_access_token }}"
+#
+#   ## Organization is the name of the organization you wish to write to.
+   organization = "cars.be"
+#
+#   ## Destination bucket to write into.
+   bucket = "carsbebucekt"
+#
+#   ## The value of this tag will be used to determine the bucket.  If this
+#   ## tag is not set the 'bucket' option is used as the default.
+#   # bucket_tag = ""
+#
+#   ## If true, the bucket tag will not be added to the metric.
+#   # exclude_bucket_tag = false
+#
+#   ## Timeout for HTTP messages.
+#   # timeout = "5s"
+#
+#   ## Additional HTTP headers
+#   # http_headers = {"X-Special-Header" = "Special-Value"}
+#
+#   ## HTTP Proxy override, if unset values the standard proxy environment
+#   ## variables are consulted to determine which proxy, if any, should be used.
+#   # http_proxy = "http://corporate.proxy:3128"
+#
+#   ## HTTP User-Agent
+#   # user_agent = "telegraf"
+#
+#   ## Content-Encoding for write request body, can be set to "gzip" to
+#   ## compress body or "identity" to apply no encoding.
+#   # content_encoding = "gzip"
+#
+#   ## Enable or disable uint support for writing uints influxdb 2.0.
+#   # influx_uint_support = false
+#
+#   ## HTTP/2 Timeouts
+#   ## The following values control the HTTP/2 client's timeouts. These settings
+#   ## are generally not required unless a user is seeing issues with client
+#   ## disconnects. If a user does see issues, then it is suggested to set these
+#   ## values to "15s" for ping timeout and "30s" for read idle timeout and
+#   ## retry.
+#   ##
+#   ## Note that the timer for read_idle_timeout begins at the end of the last
+#   ## successful write and not at the beginning of the next write.
+#   # ping_timeout = "0s"
+#   # read_idle_timeout = "0s"
+#
+#   ## Optional TLS Config for use on HTTP connections.
+#   # tls_ca = "/etc/telegraf/ca.pem"
+#   # tls_cert = "/etc/telegraf/cert.pem"
+#   # tls_key = "/etc/telegraf/key.pem"
+#   ## Use TLS but skip chain & host verification
+#   # insecure_skip_verify = false
+
+# # Configuration for Graphite server to send metrics to
+# [[outputs.graphite]]
+#   ## TCP endpoint for your graphite instance.
+#   ## If multiple endpoints are configured, the output will be load balanced.
+#   ## Only one of the endpoints will be written to with each iteration.
+#   servers = ["localhost:2003"]
+#
+#   ## Local address to bind when connecting to the server
+#   ## If empty or not set, the local address is automatically chosen.
+#   # local_address = ""
+#
+#   ## Prefix metrics name
+#   prefix = ""
+#
+#   ## Graphite output template
+#   ## see https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_OUTPUT.md
+#   template = "host.tags.measurement.field"
+#
+#   ## Strict sanitization regex
+#   ## This is the default sanitization regex that is used on data passed to the
+#   ## graphite serializer. Users can add additional characters here if required.
+#   ## Be aware that the characters, '/' '@' '*' are always replaced with '_',
+#   ## '..' is replaced with '.', and '\' is removed even if added to the
+#   ## following regex.
+#   # graphite_strict_sanitize_regex = '[^a-zA-Z0-9-:._=\p{L}]'
+#
+#   ## Enable Graphite tags support
+#   # graphite_tag_support = false
+#
+#   ## Applied sanitization mode when graphite tag support is enabled.
+#   ## * strict - uses the regex specified above
+#   ## * compatible - allows for greater number of characters
+#   # graphite_tag_sanitize_mode = "strict"
+#
+#   ## Character for separating metric name and field for Graphite tags
+#   # graphite_separator = "."
+#
+#   ## Graphite templates patterns
+#   ## 1. Template for cpu
+#   ## 2. Template for disk*
+#   ## 3. Default template
+#   # templates = [
+#   #  "cpu tags.measurement.host.field",
+#   #  "disk* measurement.field",
+#   #  "host.measurement.tags.field"
+#   #]
+#
+#   ## timeout in seconds for the write connection to graphite
+#   # timeout = "2s"
+#
+#   ## Optional TLS Config
+#   # tls_ca = "/etc/telegraf/ca.pem"
+#   # tls_cert = "/etc/telegraf/cert.pem"
+#   # tls_key = "/etc/telegraf/key.pem"
+#   ## Use TLS but skip chain & host verification
+#   # insecure_skip_verify = false
+
+# # Configuration for the Prometheus client to spawn
+# [[outputs.prometheus_client]]
+#   ## Address to listen on.
+#   ##   ex:
+#   ##     listen = ":9273"
+#   ##     listen = "vsock://:9273"
+#   listen = ":9273"
+#
+#   ## Maximum duration before timing out read of the request
+#   # read_timeout = "10s"
+#   ## Maximum duration before timing out write of the response
+#   # write_timeout = "10s"
+#
+#   ## Metric version controls the mapping from Prometheus metrics into Telegraf metrics.
+#   ## See "Metric Format Configuration" in plugins/inputs/prometheus/README.md for details.
+#   ## Valid options: 1, 2
+#   # metric_version = 1
+#
+#   ## Use HTTP Basic Authentication.
+#   # basic_username = "Foo"
+#   # basic_password = "Bar"
+#
+#   ## If set, the IP Ranges which are allowed to access metrics.
+#   ##   ex: ip_range = ["192.168.0.0/24", "192.168.1.0/30"]
+#   # ip_range = []
+#
+#   ## Path to publish the metrics on.
+#   # path = "/metrics"
+#
+#   ## Expiration interval for each metric. 0 == no expiration
+#   # expiration_interval = "60s"
+#
+#   ## Collectors to enable, valid entries are "gocollector" and "process".
+#   ## If unset, both are enabled.
+#   # collectors_exclude = ["gocollector", "process"]
+#
+#   ## Send string metrics as Prometheus labels.
+#   ## Unless set to false all string metrics will be sent as labels.
+#   # string_as_label = true
+#
+#   ## If set, enable TLS with the given certificate.
+#   # tls_cert = "/etc/ssl/telegraf.crt"
+#   # tls_key = "/etc/ssl/telegraf.key"
+#
+#   ## Set one or more allowed client CA certificate file names to
+#   ## enable mutually authenticated TLS connections
+#   # tls_allowed_cacerts = ["/etc/telegraf/clientca.pem"]
+#
+#   ## Export metric collection time.
+#   # export_timestamp = false
+#
+#   ## Specify the metric type explicitly.
+#   ## This overrides the metric-type of the Telegraf metric. Globbing is allowed.
+#   # [outputs.prometheus_client.metric_types]
+#   #   counter = []
+#   #   gauge = []
