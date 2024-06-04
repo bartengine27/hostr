@@ -1055,6 +1055,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../about/" class="md-nav__link">
         
   
@@ -1175,7 +1195,7 @@
 <h3 id="proxmox-vm-setup">Proxmox VM setup</h3>
 <p>As far as I know, <em>Ansible</em> is not necessarily the tool of choice to setup <em>VM</em>s on cloud/datacenter solutions like <em>Proxmox</em>, etc. Nevertheless, as an excercise, I've chosen to setup my <em>Proxmox</em> <em>VM</em>s with <em>Ansible</em>.  </p>
 <p><em>Ansible</em> Uses an <code>inventory</code> to define the machines (<em>ip addresses</em>) and machine roles to install/setup your software infrastructure. As we start with a clean install (no existing <em>VM</em>s), it is rather difficult to define an <code>inventory</code>.  </p>
-<p>Therefore, we start with a play <a href="./playbooks/proxmox.yml">proxmox</a> which uses <a href="./playbooks/roles/hostr.proxmox/">role</a> and <a href="./playbooks/roles/hostr.proxmox/vars/main.yml">vars file</a> defining the <em>inventory</em>, for example:</p>
+<p>Therefore, we start with a play <a href="../../playbooks/proxmox.yml">proxmox</a> which uses <a href="../../playbooks/roles/hostr.proxmox/">role</a> and <a href="../../playbooks/roles/hostr.proxmox/vars/main.yml">vars file</a> defining the <em>inventory</em>, for example:</p>
 <div class="highlight"><pre><span></span><code>proxmox_vms:
  - ip: 192.168.1.60
    id: 600
@@ -1191,9 +1211,9 @@
     - &quot;database&quot;
 </code></pre></div>
 <p>On the other hand, it is probably wise to structure/group <em>ip addresses</em> and <em>vm id</em>s under <code>group:</code> which is more aligned with an <em>Ansible inventory</em> (and easier to maintain). :fire: That's for another version.  </p>
-<p>After running the <a href="./playbooks/proxmox.cars.be/">proxmox</a> play, we can use the initialized <em>VM</em>s as defined in the <a href="./playbooks/proxmox.cars.be/vars/main.yml">vars file</a> as the basis for the <em>Ansible</em> <code>ìnventory</code>.  </p>
-<p>Running the <a href="./playbooks/proxmox.yml">proxmox</a> play is detailed in <a href="#uploading-proxmox-vms-templates">Uploading templates</a> and <a href="#installing-proxmox-vms">Installing VMs on Proxmox</a>.  </p>
-<p>:fire: The <a href="./playbooks/hosts">hosts</a> file contains the <code>inventory</code> for the other <em>Ansible</em> plays. :fire: At this moment, the <a href="./playbooks/hosts">hosts</a> file is not generated from the <a href="./playbooks/proxmox.yml">proxmox</a> play, it is probably a good idea to change that in future versions.  </p>
+<p>After running the <a href="../../playbooks/proxmox.yml">proxmox</a> play, we can use the initialized <em>VM</em>s as defined in the <a href="../../playbooks/roles/hostr.proxmox/vars/main.yml">vars file</a> as the basis for the <em>Ansible</em> <code>ìnventory</code>.  </p>
+<p>Running the <a href="../../playbooks/proxmox.yml">proxmox</a> play is detailed in <a href="#uploading-proxmox-vms-templates">Uploading templates</a> and <a href="#installing-proxmox-vms">Installing VMs on Proxmox</a>.  </p>
+<p>:fire: The <a href="../../playbooks/hosts">hosts</a> file contains the <code>inventory</code> for the other <em>Ansible</em> plays. :fire: At this moment, the <a href="../../playbooks/hosts">hosts</a> file is not generated from the <a href="../../playbooks/proxmox.yml">proxmox</a> play, it is probably a good idea to change that in future versions.  </p>
 <h3 id="uploading-proxmox-vms-templates">Uploading Proxmox VM(s) templates</h3>
 <div class="highlight"><pre><span></span><code>ansible-playbook<span class="w"> </span>proxmox.yml<span class="w"> </span>-K<span class="w"> </span>--tags<span class="o">=</span>vm_upload<span class="w"> </span>-vvv
 </code></pre></div>

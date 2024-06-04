@@ -1001,6 +1001,26 @@
   
   
     <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contributing
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../about/" class="md-nav__link">
         
   
@@ -1067,7 +1087,7 @@
 <h3 id="install-rest-api">Install REST API</h3>
 <div class="highlight"><pre><span></span><code>ansible-playbook<span class="w"> </span>abprestapi.yml<span class="w"> </span>-i<span class="w"> </span>hosts<span class="w"> </span>-K<span class="w"> </span>-vvv
 </code></pre></div>
-<p>The <em>REST API</em> contains a custom metric and controller, open the <em>REST API</em> interface (<code>Swagger</code>) and call <code>/api/car/increment</code> to increment the custom metric. If you'd like to monitor this metric in real-time, <em>SSH</em> into the <a href="./playbooks/hosts">HTTP server</a> and run:  </p>
+<p>The <em>REST API</em> contains a custom metric and controller, open the <em>REST API</em> interface (<code>Swagger</code>) and call <code>/api/car/increment</code> to increment the custom metric. If you'd like to monitor this metric in real-time, <em>SSH</em> into the <a href="../../playbooks/hosts">HTTP server</a> and run:  </p>
 <div class="highlight"><pre><span></span><code><span class="c1">#if nessary, install dotnet-counters</span>
 <span class="c1">#dotnet tool install --global dotnet-counters</span>
 dotnet-counters<span class="w"> </span>monitor<span class="w"> </span>--name<span class="w"> </span>Be.Cars.HttpApi.Host<span class="w"> </span>--counters<span class="w"> </span>Be.Cars.Metrics.CustomMetrics
