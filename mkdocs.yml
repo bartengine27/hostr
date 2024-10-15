@@ -1,7 +1,13 @@
 site_name: hostr Documentation
 
+#naar ./docs?
+#in nav verwijzen naar ${docs_dir}
 docs_dir: .
 site_dir: ./docs/site
+
+#do not include the ADR docs, site is generated with log4brains
+exclude_docs: |
+  adr/
 
 nav:
   - Home: 
@@ -44,7 +50,7 @@ nav:
 plugins:
   - search:
       separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
-  - same-dir
+  #- same-dir:
 
 theme:
   name: material  

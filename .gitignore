@@ -176,3 +176,5 @@ playbooks/nginx.p12
 
 #mkdocs
 docs/site/
+#log4brains
+adr/site/

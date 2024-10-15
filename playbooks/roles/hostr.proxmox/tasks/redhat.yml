@@ -1,0 +1,10 @@
+- name: "Install sshd and allow root to ssh"
+  ansible.builtin.shell: |
+        pct exec {{ item['id'] }} -- dnf install -y openssh-server
+        pct exec {{ item['id'] }} -- systemctl enable sshd
+        pct exec {{ item['id'] }} -- sed -i 's/#PermitRootLogin/PermitRootLogin/g' /etc/ssh/sshd_config
+        pct exec {{ item['id'] }} -- systemctl restart sshd
+  ignore_errors: true
+  delegate_to: "{{ proxmox_ip_address }}"
+  loop: "{{ proxmox_vms }}"
+  tags: always

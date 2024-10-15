@@ -1,0 +1,8 @@
+project:
+  name: hostr
+  tz: Europe/Brussels
+  adrFolder: ./adr
+  packages:
+    - name: Documentation-tools
+      path: ./
+      adrFolder: ./adr/documentation-tools

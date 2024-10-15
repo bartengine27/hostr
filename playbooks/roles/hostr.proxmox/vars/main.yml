@@ -29,11 +29,11 @@ proxmox_vms:
  - ip: 192.168.1.68
    id: 608
    group:
-    - "http_api"     
+    - "http_api"
  - ip: 192.168.1.69
    id: 609
    group:
-    - "http_api"     
+    - "http_api"
  - ip: 192.168.1.65
    id: 605
    group:
@@ -48,20 +48,20 @@ proxmox_vms:
     - "otlp_controller"
  - ip: 192.168.1.20
    id: 200
-   group: 
+   group:
     - "proxy"
  - ip: 192.168.1.80
    id: 800
    group:
-     - "libre_translate"
+    - "libre_translate"
  - ip: 192.168.1.81
    id: 801
    group:
-     - "libre_translate"
+    - "libre_translate"
  - ip: 192.168.1.90
    id: 900
    group:
-     - "ca"
+    - "ca"
 
 # empty list, so we can keep the "firewall code" for now (should become a VM with pfSense)
 proxmox_public_vms: []
@@ -71,7 +71,7 @@ proxmox_public_vms: []
 #    # are mac and additional_ip env deps? if they are, substitute with env var values
 #    additional_ip_mac: "{{ lookup('ansible.builtin.env', 'PROXMOX_ADDITIONAL_PUBLIC_IP_MAC_ADDRESS') }}"
 #    additional_ip: "{{ lookup('ansible.builtin.env', 'PROXMOX_ADDITIONAL_PUBLIC_IP') }}"
-#    gateway: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_GATEWAY') }}" 
+#    gateway: "{{ lookup('ansible.builtin.env', 'PROXMOX_PUBLIC_GATEWAY') }}"
 #    group:
 #     - "firewall"
 # https://www.dns0.eu/
