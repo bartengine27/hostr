@@ -1,0 +1,27 @@
+---
+# tasks file for hostr.smtp4dev
+- name: Create directory to store the smtp4dev settings
+  ansible.builtin.file:
+    path: /root/smtp4dev-data
+    state: directory
+    owner: root
+    group: root
+- name: Write the settings file of smtp4dev
+  ansible.builtin.template:
+    src: appsettings.json.j2
+    dest: /root/smtp4dev-data/appsettings.json
+- name: Pull the smtp4dev image
+  community.docker.docker_image:
+    name: rnwood/smtp4dev
+    source: pull
+- name: Run Docker container
+  community.docker.docker_container:
+    name: smtp4dev
+    image: rnwood/smtp4dev
+    state: started
+    ports:
+      - "{{ smtp_http_port }}:80"
+      - "{{ smtp_port }}:25"
+    volumes:
+      - /root/smtp4dev-data:/smtp4dev
+    restart_policy: "unless-stopped"

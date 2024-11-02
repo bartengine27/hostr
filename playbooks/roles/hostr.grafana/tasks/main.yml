@@ -2,9 +2,9 @@
 - name: Install certificates, will fail on the Let's Encrypt certificate used by apt.grafana.com
   apt:
     pkg:
-      - ca-certificates    
+      - ca-certificates
     state: latest
-    update_cache: yes    
+    update_cache: yes
   # based on https://citizix.com/how-to-install-and-set-up-grafana-in-ubuntu-20-04-using-ansible/
 - name: add grafana gpg key - repo is not trusted, add trusted=yes and ignore certificate checks
   #note the two /etc/apt/ subfolders: depends on your Ubuntu version, trusted.gpg.d is for 20.04, keyrings is for newer versions
@@ -22,10 +22,10 @@
 - name: Install dependencies
   apt:
     pkg:
-      - gnupg          
+      - gnupg
       - curl
       - wget
-      - software-properties-common      
+      - software-properties-common
     state: latest
     update_cache: yes
     force: yes
@@ -36,7 +36,7 @@
     update_cache: yes
   # notify:
   #   - Enable grafana
-  #   - Start grafana    
+  #   - Start grafana
 - name: Enable grafana
   systemd:
     name: grafana-server
@@ -44,13 +44,13 @@
 - name: Start grafana
   systemd:
     name: grafana-server
-    state: started    
+    state: started
 - name: Wait for Grafana to be fully started
   wait_for:
     path: "/usr/lib/systemd/system/grafana-server.service"
     state: started
     delay: 5
-    timeout: 60    
+    timeout: 60
 - name: Create or update a Grafana user, in this case the default admin
   community.grafana.grafana_user:
     name: "Default admin"
@@ -60,7 +60,7 @@
     #cannot be edited - https://docs.ansible.com/ansible/latest/collections/community/grafana/grafana_user_module.html#ansible-collections-community-grafana-grafana-user-module
     #todo move to settings
     password: "admin"
-    is_admin: true   
+    is_admin: true
     state: present    
   when: grafana_enable_admin 
 - name: Create or update a Grafana user, in this case the default user

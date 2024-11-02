@@ -1,0 +1,4 @@
+---
+# defaults file for hostr.smtp4dev
+smtp_port: 2525
+smtp_http_port: 5000

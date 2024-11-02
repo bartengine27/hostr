@@ -1,12 +1,13 @@
 ---
 # tasks file for pza.docker - based on https://docs.docker.com/engine/install/ubuntu/
 - name: Install Docker dependencies
-  ansible.builtin.apt:
+  ansible.builtin.package:
     name:
-      - ca-certificates 
+      - ca-certificates
       - curl
+      - dnf-command(config-manager)
     state: latest
-    update_cache: yes
+    update_cache: true
 
 - name: Install keyring
   ansible.builtin.shell: |
@@ -16,26 +17,32 @@
     echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-    tee /etc/apt/sources.list.d/docker.list > /dev/null    
+    tee /etc/apt/sources.list.d/docker.list > /dev/null
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Add the Docker repository
+  ansible.builtin.shell: |
+    dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+  when: ansible_facts['os_family'] == "RedHat"
 
 - name: Install Docker
-  ansible.builtin.apt:
-    name: 
-      - docker-ce 
-      - docker-ce-cli 
-      - containerd.io 
-      - docker-buildx-plugin 
+  ansible.builtin.package:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
       - docker-compose-plugin
     state: latest
     update_cache: true
 
 - name: Install python pip
-  ansible.builtin.apt:
+  ansible.builtin.package:
     name: python3-pip
     state: latest
 
 - name: Install python docker library modules
-  pip:
+  ansible.builtin.pip:
     name: docker
 
 - name: Place docker daemon configuration file
@@ -51,7 +58,7 @@
     name: "{{ item.name }}"
     shell: /bin/bash
     groups: docker
-    append: yes
+    append: true
   loop: "{{ docker_users }}"
 
 - name: Create .ssh directory
@@ -70,20 +77,20 @@
     owner: "{{ item.name }}"
     group: "{{ item.name }}"
     mode: '0600'
-  loop: "{{ docker_users }}"  
+  loop: "{{ docker_users }}"
 
 - name: Enable service docker, ensure it is not masked
   ansible.builtin.systemd:
     name: docker
-    enabled: yes
-    masked: no
-    daemon_reload: yes
+    enabled: true
+    masked: false
+    daemon_reload: true
     state: restarted
 
 - name: Enable service containerd, ensure it is not masked
   ansible.builtin.systemd:
     name: containerd
-    enabled: yes
-    masked: no
-    daemon_reload: yes
+    enabled: true
+    masked: false
+    daemon_reload: true
     state: restarted
