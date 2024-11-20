@@ -1,32 +1,32 @@
----  
+---
 - name: Install dependencies
   apt:
     pkg:
       - gnupg
     state: latest
-    update_cache: yes
+    update_cache: true
 - name: Update repository
   apt_repository:
     repo: 'ppa:git-core/ppa'
     state: present
 - name: Install git, pip3, etc.
   apt:
-    pkg: 
+    pkg:
       - git
       - python3-pip
       - nodejs
       - npm
     state: present
-    update_cache: yes
+    update_cache: true
 - name: Install the ABP CLI tool
   ansible.builtin.shell: |
     dotnet tool install -g Volo.Abp.Cli           
-- name: "Clone the source code"
+- name: Clone the source code
   ansible.builtin.git:
     repo: "{{ identityserver_public_repo }}"
     dest: "{{ identityserver_install_folder }}"
-    clone: yes
-    update: yes
+    clone: true
+    update: true
     depth: 1
 # full path for abp, after install you need to logout or restart a session if you just installed the .NET SDK -> use the full path
 # /root/.dotnet/tools/abp install-libs
@@ -34,7 +34,7 @@
 # dotnet test -c Release --no-build
 # dotnet publish the\app.csproj --no-build -c Release
 - name: "Publish the Identityserver-Blazor project"
-  ansible.builtin.shell: |        
+  ansible.builtin.shell: |
     mkdir "{{ identityserver_install_folder }}"build
     cd "{{ identityserver_install_folder }}"
     rm -Rf "{{ identityserver_install_folder }}"build
@@ -45,7 +45,7 @@
   register: publish_is_result
   retries: 5
   delay: 5
-  until: publish_is_result.rc == 0        
+  until: publish_is_result.rc == 0
 - name: Create the directory for the virtual file system (hard coded for now)
   ansible.builtin.file:
     path: "/webapp/{{ abp_project_name }}.Domain.Shared/"
@@ -63,26 +63,26 @@
 #     mode: 0755
 # template module will create a file
 - name: Copy identityserver_blazor.service drop-in
-  template:
+  ansible.builtin.template:
     src: identityserver_blazor.service.j2
     dest: /etc/systemd/system/identityserver_blazor.service
     owner: root
     group: root
     mode: 0644
 - name: Copy appsettings.json
-  template:
+  ansible.builtin.template:
     src: identityserver.appsettings.json.j2
     dest: "{{ identityserver_install_folder }}build/appsettings.{{ asp_net_core_environment }}.json"
     owner: root
     group: root
     mode: 0644
-- name: reload systemctl
-  command: systemctl daemon-reload
+- name: Reload systemctl
+  ansible.builtin.command: systemctl daemon-reload
 - name: Make sure a service unit is running
   ansible.builtin.systemd_service:
-    #start after reboot
+    # start after reboot
     enabled: true
-    #restart now so we don't have to reboot the machine
-    #restart and not start: if we were running before the daemon-reload, we have to restart to get the new config
+    # restart now so we don't have to reboot the machine
+    # restart and not start: if we were running before the daemon-reload, we have to restart to get the new config
     state: restarted
     name: identityserver_blazor

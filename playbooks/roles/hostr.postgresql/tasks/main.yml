@@ -1,0 +1,71 @@
+---
+# tasks file for hostr.postgresql
+- name: Install Postgresql dependencies
+  ansible.builtin.package:
+    name:
+      - postgresql
+      - postgresql-server
+      - dnf-command(config-manager)
+      - python3-psycopg2
+    state: latest
+    update_cache: true
+- name: "Find out if PostgreSQL is initialized"
+  ansible.builtin.stat:
+    path: "/var/lib/pgsql/data/pg_hba.conf"
+  register: postgres_data
+- name: "Initialize PostgreSQL"
+  ansible.builtin.shell: "postgresql-setup initdb"
+  when: not postgres_data.stat.exists
+- name: "Start and enable services"
+  ansible.builtin.service: "name={{ item }} state=started enabled=yes"
+  with_items:
+    - postgresql
+- name: "Create {{ item.db_name }} database"
+  ansible.builtin.postgresql_db:
+    state: present
+    name: "{{ item.db_name }}"
+  become: true
+  become_user: postgres
+  with_items: "{{ databases }}"
+- name: "Create db user {{ item.db_user }}"
+  ansible.builtin.postgresql_user:
+    state: present
+    name: "{{ item.db_user }}"
+    password: "{{ item.db_password }}"
+  become: true
+  become_user: postgres
+  with_items: "{{ databases }}"
+- name: "Grant db user {{ item.db_user }} access to app db"
+  ansible.builtin.postgresql_privs:
+    type: database
+    database: "{{ item.db_name }}"
+    roles: "{{ item.db_user }}"
+    grant_option: false
+    privs: all
+  become: true
+  become_user: postgres
+  with_items: "{{ databases }}"
+- name: "Allow md5 connection for the db user"
+  ansible.builtin.postgresql_pg_hba:
+    dest: "~/data/pg_hba.conf"
+    contype: host
+    databases: all
+    method: md5
+    users: "{{ item.db_user }}"
+    create: true
+  become: true
+  become_user: postgres
+  notify: restart postgres
+  with_items: "{{ databases }}"
+- name: Upload the database migration scripts
+  ansible.builtin.template:
+    src: "{{ item.db_migration }}.j2"
+    dest: "/tmp/{{ item.db_migration }}"
+    owner: postgres
+  with_items: "{{ databases }}"
+- name: "Execute script from variable"
+  ansible.builtin.command: "psql {{ item.db_name }} -f /tmp/{{ item.db_migration }}"
+  become: true
+  become_user: postgres
+  register: sql_response_variable
+  with_items: "{{ databases }}"

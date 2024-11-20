@@ -256,6 +256,8 @@ You can setup SSH agent forwarding on your local machine with:
     ForwardAgent yes
   ```
 
+* **WSL ssh path**: On WSL you will have to change the path to ssl in the ansible configuration, open ~/.ansible.cfg and look for `ssh_executable`, enable this setting (remove the comment in front) and change its value to `/usr/bin/ssh`.
+
 * **Connect to the VM**: Once configured, you can connect to the VM using SSH. The agent forwarding will carry your authentication from the local machine to the VM:
 
   ```shell  

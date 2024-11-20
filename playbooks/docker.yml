@@ -1,6 +1,6 @@
 ---
 - name: Install Docker
   hosts: webserver
-  remote_user: root         
+  remote_user: root
   roles:
-     - hostr.docker
+    - hostr.docker

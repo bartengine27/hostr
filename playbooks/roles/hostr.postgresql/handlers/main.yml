@@ -1,0 +1,4 @@
+---
+# handlers file for hostr.postgresql
+- name: Restart postgres
+  ansible.builtin.service: name=postgresql state=restarted

@@ -31,4 +31,5 @@
   ansible.builtin.systemd:
     name: sshd
     state: restarted
-    daemon_reload: yes
+    daemon_reload: true
+

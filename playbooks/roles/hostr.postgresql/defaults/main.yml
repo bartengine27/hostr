@@ -1,0 +1,11 @@
+---
+# defaults file for hostr.postgresql
+databases:
+  - db_name: identity
+    db_user: identity_user
+    db_password: Testtest,0
+    db_migration: identity_template.sql
+  - db_name: keycloak
+    db_user: keycloak_user
+    db_password: Testtest,0
+    db_migration: keycloak_template.sql
