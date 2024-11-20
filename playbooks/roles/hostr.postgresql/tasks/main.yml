@@ -16,40 +16,48 @@
 - name: "Initialize PostgreSQL"
   ansible.builtin.shell: "postgresql-setup initdb"
   when: not postgres_data.stat.exists
+- name: "Allow any ip address in listen_addresses"  
+# #listen_addresses = 'localhost'
+  ansible.builtin.lineinfile:
+    path: /var/lib/pgsql/data/postgresql.conf
+    regexp: '^#listen_addresses'    
+    line: listen_addresses = '*'
 - name: "Start and enable services"
   ansible.builtin.service: "name={{ item }} state=started enabled=yes"
   with_items:
     - postgresql
 - name: "Create {{ item.db_name }} database"
-  ansible.builtin.postgresql_db:
+  community.postgresql.postgresql_db:
     state: present
     name: "{{ item.db_name }}"
   become: true
   become_user: postgres
   with_items: "{{ databases }}"
 - name: "Create db user {{ item.db_user }}"
-  ansible.builtin.postgresql_user:
+  community.postgresql.postgresql_user:
     state: present
     name: "{{ item.db_user }}"
     password: "{{ item.db_password }}"
+    role_attr_flags: "SUPERUSER,LOGIN"
   become: true
   become_user: postgres
   with_items: "{{ databases }}"
 - name: "Grant db user {{ item.db_user }} access to app db"
-  ansible.builtin.postgresql_privs:
+  community.postgresql.postgresql_privs:
     type: database
     database: "{{ item.db_name }}"
     roles: "{{ item.db_user }}"
-    grant_option: false
-    privs: all
+    grant_option: true
+    privs: ALL
   become: true
   become_user: postgres
   with_items: "{{ databases }}"
 - name: "Allow md5 connection for the db user"
-  ansible.builtin.postgresql_pg_hba:
+  community.postgresql.postgresql_pg_hba:
     dest: "~/data/pg_hba.conf"
     contype: host
     databases: all
+    source: 192.168.1.0/24
     method: md5
     users: "{{ item.db_user }}"
     create: true

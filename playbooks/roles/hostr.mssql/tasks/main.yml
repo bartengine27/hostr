@@ -15,7 +15,7 @@
     apt -y install --reinstall software-properties-common
     curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
     add-apt-repository -y "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2019.list)"
-    apt-get update    
+    apt-get update
     apt-get install -y mssql-server
   when: '"mssql-server" not in ansible_facts.packages'
 # RHEL is properly supported, see https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-deploy-ansible?view=sql-server-ver16
@@ -43,7 +43,7 @@
     echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
     source ~/.bashrc
   environment:
-    ACCEPT_EULA: "Y"    
+    ACCEPT_EULA: "Y"
   when: '"mssql-tools18" not in ansible_facts.packages and "unixodbc-dev" not in ansible_facts.packages'
 - name: "Download the powershell deb"
   # https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.3

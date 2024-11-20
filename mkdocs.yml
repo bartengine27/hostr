@@ -36,6 +36,7 @@ nav:
       - Known External Hosts: ./playbooks/roles/hostr.knownexternalhosts/README.md
       - Known VM Hosts: ./playbooks/roles/hostr.knownvmhosts/README.md
       - MS SQLServer: ./playbooks/roles/hostr.mssql/README.md
+      - PostgreSQL: ./playbooks/roles/hostr.postgresql/README.md
       - NGINX: ./playbooks/roles/hostr.nginx/README.md
       - OTEL Collector: ./playbooks/roles/hostr.otelcollector/README.md
       - Prometheus: ./playbooks/roles/hostr.prometheus/README.md
@@ -91,3 +92,7 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - attr_list
+  - mdx_truly_sane_lists
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji

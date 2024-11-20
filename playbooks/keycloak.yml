@@ -1,0 +1,12 @@
+--- #https://www.mastertheboss.com/various-stuff/ansible/how-to-install-keycloak-with-ansible/
+- name: Playbook for Keycloak
+  hosts: keycloak
+  vars:
+    keycloak_admin_password: "remembertochangeme"
+    keycloak_quarkus_host: localhost
+    keycloak_quarkus_port: 8080
+    keycloak_quarkus_log: file
+    keycloak_quarkus_start_dev: true
+    keycloak_quarkus_proxy_mode: none
+  roles:
+    - middleware_automation.keycloak.keycloak_quarkus

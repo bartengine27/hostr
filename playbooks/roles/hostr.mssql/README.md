@@ -1,38 +1,48 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+This Ansible role installs and configures Microsoft SQL Server on a target host. It ensures that SQL Server is installed, configured with appropriate settings, and that the service is enabled and running.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role requires the target host to be a supported Ubuntu distribution with access to the internet for package installations. :fire: Currently, no Ubuntu version checks are executed to get the correct SQL Server installer.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+The following variables are available for this role and can be customized to suit your needs. Default values are set in `defaults/main.yml`:
+
+| Variable                | Default Value     | Example Value                                         | Description
+                      |
+|-------------------------|-------------------|---------------------------------------------------------|-------------------------------------------------------|
+| `database_password`           | ``                 |  password_123                      | SQL Server sa password.
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+This role has no dependencies on other roles.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Below is an example of how to use this role in a playbook:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+---
+- name: SQLServer setup playbook
+  hosts: database
+  remote_user: root
+  roles:
+     - hostr.mssql
+```
 
 License
 -------
 
-BSD
+MIT
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+This role was created by [Bart](mailto:bart@engine27.be).

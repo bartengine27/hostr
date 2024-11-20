@@ -19,3 +19,4 @@ collections:
   - name: community.grafana
     version: 1.8.0
   - community.crypto  
+  - middleware_automation.keycloak
